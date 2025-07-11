@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Direnç Değeri Arama</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
   <style>
@@ -67,27 +67,48 @@
   <div class="container">
     <h1>Sunucudaki PDF Direnç Tarayıcı</h1>
     <label>Min Değer (ör: 330000):</label>
-    <input type="number" id="minVal" placeholder="330000">
+    <input type="number" id="minVal" placeholder="330000" />
     <label>Max Değer (ör: 2000000):</label>
-    <input type="number" id="maxVal" placeholder="2000000">
+    <input type="number" id="maxVal" placeholder="2000000" />
     <button onclick="parseAll()">Taramayı Başlat</button>
     <div id="output" class="result"></div>
   </div>
 
   <script>
-    const pdfList = ["pdf/ornek1.pdf", "pdf/ornek2.pdf"]; // PDF dosyalarını buraya ekle
+    const pdfList = [
+      "https://drive.google.com/uc?export=download&id=1B2pxjA97rmzW1btlMB_UEH7SLr7195lq",
+      "https://drive.google.com/uc?export=download&id=1Bpy2bFvjC6HuMLL2Ot-5pu-Yr35LwJ4D",
+      "https://drive.google.com/uc?export=download&id=1H_NLEhqSGeTrQHuRrBzPTu_5_wZKGTPo",
+      "https://drive.google.com/uc?export=download&id=1KG6oTKyYyjIi_TI_09FYZ-cFBKXNqaMF",
+      "https://drive.google.com/uc?export=download&id=1NEWFgoWXQAFtdr97JpEX3pSgi8R7Kb73",
+      "https://drive.google.com/uc?export=download&id=1bz2vPTSVbiNOXMDs8g-KDm8uGXP08UWU",
+      "https://drive.google.com/uc?export=download&id=1gQF_7LhEmEvX0YP_ERh4D8PR1n-jgtj2",
+      "https://drive.google.com/uc?export=download&id=1sGKkASIuEUmAesE1l5dZvQpKWa3ZDIbt",
+      "https://drive.google.com/uc?export=download&id=1TO1jivXVVuBvDVNQA0-1MbYlQ-eUjw5y",
+      "https://drive.google.com/uc?export=download&id=1p3w7YKzKcEPAiiJz-9tST_cpAGrXATVO",
+      "https://drive.google.com/uc?export=download&id=1Ck379mzahOsY1wnlZ98rcUurcKsFICwl",
+      "https://drive.google.com/uc?export=download&id=1PZ1Gq-JseBzydP0m5efbrGjC6jt2GPD1",
+      "https://drive.google.com/uc?export=download&id=1ziYdUlSIvUHKtFoW0BAeheJH2GvgV3fx",
+      "https://drive.google.com/uc?export=download&id=1XD5u_SPvy3j1tt9YlP9fLtblP3VuJssU",
+      "https://drive.google.com/uc?export=download&id=1gYbMyApEcQzVvpS-msXFlEQPwVQBHu9Y",
+      "https://drive.google.com/uc?export=download&id=1vfcVYER_iOqH4WJFKTlekF8M2qESeD9K",
+      "https://drive.google.com/uc?export=download&id=1sYYdVAZUkZG6x23xzcCG9zfGWKcnHTaw",
+      "https://drive.google.com/uc?export=download&id=1cI51rH3kXWTD8bpLnBibslne7I9n58mv",
+      "https://drive.google.com/uc?export=download&id=1YM41383gchs2rdUFNbrMJVeiFhKC7OIt",
+      "https://drive.google.com/uc?export=download&id=1fbMOOlZnVxbxkqFtDZzGta1Emdl3ldyK"
+    ];
 
     async function fetchAndParsePDF(url, min, max) {
       const response = await fetch(url);
       const arrayBuffer = await response.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      let fullText = '';
+      let fullText = "";
 
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
-        const strings = content.items.map(item => item.str).join(' ');
-        fullText += strings + '\n';
+        const strings = content.items.map(item => item.str).join(" ");
+        fullText += strings + "\n";
       }
 
       const regex = /\b\d+(\.\d+)?[kKmM]\b/g;
@@ -109,10 +130,10 @@
     }
 
     async function parseAll() {
-      const min = parseInt(document.getElementById('minVal').value);
-      const max = parseInt(document.getElementById('maxVal').value);
-      const output = document.getElementById('output');
-      output.innerHTML = '';
+      const min = parseInt(document.getElementById("minVal").value);
+      const max = parseInt(document.getElementById("maxVal").value);
+      const output = document.getElementById("output");
+      output.innerHTML = "";
 
       for (const url of pdfList) {
         output.innerHTML += `<div class="file-title">📄 ${url}</div>`;
