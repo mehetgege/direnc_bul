@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Direnç Değeri Arama</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f4f7;
+      color: #333;
+      margin: 0;
+      padding: 30px;
+    }
+    h1 { color: #1a202c; margin-bottom: 20px; }
+    .container {
+      background: #fff;
+      border-radius: 10px;
+      padding: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-width: 800px;
+      margin: auto;
+    }
+    label, input { display: block; margin-bottom: 10px; }
+    input[type="number"] {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 100%;
+      max-width: 300px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover { background: #0056b3; }
+    .result {
+      margin-top: 30px;
+      background: #eef2f7;
+      padding: 20px;
+      border-radius: 8px;
+      max-height: 500px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      font-family: Consolas, monospace;
+    }
+    .file-title {
+      font-weight: bold;
+      color: #222;
+      margin-top: 20px;
+    }
+    .match {
+      background: #d1e7dd;
+      padding: 5px 10px;
+      border-radius: 4px;
+      display: inline-block;
+      margin: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Sunucudaki PDF Direnç Tarayıcı</h1>
+    <label>Min Değer (ör: 330000):</label>
+    <input type="number" id="minVal" placeholder="330000">
+    <label>Max Değer (ör: 2000000):</label>
+    <input type="number" id="maxVal" placeholder="2000000">
+    <button onclick="parseAll()">Taramayı Başlat</button>
+    <div id="output" class="result"></div>
+  </div>
+
+  <script>
+    const pdfList = ["pdf/ornek1.pdf", "pdf/ornek2.pdf"]; // PDF dosyalarını buraya ekle
+
+    async function fetchAndParsePDF(url, min, max) {
+      const response = await fetch(url);
+      const arrayBuffer = await response.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = '';
+
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        const strings = content.items.map(item => item.str).join(' ');
+        fullText += strings + '\n';
+      }
+
+      const regex = /\b\d+(\.\d+)?[kKmM]\b/g;
+      const matches = [];
+      let match;
+
+      while ((match = regex.exec(fullText)) !== null) {
+        let valText = match[0];
+        let num = parseFloat(valText);
+        if (/k/i.test(valText)) num *= 1000;
+        if (/m/i.test(valText)) num *= 1000000;
+
+        if (num >= min && num <= max) {
+          matches.push(valText);
+        }
+      }
+
+      return { url, matches };
+    }
+
+    async function parseAll() {
+      const min = parseInt(document.getElementById('minVal').value);
+      const max = parseInt(document.getElementById('maxVal').value);
+      const output = document.getElementById('output');
+      output.innerHTML = '';
+
+      for (const url of pdfList) {
+        output.innerHTML += `<div class="file-title">📄 ${url}</div>`;
+        const result = await fetchAndParsePDF(url, min, max);
+
+        if (result.matches.length) {
+          result.matches.forEach(val => {
+            output.innerHTML += `<span class="match">${val}</span> `;
+          });
+        } else {
+          output.innerHTML += `<div style="color:#888">Eşleşen değer yok.</div>`;
+        }
+      }
+    }
+  </script>
+</body>
+</html>
