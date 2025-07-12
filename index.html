@@ -1,179 +1,237 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>📘 Direnç Değer Tarayıcı</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Direnç Değeri Tarayıcı</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
   <style>
-    body {
+    * {
+      box-sizing: border-box;
+      padding: 0;
       margin: 0;
+    }
+    body {
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #f0f4ff, #d9e5ff);
-      color: #333;
+      background: linear-gradient(to right, #1e3c72, #2a5298);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 20px;
     }
     .container {
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      background: #111827;
       padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.3);
+      width: 100%;
       max-width: 900px;
-      margin: auto;
+      animation: fadeIn 1s ease;
     }
     h1 {
       text-align: center;
-      color: #0057ff;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
+      font-size: 24px;
+      color: #90cdf4;
     }
     label {
+      display: block;
+      margin-bottom: 5px;
       font-weight: bold;
+      color: #ddd;
     }
     input[type="number"] {
-      padding: 10px;
       width: 100%;
-      max-width: 300px;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
       margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
+      font-size: 16px;
     }
     button {
-      background: #007bff;
-      color: white;
-      padding: 12px 25px;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
       border: none;
       border-radius: 10px;
-      font-size: 16px;
+      background: #2563eb;
+      color: #fff;
       cursor: pointer;
       transition: 0.3s;
     }
     button:hover {
-      background: #0056b3;
+      background: #1d4ed8;
     }
-    .loading {
+    .loader {
+      text-align: center;
+      margin-top: 15px;
       display: none;
-      text-align: center;
-      margin-top: 20px;
     }
-    .loading span {
-      font-size: 18px;
-    }
-    .result-table {
-      width: 100%;
-      border-collapse: collapse;
+    .results {
       margin-top: 30px;
+      background: #1f2937;
+      padding: 20px;
+      border-radius: 10px;
+      max-height: 400px;
+      overflow-y: auto;
     }
-    .result-table th, .result-table td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: center;
+    .result-block {
+      margin-bottom: 25px;
     }
-    .result-table th {
-      background: #007bff;
-      color: white;
+    .result-block h3 {
+      font-size: 16px;
+      color: #fbbf24;
+      margin-bottom: 10px;
     }
-    .match-value {
-      font-weight: bold;
-      color: green;
-    }
-    .emoji {
-      font-size: 20px;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    .spinner {
-      margin-top: 20px;
-      margin-bottom: 20px;
+    .match {
+      background: #10b981;
+      color: #000;
+      padding: 6px 10px;
+      border-radius: 6px;
       display: inline-block;
-      width: 50px;
-      height: 50px;
-      border: 5px solid #ccc;
-      border-top-color: #007bff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
+      margin: 4px;
+      font-weight: bold;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+      h1 {
+        font-size: 20px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>📘 Direnç Değeri Arama Sistemi</h1>
-    <label>🔽 Min Değer (Ohm):</label>
-    <input type="number" id="minVal" placeholder="Örn: 330000">
-    <label>🔼 Max Değer (Ohm):</label>
-    <input type="number" id="maxVal" placeholder="Örn: 2000000">
-    <br>
-    <button onclick="parseAll()">🚀 Taramayı Başlat</button>
-    <div class="loading" id="loading">
-      <div class="spinner"></div>
-      <span>PDF'ler taranıyor, lütfen bekleyin...</span>
-    </div>
-    <div id="output"></div>
+    <h1>📘 Direnç Değeri PDF Tarayıcı</h1>
+    <label for="minVal">Minimum Değer (ör: 330000):</label>
+    <input type="number" id="minVal" placeholder="330000" />
+    <label for="maxVal">Maksimum Değer (ör: 2000000):</label>
+    <input type="number" id="maxVal" placeholder="2000000" />
+    <button onclick="parseAll()">🔍 Taramayı Başlat</button>
+    <div class="loader" id="loader">Lütfen bekleyin... PDF'ler taranıyor 🔄</div>
+    <div class="results" id="output"></div>
   </div>
 
   <script>
-    const pdfLinks = [
-      ["iPhone 6S Plus", "https://drive.google.com/file/d/1B2pxjA97rmzW1btlMB_UEH7SLr7195lq/view"],
-      ["iPhone 6S", "https://drive.google.com/file/d/1Bpy2bFvjC6HuMLL2Ot-5pu-Yr35LwJ4D/view"],
-      ["iPhone 6", "https://drive.google.com/file/d/1H_NLEhqSGeTrQHuRrBzPTu_5_wZKGTPo/view"],
-      ["iPhone 7", "https://drive.google.com/file/d/1KG6oTKyYyjIi_TI_09FYZ-cFBKXNqaMF/view"],
-      ["iPhone 7 Plus", "https://drive.google.com/file/d/1NEWFgoWXQAFtdr97JpEX3pSgi8R7Kb73/view"],
-      ["iPhone 8", "https://drive.google.com/file/d/1bz2vPTSVbiNOXMDs8g-KDm8uGXP08UWU/view"],
-      ["iPhone 8 Plus", "https://drive.google.com/file/d/1gQF_7LhEmEvX0YP_ERh4D8PR1n-jgtj2/view"],
-      ["iPhone X", "https://drive.google.com/file/d/1sGKkASIuEUmAesE1l5dZvQpKWa3ZDIbt/view"],
-      ["iPhone XS", "https://drive.google.com/file/d/1TO1jivXVVuBvDVNQA0-1MbYlQ-eUjw5y/view"],
-      ["iPhone XR", "https://drive.google.com/file/d/1p3w7YKzKcEPAiiJz-9tST_cpAGrXATVO/view"]
-      // Diğer linkleri buraya ekle
+    const pdfList = [
+      "pdf/apple_ipad5_air_schematic.pdf",
+      "pdf/apple_ipad_mini_4g_-_.pdf",
+      "pdf/apple_iphone_8_plus_d21_mlb.pdf",
+      "pdf/iPad-4-Schematic.pdf",
+      "pdf/iPad-Air-Schematic.pdf",
+      "pdf/ipad-3-schematic.pdf",
+      "pdf/ipad_mini_schematic.pdf",
+      "pdf/ipadairschematicdiagrampcblayout-180312105911.pdf",
+      "pdf/iphone-6-schematic-__.pdf",
+      "pdf/iphone-x-qualcomm-edition.pdf",
+      "pdf/iphone5s_schematic2.pdf",
+      "pdf/iphone8_820-00871-A.pdf",
+      "pdf/iphone_11_pro_max_schematic.pdf",
+      "pdf/iphone_5c_schematics.pdf",
+      "pdf/iphone_6_plus_schematic__.pdf",
+      "pdf/iphone_6s_plus_schematic_.pdf",
+      "pdf/iphone_6s_schematics__.pdf",
+      "pdf/iphone_7_full_schematic___.pdf",
+      "pdf/iphone_8_plus_pcb.pdf",
+      "pdf/iphone_8_plus_schematic.pdf",
+      "pdf/iphone_se.pdf",
+      "pdf/iphone_se_820-00282.pdf",
+      "pdf/iphone_se_820-00282__pcb.pdf",
+      "pdf/iphone_se__r__.pdf",
+      "pdf/iphone_sen69_051-00648_4.0.0.pdf",
+      "pdf/iphone_x_schematic_intel_chipset.pdf",
+      "pdf/iphone_x_schematic_intel_chipset___.pdf",
+      "pdf/iphone_x_schematic_qualcomm_chipset.pdf",
+      "pdf/iphone_xsmax_schematic.pdf",
+      "pdf/mini__30005__36335__22270.pdf",
+      "pdf/pcb_820-3633-05_ipad_air2_4g_.pdf",
+      "pdf/schemitc_820-3633-05_ipad_air2_.pdf"
     ];
 
-    async function parseAll() {
-      const min = parseInt(document.getElementById("minVal").value);
-      const max = parseInt(document.getElementById("maxVal").value);
-      const output = document.getElementById("output");
-      const loading = document.getElementById("loading");
+    async function fetchAndParsePDF(url, min, max) {
+      const response = await fetch(url);
+      const arrayBuffer = await response.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = '';
 
-      if (isNaN(min) || isNaN(max)) {
-        alert("Lütfen geçerli bir değer girin!");
-        return;
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        const strings = content.items.map(item => item.str).join(' ');
+        fullText += strings + '\n';
       }
 
-      output.innerHTML = "";
-      loading.style.display = "block";
+      const regex = /\b\d+(\.\d+)?[kKmM]\b/g;
+      const matches = [];
+      let match;
 
-      let table = `<table class="result-table"><tr><th>📄 PDF Adı</th><th>🔗 Link</th><th>📊 Eşleşen Değer</th></tr>`;
+      while ((match = regex.exec(fullText)) !== null) {
+        let valText = match[0];
+        let num = parseFloat(valText);
+        if (/k/i.test(valText)) num *= 1000;
+        if (/m/i.test(valText)) num *= 1000000;
 
-      for (const [name, link] of pdfLinks) {
-        // PDF içeriğine erişim yok, sadece örnek veri simülasyonu:
-        const simulatedMatches = simulateMatch(min, max);
-        if (simulatedMatches.length > 0) {
-          simulatedMatches.forEach(val => {
-            table += `<tr>
-              <td>${name}</td>
-              <td><a href="${link}" target="_blank">Görüntüle 📎</a></td>
-              <td class="match-value">${val} <span class="emoji">⚡</span></td>
-            </tr>`;
-          });
-        } else {
-          table += `<tr>
-            <td>${name}</td>
-            <td><a href="${link}" target="_blank">Görüntüle 📎</a></td>
-            <td>❌ Eşleşme Yok</td>
-          </tr>`;
+        if (num >= min && num <= max) {
+          matches.push(valText);
         }
       }
 
-      table += "</table>";
-      output.innerHTML = table;
-      loading.style.display = "none";
+      return { url, matches };
     }
 
-    function simulateMatch(min, max) {
-      // Simülasyon için bazı değerler
-      const testVals = [100000, 330000, 470000, 680000, 1000000, 1500000, 2200000];
-      return testVals.filter(val => val >= min && val <= max).map(val => {
-        if (val >= 1000000) return (val / 1000000) + "M";
-        if (val >= 1000) return (val / 1000) + "k";
-        return val + "";
-      });
+    async function parseAll() {
+      const min = parseInt(document.getElementById('minVal').value);
+      const max = parseInt(document.getElementById('maxVal').value);
+      const output = document.getElementById('output');
+      const loader = document.getElementById('loader');
+
+      if (!min || !max) {
+        alert("Lütfen geçerli bir minimum ve maksimum değer girin.");
+        return;
+      }
+
+      loader.style.display = "block";
+      output.innerHTML = "";
+
+      for (const url of pdfList) {
+        const result = await fetchAndParsePDF(url, min, max);
+
+        const fileBlock = document.createElement("div");
+        fileBlock.className = "result-block";
+
+        const fileTitle = document.createElement("h3");
+        const filename = url.split('/').pop();
+        fileTitle.innerHTML = `📄 ${filename} <a href="${url}" target="_blank" style="color:#38bdf8;text-decoration:underline;">indir</a>`;
+        fileBlock.appendChild(fileTitle);
+
+        if (result.matches.length > 0) {
+          result.matches.forEach(val => {
+            const span = document.createElement("span");
+            span.className = "match";
+            span.textContent = val;
+            fileBlock.appendChild(span);
+          });
+        } else {
+          const none = document.createElement("div");
+          none.style.color = "#888";
+          none.textContent = "Eşleşme bulunamadı.";
+          fileBlock.appendChild(none);
+        }
+
+        output.appendChild(fileBlock);
+      }
+
+      loader.style.display = "none";
     }
   </script>
 </body>
