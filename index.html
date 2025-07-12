@@ -912,93 +912,155 @@
       statusEl.className = 'connection-status loading';
       textEl.textContent = 'PDF Klasörü Aranıyor...';
       
-      // Gerçek PDF klasörü kontrolü
-      setTimeout(() => {
-        try {
-          // index.php'den PDF listesi almaya çalış
-          fetch('index.php')
-            .then(response => {
-              if (response.ok) {
-                return response.json();
-              } else {
-                throw new Error('PDF klasörüne erişilemiyor');
-              }
-            })
-            .then(pdfList => {
-              if (pdfList && pdfList.length > 0) {
-                connectionStatus = 'online';
-                statusEl.className = 'connection-status online';
-                textEl.textContent = `✅ ${pdfList.length} PDF Bulundu`;
-                updateStatus(`PDF klasörü başarıyla erişildi - ${pdfList.length} dosya`);
-                showToast(`📄 PDF klasöründe ${pdfList.length} dosya bulundu!`, 'success');
-                
-                // Gerçek dosya listesini kullan
-                const realModels = pdfList.map(file => ({
-                  fileName: file,
-                  displayName: file,
-                  url: `pdf/${file}`,
-                  status: 'pending',
-                  matches: [],
-                  error: null,
-                  scanned: false
-                }));
-                
-                models = realModels;
-                document.getElementById('modelsCount').textContent = models.length;
-                
-              } else {
-                throw new Error('PDF klasörü boş');
-              }
-            })
-            .catch(error => {
-              // PHP dosyası yoksa demo moduna geç
-              console.log('index.php bulunamadı, demo modu aktif');
-              connectionStatus = 'online';
-              statusEl.className = 'connection-status online';
-              textEl.textContent = '🎮 Demo Modu Aktif';
-              updateStatus('Demo modu - örnek dosyalar kullanılıyor');
-              showToast('🎮 Demo modu aktif - örnek PDF\'ler yüklendi!', 'info');
-            });
-            
-        } catch (error) {
-          connectionStatus = 'offline';
-          statusEl.className = 'connection-status offline';
-          textEl.textContent = '❌ Klasör Erişim Hatası';
-          updateStatus('Kritik hata: ' + error.message);
-          showToast('⚠️ PDF klasörüne erişilemiyor!', 'error');
-        }
-      }, 1000);
-    }
-
-    function refreshModels() {
-      updateStatus('PDF dosyaları yenileniyor...');
-      
-      // Gerçek PDF listesi almaya çalış
+      // 1. index.php'den listeyi almaya çalış
       fetch('index.php')
         .then(response => {
-          if (response.ok) {
-            return response.json();
-          } else {
-            throw new Error('index.php dosyasına erişilemiyor');
-          }
+          if (!response.ok) throw new Error('index.php bulunamadı');
+          return response.json();
         })
         .then(pdfList => {
           if (pdfList && pdfList.length > 0) {
-            // Gerçek PDF dosyalarını kullan
+            connectionStatus = 'online';
+            statusEl.className = 'connection-status online';
+            textEl.textContent = `✅ ${pdfList.length} PDF Bulundu`;
+            updateStatus(`index.php başarılı - ${pdfList.length} PDF dosyası`);
+            showToast(`📄 ${pdfList.length} gerçek PDF bulundu!`, 'success');
+            
             models = pdfList.map(file => ({
               fileName: file,
               displayName: file,
-              url: file, // Gerçek dosya yolu
+              url: file,
               status: 'pending',
               matches: [],
               error: null,
               scanned: false
             }));
             
-            updateStatus(`${models.length} gerçek PDF dosyası yüklendi`);
+            document.getElementById('modelsCount').textContent = models.length;
+            return;
+          } else {
+            throw new Error('PDF listesi boş');
+          }
+        })
+        .catch(error1 => {
+          console.log('index.php hatası:', error1.message);
+          
+          // 2. Bilinen PDF dosyalarını test et
+          const commonPdfNames = [
+            'iPhone5.pdf', 'iPhone5s.pdf', 'iPhone6.pdf', 'iPhone6s.pdf', 'iPhone6Plus.pdf',
+            'iPhone7.pdf', 'iPhone7Plus.pdf', 'iPhone8.pdf', 'iPhoneX.pdf', 'iPhoneXR.pdf',
+            'resistor_values.pdf', 'schematic.pdf', 'repair_guide.pdf', 'component_layout.pdf'
+          ];
+          
+          updateStatus('index.php yok - dosyalar manuel kontrol ediliyor...');
+          textEl.textContent = 'Dosyalar Test Ediliyor...';
+          
+          Promise.allSettled(
+            commonPdfNames.map(filename => 
+              fetch(filename, { method: 'HEAD' })
+                .then(response => response.ok ? filename : null)
+            )
+          )
+          .then(results => {
+            const foundFiles = results
+              .map(result => result.status === 'fulfilled' ? result.value : null)
+              .filter(file => file !== null);
+              
+            if (foundFiles.length > 0) {
+              connectionStatus = 'online';
+              statusEl.className = 'connection-status online';
+              textEl.textContent = `✅ ${foundFiles.length} PDF Tespit Edildi`;
+              updateStatus(`Manuel kontrol başarılı - ${foundFiles.length} PDF bulundu`);
+              showToast(`📄 ${foundFiles.length} PDF dosyası tespit edildi!`, 'success');
+              
+              models = foundFiles.map(file => ({
+                fileName: file,
+                displayName: file,
+                url: file,
+                status: 'pending',
+                matches: [],
+                error: null,
+                scanned: false
+              }));
+              
+              document.getElementById('modelsCount').textContent = models.length;
+              
+            } else {
+              // 3. Son çare: Demo mod
+              activateDemoMode();
+            }
+          })
+          .catch(error2 => {
+            console.log('Manuel kontrol hatası:', error2.message);
+            activateDemoMode();
+          });
+        });
+    }
+
+    function activateDemoMode() {
+      const statusEl = document.getElementById('connectionStatus');
+      const textEl = document.getElementById('connectionText');
+      
+      connectionStatus = 'online';
+      statusEl.className = 'connection-status online';
+      textEl.textContent = '🎮 Demo Modu';
+      updateStatus('Demo modu aktif - index.php dosyası oluşturun');
+      showToast('⚠️ Gerçek PDF bulunamadı - Demo modu aktif', 'warning');
+      
+      // Demo modunda açıklama göster
+      const demoMessage = document.createElement('div');
+      demoMessage.innerHTML = `
+        <div style="background: var(--warning); color: white; padding: 15px; border-radius: 10px; margin: 20px 0;">
+          <h4>🎮 Demo Modu Aktif</h4>
+          <p style="margin: 10px 0;">Gerçek PDF'leri okumak için PDF klasörünüzde <code>index.php</code> dosyası oluşturun:</p>
+          <details style="margin: 10px 0;">
+            <summary style="cursor: pointer; font-weight: bold;">📝 index.php Kodu</summary>
+            <pre style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin: 10px 0; font-size: 12px; overflow-x: auto;">
+&lt;?php
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+$files = array_filter(scandir('./'), function($f) { 
+  return pathinfo($f, PATHINFO_EXTENSION) === 'pdf'; 
+});
+echo json_encode(array_values($files));
+?&gt;</pre>
+          </details>
+          <p>Ya da PDF dosyalarınızı doğrudan HTML ile aynı klasöre koyun.</p>
+        </div>
+      `;
+      
+      const container = document.querySelector('.models-panel');
+      container.insertBefore(demoMessage, container.firstChild);
+    }
+
+    function refreshModels() {
+      updateStatus('PDF dosyaları yenileniyor...');
+      
+      // Önce mevcut demo mesajını temizle
+      const existingDemo = document.querySelector('.models-panel div[style*="background: var(--warning)"]');
+      if (existingDemo) existingDemo.remove();
+      
+      // 1. index.php'den listeyi al
+      fetch('index.php')
+        .then(response => {
+          if (!response.ok) throw new Error('index.php bulunamadı');
+          return response.json();
+        })
+        .then(pdfList => {
+          if (pdfList && pdfList.length > 0) {
+            models = pdfList.map(file => ({
+              fileName: file,
+              displayName: file,
+              url: file,
+              status: 'pending',
+              matches: [],
+              error: null,
+              scanned: false
+            }));
+            
+            updateStatus(`${models.length} gerçek PDF dosyası yüklendi (index.php)`);
             showToast(`📄 ${models.length} gerçek PDF dosyası bulundu!`, 'success');
             
-            // Connection status'u güncelle
             const statusEl = document.getElementById('connectionStatus');
             const textEl = document.getElementById('connectionText');
             connectionStatus = 'online';
@@ -1010,43 +1072,83 @@
           }
         })
         .catch(error => {
-          console.log('Gerçek PDF listesi alınamadı, demo veriler kullanılıyor:', error.message);
+          console.log('index.php hatası, manuel kontrol başlatılıyor...');
           
-          // Demo verilerini kullan
-          const demoFiles = [
-            'iPhone5_schematic_final.pdf',
-            'iPhone5s_repair_guide.pdf', 
-            'iPhone6_component_layout.pdf',
-            'iPhone6s_resistor_values.pdf',
-            'iPhone6Plus_motherboard.pdf',
-            'iPhone7_circuit_diagram.pdf',
-            'iPhone7Plus_technical_specs.pdf',
-            'iPhone8_service_manual.pdf',
-            'iPhoneX_component_guide.pdf',
-            'iPhoneXR_repair_manual.pdf',
-            'samsung_galaxy_s10.pdf',
-            'random_document.pdf'
+          // 2. Bilinen dosya isimlerini test et  
+          const testFiles = [
+            'iPhone5.pdf', 'iPhone5s.pdf', 'iPhone6.pdf', 'iPhone6s.pdf', 'iPhone6Plus.pdf',
+            'iPhone7.pdf', 'iPhone7Plus.pdf', 'iPhone8.pdf', 'iPhoneX.pdf', 'iPhoneXR.pdf',
+            'resistor_values.pdf', 'component_layout.pdf', 'schematic.pdf', 'repair_guide.pdf',
+            'service_manual.pdf', 'technical_specs.pdf', 'motherboard.pdf', 'circuit_diagram.pdf'
           ];
           
-          models = demoFiles.map(file => ({
-            fileName: file,
-            displayName: file,
-            url: `#demo-${file}`, // Demo URL
-            status: 'pending',
-            matches: [],
-            error: null,
-            scanned: false
-          }));
+          updateStatus('Manuel dosya testi yapılıyor...');
           
-          updateStatus(`${models.length} demo dosyası yüklendi (gerçek PDF bulunamadı)`);
-          showToast(`🎮 Demo modu: ${models.length} örnek dosya yüklendi`, 'info');
-          
-          // Connection status'u demo olarak güncelle
-          const statusEl = document.getElementById('connectionStatus');
-          const textEl = document.getElementById('connectionText');
-          connectionStatus = 'online';
-          statusEl.className = 'connection-status online';
-          textEl.textContent = '🎮 Demo Modu';
+          Promise.allSettled(
+            testFiles.map(filename => 
+              fetch(filename, { method: 'HEAD' })
+                .then(response => response.ok ? filename : null)
+                .catch(() => null)
+            )
+          )
+          .then(results => {
+            const foundFiles = results
+              .map(result => result.status === 'fulfilled' ? result.value : null)
+              .filter(file => file !== null);
+              
+            if (foundFiles.length > 0) {
+              models = foundFiles.map(file => ({
+                fileName: file,
+                displayName: file,
+                url: file,
+                status: 'pending',
+                matches: [],
+                error: null,
+                scanned: false
+              }));
+              
+              updateStatus(`${foundFiles.length} PDF dosyası manuel olarak bulundu`);
+              showToast(`📄 ${foundFiles.length} PDF dosyası tespit edildi!`, 'success');
+              
+              const statusEl = document.getElementById('connectionStatus');
+              const textEl = document.getElementById('connectionText');
+              connectionStatus = 'online';
+              statusEl.className = 'connection-status online';
+              textEl.textContent = `✅ ${foundFiles.length} PDF Manuel`;
+              
+            } else {
+              // 3. Demo modu
+              const demoFiles = [
+                'iPhone5_schematic_final.pdf',
+                'iPhone5s_repair_guide.pdf', 
+                'iPhone6_component_layout.pdf',
+                'iPhone6s_resistor_values.pdf',
+                'iPhone6Plus_motherboard.pdf'
+              ];
+              
+              models = demoFiles.map(file => ({
+                fileName: file,
+                displayName: file,
+                url: `#demo-${file}`,
+                status: 'pending',
+                matches: [],
+                error: null,
+                scanned: false
+              }));
+              
+              updateStatus(`Demo modu - ${models.length} örnek dosya`);
+              showToast(`🎮 Demo modu: ${models.length} örnek dosya`, 'warning');
+              
+              const statusEl = document.getElementById('connectionStatus');
+              const textEl = document.getElementById('connectionText');
+              connectionStatus = 'online';
+              statusEl.className = 'connection-status online';
+              textEl.textContent = '🎮 Demo Modu';
+              
+              // Demo açıklama göster
+              activateDemoMode();
+            }
+          });
         })
         .finally(() => {
           document.getElementById('modelsCount').textContent = models.length;
