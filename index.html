@@ -908,70 +908,130 @@
       const statusEl = document.getElementById('connectionStatus');
       const textEl = document.getElementById('connectionText');
       
-      updateStatus('PDF klasörü kontrol ediliyor...');
+      updateStatus('🔍 PDF sistemi debug ediliyor...');
       statusEl.className = 'connection-status loading';
-      textEl.textContent = 'PDF Klasörü Aranıyor...';
+      textEl.textContent = 'Sistem Debug...';
       
-      // 1. index.php'den listeyi almaya çalış
-      fetch('index.php')
-        .then(response => {
-          if (!response.ok) throw new Error('index.php bulunamadı');
-          return response.json();
-        })
-        .then(pdfList => {
-          if (pdfList && pdfList.length > 0) {
-            connectionStatus = 'online';
-            statusEl.className = 'connection-status online';
-            textEl.textContent = `✅ ${pdfList.length} PDF Bulundu`;
-            updateStatus(`index.php başarılı - ${pdfList.length} PDF dosyası`);
-            showToast(`📄 ${pdfList.length} gerçek PDF bulundu!`, 'success');
-            
-            models = pdfList.map(file => ({
-              fileName: file,
-              displayName: file,
-              url: file,
-              status: 'pending',
-              matches: [],
-              error: null,
-              scanned: false
-            }));
-            
-            document.getElementById('modelsCount').textContent = models.length;
-            return;
+      // Detaylı debug bilgileri
+      const debugInfo = {
+        url: window.location.href,
+        protocol: window.location.protocol,
+        host: window.location.host,
+        pathname: window.location.pathname
+      };
+      
+      console.log('🔍 Debug Bilgileri:', debugInfo);
+      updateStatus('Debug: ' + JSON.stringify(debugInfo));
+      
+      // 1. index.php varlık kontrolü (detaylı)
+      fetch('index.php', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache'
+        }
+      })
+      .then(response => {
+        console.log('📄 index.php Response:', {
+          status: response.status,
+          statusText: response.statusText,
+          headers: Object.fromEntries(response.headers),
+          url: response.url,
+          ok: response.ok
+        });
+        
+        updateStatus(`index.php response: ${response.status} ${response.statusText}`);
+        
+        if (response.ok) {
+          const contentType = response.headers.get('content-type');
+          console.log('📋 Content-Type:', contentType);
+          
+          if (contentType && contentType.includes('application/json')) {
+            return response.json();
           } else {
-            throw new Error('PDF listesi boş');
+            // JSON değil, metin olarak oku
+            return response.text().then(text => {
+              console.log('⚠️ index.php text response:', text);
+              updateStatus('index.php JSON değil: ' + text.substring(0, 100));
+              throw new Error('PHP dosyası JSON döndürmüyor: ' + text.substring(0, 50));
+            });
           }
-        })
-        .catch(error1 => {
-          console.log('index.php hatası:', error1.message);
+        } else {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+      })
+      .then(pdfList => {
+        console.log('✅ PDF Listesi:', pdfList);
+        
+        if (Array.isArray(pdfList) && pdfList.length > 0) {
+          connectionStatus = 'online';
+          statusEl.className = 'connection-status online';
+          textEl.textContent = `✅ ${pdfList.length} PDF (PHP)`;
+          updateStatus(`✅ PHP başarılı! ${pdfList.length} PDF: ${pdfList.join(', ')}`);
+          showToast(`🎉 PHP çalışıyor! ${pdfList.length} PDF bulundu!`, 'success');
           
-          // 2. Bilinen PDF dosyalarını test et
-          const commonPdfNames = [
-            'iPhone5.pdf', 'iPhone5s.pdf', 'iPhone6.pdf', 'iPhone6s.pdf', 'iPhone6Plus.pdf',
-            'iPhone7.pdf', 'iPhone7Plus.pdf', 'iPhone8.pdf', 'iPhoneX.pdf', 'iPhoneXR.pdf',
-            'resistor_values.pdf', 'schematic.pdf', 'repair_guide.pdf', 'component_layout.pdf'
-          ];
+          models = pdfList.map(file => ({
+            fileName: file,
+            displayName: file,
+            url: file,
+            status: 'pending',
+            matches: [],
+            error: null,
+            scanned: false
+          }));
           
-          updateStatus('index.php yok - dosyalar manuel kontrol ediliyor...');
-          textEl.textContent = 'Dosyalar Test Ediliyor...';
+          document.getElementById('modelsCount').textContent = models.length;
           
-          Promise.allSettled(
-            commonPdfNames.map(filename => 
-              fetch(filename, { method: 'HEAD' })
-                .then(response => response.ok ? filename : null)
-            )
-          )
+          // Başarılı, demo mesajını kaldır
+          const existingDemo = document.querySelector('.models-panel div[style*="background: var(--warning)"]');
+          if (existingDemo) existingDemo.remove();
+          
+          return; // Başarılı, diğer kontrollere gerek yok
+          
+        } else {
+          throw new Error('PHP çalışıyor ama PDF listesi boş: ' + JSON.stringify(pdfList));
+        }
+      })
+      .catch(phpError => {
+        console.error('❌ PHP Hatası:', phpError);
+        updateStatus('PHP hatası: ' + phpError.message);
+        
+        // 2. Direkt dosya kontrolü
+        console.log('🔄 Manuel dosya kontrolüne geçiliyor...');
+        updateStatus('Manuel dosya kontrolü başlatılıyor...');
+        
+        const testFiles = [
+          'iPhone5.pdf', 'iPhone5s.pdf', 'iPhone6.pdf', 'iPhone6s.pdf', 'iPhone6Plus.pdf',
+          'iPhone7.pdf', 'iPhone7Plus.pdf', 'iPhone8.pdf', 'iPhoneX.pdf', 'iPhoneXR.pdf',
+          'resistor_values.pdf', 'component_layout.pdf', 'schematic.pdf', 'repair_guide.pdf'
+        ];
+        
+        const filePromises = testFiles.map(filename => 
+          fetch(filename, { method: 'HEAD' })
+            .then(response => {
+              console.log(`📄 ${filename}:`, response.status, response.ok);
+              return response.ok ? filename : null;
+            })
+            .catch(error => {
+              console.log(`❌ ${filename}:`, error.message);
+              return null;
+            })
+        );
+        
+        Promise.allSettled(filePromises)
           .then(results => {
             const foundFiles = results
               .map(result => result.status === 'fulfilled' ? result.value : null)
               .filter(file => file !== null);
               
+            console.log('📋 Bulunan dosyalar:', foundFiles);
+            
             if (foundFiles.length > 0) {
               connectionStatus = 'online';
               statusEl.className = 'connection-status online';
-              textEl.textContent = `✅ ${foundFiles.length} PDF Tespit Edildi`;
-              updateStatus(`Manuel kontrol başarılı - ${foundFiles.length} PDF bulundu`);
-              showToast(`📄 ${foundFiles.length} PDF dosyası tespit edildi!`, 'success');
+              textEl.textContent = `✅ ${foundFiles.length} PDF Manuel`;
+              updateStatus(`✅ Manuel kontrol başarılı! ${foundFiles.length} PDF: ${foundFiles.join(', ')}`);
+              showToast(`📄 ${foundFiles.length} PDF manuel olarak bulundu!`, 'success');
               
               models = foundFiles.map(file => ({
                 fileName: file,
@@ -985,52 +1045,125 @@
               
               document.getElementById('modelsCount').textContent = models.length;
               
+              // Başarılı, demo mesajını kaldır
+              const existingDemo = document.querySelector('.models-panel div[style*="background: var(--warning)"]');
+              if (existingDemo) existingDemo.remove();
+              
             } else {
-              // 3. Son çare: Demo mod
-              activateDemoMode();
+              // 3. Demo modu + detaylı hata açıklaması
+              console.log('❌ Hiçbir PDF bulunamadı, demo modu aktif');
+              activateDetailedDemoMode(phpError.message);
             }
-          })
-          .catch(error2 => {
-            console.log('Manuel kontrol hatası:', error2.message);
-            activateDemoMode();
           });
-        });
+      });
     }
 
-    function activateDemoMode() {
+    function activateDetailedDemoMode(phpError) {
       const statusEl = document.getElementById('connectionStatus');
       const textEl = document.getElementById('connectionText');
       
       connectionStatus = 'online';
       statusEl.className = 'connection-status online';
-      textEl.textContent = '🎮 Demo Modu';
-      updateStatus('Demo modu aktif - index.php dosyası oluşturun');
-      showToast('⚠️ Gerçek PDF bulunamadı - Demo modu aktif', 'warning');
+      textEl.textContent = '🎮 Demo - Hata Var';
+      updateStatus('Demo modu: ' + phpError);
+      showToast('⚠️ PDF sistemi sorunlu - Demo modu aktif', 'warning');
       
-      // Demo modunda açıklama göster
+      // Demo modunda detaylı açıklama göster
       const demoMessage = document.createElement('div');
       demoMessage.innerHTML = `
-        <div style="background: var(--warning); color: white; padding: 15px; border-radius: 10px; margin: 20px 0;">
-          <h4>🎮 Demo Modu Aktif</h4>
-          <p style="margin: 10px 0;">Gerçek PDF'leri okumak için PDF klasörünüzde <code>index.php</code> dosyası oluşturun:</p>
-          <details style="margin: 10px 0;">
-            <summary style="cursor: pointer; font-weight: bold;">📝 index.php Kodu</summary>
-            <pre style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin: 10px 0; font-size: 12px; overflow-x: auto;">
+        <div style="background: var(--error); color: white; padding: 20px; border-radius: 15px; margin: 20px 0;">
+          <h4>🚨 PDF Sistem Hatası Tespit Edildi</h4>
+          <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin: 15px 0;">
+            <strong>🔍 Hata Detayı:</strong><br>
+            <code style="color: #ffcccb;">${phpError}</code>
+          </div>
+          
+          <h5>✅ Çözüm Adımları:</h5>
+          <ol style="margin: 10px 0; padding-left: 20px; line-height: 1.6;">
+            <li><strong>Web Sunucusu Kontrolü:</strong> XAMPP, WAMP veya benzeri PHP destekli sunucu gerekli</li>
+            <li><strong>index.php Kontrolü:</strong> Dosya doğru klasörde ve çalışır durumda mı?</li>
+            <li><strong>PDF Dosyaları:</strong> HTML ile aynı klasörde PDF dosyaları var mı?</li>
+            <li><strong>İzinler:</strong> Klasör okuma izinleri kontrol edin</li>
+          </ol>
+          
+          <details style="margin: 15px 0;">
+            <summary style="cursor: pointer; font-weight: bold;">📋 Test Edilecek Dosyalar</summary>
+            <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin: 10px 0;">
+              <strong>Bu dosya isimlerinden birini kullanmayı deneyin:</strong><br>
+              • iPhone5.pdf, iPhone6.pdf, iPhone7.pdf<br>
+              • resistor_values.pdf, schematic.pdf<br>
+              • component_layout.pdf, repair_guide.pdf
+            </div>
+          </details>
+          
+          <details style="margin: 15px 0;">
+            <summary style="cursor: pointer; font-weight: bold;">🔧 Doğru index.php Kodu</summary>
+            <pre style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin: 10px 0; font-size: 11px; overflow-x: auto; border: 1px solid rgba(255,255,255,0.2);">
 &lt;?php
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
-$files = array_filter(scandir('./'), function($f) { 
-  return pathinfo($f, PATHINFO_EXTENSION) === 'pdf'; 
-});
-echo json_encode(array_values($files));
+
+// Debug için hata raporlamayı aç
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+try {
+    $pdfDir = './';
+    $files = [];
+    
+    if (is_dir($pdfDir)) {
+        $handle = opendir($pdfDir);
+        while (false !== ($file = readdir($handle))) {
+            if (pathinfo($file, PATHINFO_EXTENSION) === 'pdf') {
+                $files[] = $file;
+            }
+        }
+        closedir($handle);
+    }
+    
+    // Debug log
+    error_log('PDF files found: ' . json_encode($files));
+    
+    echo json_encode($files);
+    
+} catch (Exception $e) {
+    error_log('PDF scanner error: ' . $e->getMessage());
+    echo json_encode(['error' => $e->getMessage()]);
+}
 ?&gt;</pre>
           </details>
-          <p>Ya da PDF dosyalarınızı doğrudan HTML ile aynı klasöre koyun.</p>
+          
+          <button onclick="location.reload()" style="background: white; color: var(--error); border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px;">
+            🔄 Düzeltikten Sonra Yenile
+          </button>
         </div>
       `;
       
       const container = document.querySelector('.models-panel');
-      container.insertBefore(demoMessage, container.firstChild);
+      // Eski demo mesajını kaldır
+      const oldDemo = container.querySelector('div[style*="background: var(--warning)"], div[style*="background: var(--error)"]');
+      if (oldDemo) oldDemo.remove();
+      
+      container.insertBefore(demoMessage, container.querySelector('.models-header').nextSibling);
+      
+      // Demo veriler yükle
+      const demoFiles = [
+        'iPhone5_schematic_final.pdf',
+        'iPhone6_component_layout.pdf',
+        'iPhone7_circuit_diagram.pdf'
+      ];
+      
+      models = demoFiles.map(file => ({
+        fileName: file,
+        displayName: file,
+        url: `#demo-${file}`,
+        status: 'pending',
+        matches: [],
+        error: null,
+        scanned: false
+      }));
+      
+      document.getElementById('modelsCount').textContent = models.length;
     }
 
     function refreshModels() {
