@@ -744,7 +744,7 @@
         <button class="btn btn-warning" onclick="stopScan()">
           ⏹️ Durdur
         </button>
-        <button class="btn btn-success" onclick="refreshModels()">
+        <button class="btn btn-success" onclick="handleRefreshModels()" id="refreshBtn">
           🔄 Modelleri Yenile
         </button>
       </div>
@@ -1013,45 +1013,45 @@
           <h4>🚀 PDF Dosyalarınız Hazır Ama Erişilemedi!</h4>
           
           <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin: 15px 0;">
-            <p style="margin: 10px 0;">✅ Sistem dosyalarınızı tanıyor ama erişemiyor.</p>
+            <p style="margin: 10px 0;">✅ Sistem PDF klasörünüzü tanıyor ama erişemiyor.</p>
             <p style="margin: 10px 0;">📋 <strong>Çözüm:</strong> Aşağıdaki JSON dosyasını repo'nuzda oluşturun:</p>
           </div>
           
           <details style="margin: 15px 0;" open>
-            <summary style="cursor: pointer; font-weight: bold; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">📝 Sizin Dosyalarınız İçin pdf-list.json</summary>
+            <summary style="cursor: pointer; font-weight: bold; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">📝 PDF Klasörü İçin pdf-list.json</summary>
             <pre style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin: 10px 0; font-size: 11px; overflow-x: auto; border: 1px solid rgba(255,255,255,0.2); white-space: pre-wrap;">[
-  "apple_ipad5_air_schematic.pdf",
-  "apple_ipad_mini_4g_-_.pdf",
-  "apple_iphone_8_plus_d21_mlb.pdf",
-  "iPad-4-Schematic.pdf",
-  "iPad-Air-Schematic.pdf",
-  "ipad-3-schematic.pdf",
-  "ipad_mini_schematic.pdf",
-  "ipadairschematicdiagrampcblayout-180312105911.pdf",
-  "iphone-6-schematic-__.pdf",
-  "iphone-x-qualcomm-edition.pdf",
-  "iphone5s_schematic2.pdf",
-  "iphone8_820-00871-A.pdf",
-  "iphone_11_pro_max_schematic.pdf",
-  "iphone_5c_schematics.pdf",
-  "iphone_6_plus_schematic__.pdf",
-  "iphone_6s_plus_schematic_.pdf",
-  "iphone_6s_schematics__.pdf",
-  "iphone_7_full_schematic___.pdf",
-  "iphone_8_plus_pcb.pdf",
-  "iphone_8_plus_schematic.pdf",
-  "iphone_se.pdf",
-  "iphone_se_820-00282.pdf",
-  "iphone_se_820-00282__pcb.pdf",
-  "iphone_se__r__.pdf",
-  "iphone_sen69_051-00648_4.0.0.pdf",
-  "iphone_x_schematic_intel_chipset.pdf",
-  "iphone_x_schematic_intel_chipset___.pdf",
-  "iphone_x_schematic_qualcomm_chipset.pdf",
-  "iphone_xsmax_schematic.pdf",
-  "mini__30005__36335__22270.pdf",
-  "pcb_820-3633-05_ipad_air2_4g_.pdf",
-  "schemitc_820-3633-05_ipad_air2_.pdf"
+  "pdf/apple_ipad5_air_schematic.pdf",
+  "pdf/apple_ipad_mini_4g_-_.pdf",
+  "pdf/apple_iphone_8_plus_d21_mlb.pdf",
+  "pdf/iPad-4-Schematic.pdf",
+  "pdf/iPad-Air-Schematic.pdf",
+  "pdf/ipad-3-schematic.pdf",
+  "pdf/ipad_mini_schematic.pdf",
+  "pdf/ipadairschematicdiagrampcblayout-180312105911.pdf",
+  "pdf/iphone-6-schematic-__.pdf",
+  "pdf/iphone-x-qualcomm-edition.pdf",
+  "pdf/iphone5s_schematic2.pdf",
+  "pdf/iphone8_820-00871-A.pdf",
+  "pdf/iphone_11_pro_max_schematic.pdf",
+  "pdf/iphone_5c_schematics.pdf",
+  "pdf/iphone_6_plus_schematic__.pdf",
+  "pdf/iphone_6s_plus_schematic_.pdf",
+  "pdf/iphone_6s_schematics__.pdf",
+  "pdf/iphone_7_full_schematic___.pdf",
+  "pdf/iphone_8_plus_pcb.pdf",
+  "pdf/iphone_8_plus_schematic.pdf",
+  "pdf/iphone_se.pdf",
+  "pdf/iphone_se_820-00282.pdf",
+  "pdf/iphone_se_820-00282__pcb.pdf",
+  "pdf/iphone_se__r__.pdf",
+  "pdf/iphone_sen69_051-00648_4.0.0.pdf",
+  "pdf/iphone_x_schematic_intel_chipset.pdf",
+  "pdf/iphone_x_schematic_intel_chipset___.pdf",
+  "pdf/iphone_x_schematic_qualcomm_chipset.pdf",
+  "pdf/iphone_xsmax_schematic.pdf",
+  "pdf/mini__30005__36335__22270.pdf",
+  "pdf/pcb_820-3633-05_ipad_air2_4g_.pdf",
+  "pdf/schemitc_820-3633-05_ipad_air2_.pdf"
 ]</pre>
           </details>
           
@@ -1091,18 +1091,18 @@
               📁 Şimdi Test Et
             </button>
             <button onclick="navigator.clipboard.writeText(JSON.stringify([
-              'apple_ipad5_air_schematic.pdf','apple_ipad_mini_4g_-_.pdf','apple_iphone_8_plus_d21_mlb.pdf',
-              'iPad-4-Schematic.pdf','iPad-Air-Schematic.pdf','ipad-3-schematic.pdf','ipad_mini_schematic.pdf',
-              'ipadairschematicdiagrampcblayout-180312105911.pdf','iphone-6-schematic-__.pdf','iphone-x-qualcomm-edition.pdf',
-              'iphone5s_schematic2.pdf','iphone8_820-00871-A.pdf','iphone_11_pro_max_schematic.pdf','iphone_5c_schematics.pdf',
-              'iphone_6_plus_schematic__.pdf','iphone_6s_plus_schematic_.pdf','iphone_6s_schematics__.pdf',
-              'iphone_7_full_schematic___.pdf','iphone_8_plus_pcb.pdf','iphone_8_plus_schematic.pdf','iphone_se.pdf',
-              'iphone_se_820-00282.pdf','iphone_se_820-00282__pcb.pdf','iphone_se__r__.pdf','iphone_sen69_051-00648_4.0.0.pdf',
-              'iphone_x_schematic_intel_chipset.pdf','iphone_x_schematic_intel_chipset___.pdf','iphone_x_schematic_qualcomm_chipset.pdf',
-              'iphone_xsmax_schematic.pdf','mini__30005__36335__22270.pdf','pcb_820-3633-05_ipad_air2_4g_.pdf',
-              'schemitc_820-3633-05_ipad_air2_.pdf'
-            ], null, 2)); showToast('📋 JSON kopyalandı!', 'success');" style="background: #f59e0b; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">
-              📋 JSON'u Kopyala
+              'pdf/apple_ipad5_air_schematic.pdf','pdf/apple_ipad_mini_4g_-_.pdf','pdf/apple_iphone_8_plus_d21_mlb.pdf',
+              'pdf/iPad-4-Schematic.pdf','pdf/iPad-Air-Schematic.pdf','pdf/ipad-3-schematic.pdf','pdf/ipad_mini_schematic.pdf',
+              'pdf/ipadairschematicdiagrampcblayout-180312105911.pdf','pdf/iphone-6-schematic-__.pdf','pdf/iphone-x-qualcomm-edition.pdf',
+              'pdf/iphone5s_schematic2.pdf','pdf/iphone8_820-00871-A.pdf','pdf/iphone_11_pro_max_schematic.pdf','pdf/iphone_5c_schematics.pdf',
+              'pdf/iphone_6_plus_schematic__.pdf','pdf/iphone_6s_plus_schematic_.pdf','pdf/iphone_6s_schematics__.pdf',
+              'pdf/iphone_7_full_schematic___.pdf','pdf/iphone_8_plus_pcb.pdf','pdf/iphone_8_plus_schematic.pdf','pdf/iphone_se.pdf',
+              'pdf/iphone_se_820-00282.pdf','pdf/iphone_se_820-00282__pcb.pdf','pdf/iphone_se__r__.pdf','pdf/iphone_sen69_051-00648_4.0.0.pdf',
+              'pdf/iphone_x_schematic_intel_chipset.pdf','pdf/iphone_x_schematic_intel_chipset___.pdf','pdf/iphone_x_schematic_qualcomm_chipset.pdf',
+              'pdf/iphone_xsmax_schematic.pdf','pdf/mini__30005__36335__22270.pdf','pdf/pcb_820-3633-05_ipad_air2_4g_.pdf',
+              'pdf/schemitc_820-3633-05_ipad_air2_.pdf'
+            ], null, 2)); showToast('📋 PDF klasörü JSON\'u kopyalandı!', 'success');" style="background: #f59e0b; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+              📋 PDF Klasörü JSON'unu Kopyala
             </button>
           </div>
         </div>
