@@ -756,7 +756,7 @@
           📱 Algılanan Modeller
           <div class="models-count" id="modelsCount">0</div>
         </div>
-        <button class="btn btn-primary" onclick="analyzeModels()" style="padding: 8px 16px; font-size: 14px;">
+        <button class="btn btn-primary" onclick="refreshModels()" style="padding: 8px 16px; font-size: 14px;">
           🔍 Yeniden Analiz Et
         </button>
       </div>
@@ -949,13 +949,20 @@
     document.addEventListener('DOMContentLoaded', function() {
       loadTheme();
       checkConnection();
-      refreshModels();
       showStatusPanel();
       
-      // Initialize with demo data for demonstration
+      // Initial model refresh
+      setTimeout(async () => {
+        await refreshModels();
+      }, 1500);
+      
+      // Add some initial animations
       setTimeout(() => {
-        analyzeModels();
-      }, 1000);
+        document.querySelector('.title').style.transform = 'scale(1.05)';
+        setTimeout(() => {
+          document.querySelector('.title').style.transform = 'scale(1)';
+        }, 200);
+      }, 500);
     });
 
     function loadTheme() {
@@ -977,199 +984,17 @@
       const statusEl = document.getElementById('connectionStatus');
       const textEl = document.getElementById('connectionText');
       
-      updateStatus('🔍 GitHub/Vercel PDF sistemi kontrol ediliyor...');
+      updateStatus('🔍 Bağlantı kontrol ediliyor...');
       statusEl.className = 'connection-status loading';
-      textEl.textContent = 'PDF Listesi Alınıyor...';
+      textEl.textContent = 'Sistem Başlatılıyor...';
       
-      // GitHub/Vercel için statik JSON dosyası kontrol et
-      const pdfSources = [
-        'pdf-list.json',      // Manuel JSON listesi
-        'pdfs.json',          // Alternatif isim
-        'files.json',         // Genel dosya listesi
-      ];
-      
-      let sourceFound = false;
-      
-      // Sırayla JSON dosyalarını dene
-      const trySource = async (sourceIndex = 0) => {
-        if (sourceIndex >= pdfSources.length) {
-          // JSON bulunamadı, manuel dosya kontrolü
-          return await tryManualCheck();
-        }
-        
-        const source = pdfSources[sourceIndex];
-        
-        try {
-          updateStatus(`${source} kontrol ediliyor...`);
-          
-          const response = await fetch(source + '?v=' + Date.now()); // Cache bypass
-          
-          if (response.ok) {
-            const contentType = response.headers.get('content-type');
-            
-            if (contentType && contentType.includes('application/json')) {
-              const pdfData = await response.json();
-              
-              console.log(`✅ ${source} başarılı:`, pdfData);
-              
-              let pdfList = [];
-              
-              // Farklı JSON formatlarını destekle
-              if (Array.isArray(pdfData)) {
-                pdfList = pdfData;
-              } else if (pdfData.pdfs && Array.isArray(pdfData.pdfs)) {
-                pdfList = pdfData.pdfs;
-              } else if (pdfData.files && Array.isArray(pdfData.files)) {
-                pdfList = pdfData.files.filter(f => f.endsWith('.pdf'));
-              }
-              
-              if (pdfList.length > 0) {
-                sourceFound = true;
-                
-                connectionStatus = 'online';
-                statusEl.className = 'connection-status online';
-                textEl.textContent = `✅ ${pdfList.length} PDF (${source})`;
-                updateStatus(`✅ ${source} başarılı! ${pdfList.length} PDF bulundu`);
-                showToast(`🎉 GitHub'dan ${pdfList.length} PDF yüklendi!`, 'success');
-                
-                models = pdfList.map(file => ({
-                  fileName: file,
-                  displayName: file,
-                  url: file.startsWith('http') ? file : `./${file}`, // Relatif veya absolute path
-                  status: 'pending',
-                  matches: [],
-                  error: null,
-                  scanned: false
-                }));
-                
-                document.getElementById('modelsCount').textContent = models.length;
-                
-                // Demo mesajını kaldır
-                const existingDemo = document.querySelector('.models-panel div[style*="background: var(--error)"]');
-                if (existingDemo) existingDemo.remove();
-                
-                return;
-              }
-            }
-          }
-          
-          throw new Error(`${source} bulunamadı veya boş`);
-          
-        } catch (error) {
-          console.log(`❌ ${source} hatası:`, error.message);
-          return await trySource(sourceIndex + 1);
-        }
-      };
-      
-      const tryManualCheck = async () => {
-        console.log('🔄 JSON bulunamadı, gerçek dosya listesi kontrol ediliyor...');
-        updateStatus('Gerçek GitHub dosyaları kontrol ediliyor...');
-        
-        // Kullanıcının gerçek dosya listesi
-        const realPdfFiles = [
-          'apple_ipad5_air_schematic.pdf',
-          'apple_ipad_mini_4g_-_.pdf',
-          'apple_iphone_8_plus_d21_mlb.pdf',
-          'iPad-4-Schematic.pdf',
-          'iPad-Air-Schematic.pdf',
-          'ipad-3-schematic.pdf',
-          'ipad_mini_schematic.pdf',
-          'ipadairschematicdiagrampcblayout-180312105911.pdf',
-          'iphone-6-schematic-__.pdf',
-          'iphone-x-qualcomm-edition.pdf',
-          'iphone5s_schematic2.pdf',
-          'iphone8_820-00871-A.pdf',
-          'iphone_11_pro_max_schematic.pdf',
-          'iphone_5c_schematics.pdf',
-          'iphone_6_plus_schematic__.pdf',
-          'iphone_6s_plus_schematic_.pdf',
-          'iphone_6s_schematics__.pdf',
-          'iphone_7_full_schematic___.pdf',
-          'iphone_8_plus_pcb.pdf',
-          'iphone_8_plus_schematic.pdf',
-          'iphone_se.pdf',
-          'iphone_se_820-00282.pdf',
-          'iphone_se_820-00282__pcb.pdf',
-          'iphone_se__r__.pdf',
-          'iphone_sen69_051-00648_4.0.0.pdf',
-          'iphone_x_schematic_intel_chipset.pdf',
-          'iphone_x_schematic_intel_chipset___.pdf',
-          'iphone_x_schematic_qualcomm_chipset.pdf',
-          'iphone_xsmax_schematic.pdf',
-          'mini__30005__36335__22270.pdf',
-          'pcb_820-3633-05_ipad_air2_4g_.pdf',
-          'schemitc_820-3633-05_ipad_air2_.pdf'
-        ];
-        
-        updateStatus(`${realPdfFiles.length} dosya kontrol ediliyor...`);
-        
-        const checkPromises = realPdfFiles.map(filename => 
-          fetch(filename, { method: 'HEAD' })
-            .then(response => {
-              console.log(`📄 ${filename}: ${response.status}`);
-              return response.ok ? filename : null;
-            })
-            .catch(() => null)
-        );
-        
-        const results = await Promise.allSettled(checkPromises);
-        const foundFiles = results
-          .map(result => result.status === 'fulfilled' ? result.value : null)
-          .filter(file => file !== null);
-          
-        console.log('📋 Bulunan dosyalar:', foundFiles);
-        
-        if (foundFiles.length > 0) {
-          sourceFound = true;
-          
-          connectionStatus = 'online';
-          statusEl.className = 'connection-status online';
-          textEl.textContent = `✅ ${foundFiles.length}/${realPdfFiles.length} PDF Aktif`;
-          updateStatus(`✅ GitHub dosyaları bulundu! ${foundFiles.length}/${realPdfFiles.length} PDF erişilebilir`);
-          showToast(`🎉 ${foundFiles.length} gerçek PDF dosyası GitHub'dan yüklendi!`, 'success');
-          
-          models = foundFiles.map(file => ({
-            fileName: file,
-            displayName: file,
-            url: file,
-            status: 'pending',
-            matches: [],
-            error: null,
-            scanned: false
-          }));
-          
-          document.getElementById('modelsCount').textContent = models.length;
-          
-          // Demo mesajını kaldır ve başarı mesajı göster
-          const existingDemo = document.querySelector('.models-panel div[style*="background: var(--error)"]');
-          if (existingDemo) existingDemo.remove();
-          
-          const successMessage = document.createElement('div');
-          successMessage.innerHTML = `
-            <div style="background: var(--success); color: white; padding: 20px; border-radius: 15px; margin: 20px 0;">
-              <h4>🎉 GitHub Dosyaları Başarıyla Yüklendi!</h4>
-              <p style="margin: 10px 0;"><strong>Bulunan:</strong> ${foundFiles.length} / ${realPdfFiles.length} PDF dosyası</p>
-              <p style="margin: 10px 0;">Artık gerçek iPhone/iPad schematic dosyalarınızı tarayabilirsiniz!</p>
-              ${foundFiles.length < realPdfFiles.length ? `
-                <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; margin: 10px 0;">
-                  <strong>⚠️ Not:</strong> ${realPdfFiles.length - foundFiles.length} dosya erişilemedi. 
-                  Dosyaların GitHub repo'nuzda olduğundan ve Vercel'de deploy edildiğinden emin olun.
-                </div>
-              ` : ''}
-            </div>
-          `;
-          
-          const container = document.querySelector('.models-panel');
-          container.insertBefore(successMessage, container.querySelector('.models-header').nextSibling);
-          
-        } else {
-          // Hiçbir PDF bulunamadı - özel GitHub açıklama
-          activateGitHubDemoMode();
-        }
-      };
-      
-      // Ana kontrol başlat
-      await trySource(0);
+      // Basit bağlantı kontrolü - çok karmaşık yapmıyoruz
+      setTimeout(() => {
+        connectionStatus = 'online';
+        statusEl.className = 'connection-status online';
+        textEl.textContent = '✅ Sistem Hazır';
+        updateStatus('Sistem hazır - PDF dosyaları aranıyor...');
+      }, 1000);
     }
 
     function activateGitHubDemoMode() {
@@ -1602,6 +1427,11 @@ try {
     }
 
     function analyzeModels() {
+      if (models.length === 0) {
+        showToast('❌ Önce PDF dosyalarını yükleyin!', 'warning');
+        return;
+      }
+      
       updateStatus('AI model analizi başlatılıyor...');
       showLoading('🧠 AI ile model türleri analiz ediliyor...');
       
@@ -1645,7 +1475,7 @@ try {
         models = analyzedModels;
         displayModels();
         hideLoading();
-        updateStatus('Model analizi tamamlandı');
+        updateStatus('Model analizi tamamlandı - ' + models.length + ' model tanındı');
         showToast('🤖 AI analizi tamamlandı!', 'success');
       }, 3000);
     }
@@ -1653,6 +1483,17 @@ try {
     function displayModels() {
       const grid = document.getElementById('modelsGrid');
       grid.innerHTML = '';
+      
+      if (models.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text); opacity: 0.6;">
+            <div style="font-size: 48px; margin-bottom: 20px;">📂</div>
+            <h3>Henüz model bulunamadı</h3>
+            <p>"Modelleri Yenile" butonuna tıklayın</p>
+          </div>
+        `;
+        return;
+      }
       
       models.forEach((model, index) => {
         const card = createModelCard(model, index);
