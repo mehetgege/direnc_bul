@@ -812,67 +812,136 @@
     let connectionStatus = 'loading';
     let statusPanelVisible = true;
 
-    // AI Model Detection System
+    // AI Model Detection System - Gerçek dosya isimleri için güncellenmiş
     const phoneModels = [
-      {
-        name: 'iPhone 5',
-        keywords: ['iphone5', 'iphone 5', 'a1428', 'a1429', 'a1442'],
-        confidence: 0.9,
-        icon: '📱'
-      },
+      // iPhone Modelleri
       {
         name: 'iPhone 5s',
-        keywords: ['iphone5s', 'iphone 5s', 'a1453', 'a1457', 'a1518', 'a1528', 'a1530', 'a1533'],
-        confidence: 0.92,
-        icon: '📱'
-      },
-      {
-        name: 'iPhone 6',
-        keywords: ['iphone6', 'iphone 6', 'a1549', 'a1586', 'a1589'],
+        keywords: ['iphone5s', 'iphone 5s'],
         confidence: 0.95,
         icon: '📱'
       },
       {
-        name: 'iPhone 6s',
-        keywords: ['iphone6s', 'iphone 6s', 'a1633', 'a1688', 'a1691', 'a1700'],
+        name: 'iPhone 5c',
+        keywords: ['iphone_5c', 'iphone 5c', '5c'],
         confidence: 0.93,
         icon: '📱'
       },
       {
+        name: 'iPhone 6',
+        keywords: ['iphone-6', 'iphone_6', 'iphone 6'],
+        confidence: 0.94,
+        icon: '📱'
+      },
+      {
         name: 'iPhone 6 Plus',
-        keywords: ['iphone6plus', 'iphone 6 plus', 'a1522', 'a1524', 'a1593'],
+        keywords: ['iphone_6_plus', 'iphone-6-plus', '6_plus', '6plus'],
+        confidence: 0.92,
+        icon: '📱'
+      },
+      {
+        name: 'iPhone 6s',
+        keywords: ['iphone_6s', 'iphone-6s', '6s_schematic'],
+        confidence: 0.93,
+        icon: '📱'
+      },
+      {
+        name: 'iPhone 6s Plus',
+        keywords: ['iphone_6s_plus', '6s_plus', '6splus'],
         confidence: 0.91,
         icon: '📱'
       },
       {
         name: 'iPhone 7',
-        keywords: ['iphone7', 'iphone 7', 'a1660', 'a1778', 'a1779', 'a1780'],
+        keywords: ['iphone_7', 'iphone-7', '7_full'],
         confidence: 0.94,
         icon: '📱'
       },
       {
-        name: 'iPhone 7 Plus',
-        keywords: ['iphone7plus', 'iphone 7 plus', 'a1661', 'a1784', 'a1785', 'a1786'],
-        confidence: 0.92,
+        name: 'iPhone 8',
+        keywords: ['iphone8', 'iphone_8', '820-00871'],
+        confidence: 0.95,
         icon: '📱'
       },
       {
-        name: 'iPhone 8',
-        keywords: ['iphone8', 'iphone 8', 'a1863', 'a1905', 'a1906'],
+        name: 'iPhone 8 Plus',
+        keywords: ['iphone_8_plus', '8_plus', 'd21_mlb', '8plus'],
+        confidence: 0.93,
+        icon: '📱'
+      },
+      {
+        name: 'iPhone SE',
+        keywords: ['iphone_se', 'iphone-se', '820-00282', 'sen69'],
         confidence: 0.96,
         icon: '📱'
       },
       {
         name: 'iPhone X',
-        keywords: ['iphonex', 'iphone x', 'a1865', 'a1901', 'a1902'],
+        keywords: ['iphone_x', 'iphone-x', 'qualcomm', 'intel_chipset'],
         confidence: 0.97,
         icon: '📱'
       },
       {
-        name: 'iPhone XR',
-        keywords: ['iphonexr', 'iphone xr', 'a1984', 'a2105', 'a2106', 'a2107', 'a2108'],
-        confidence: 0.93,
+        name: 'iPhone XS Max',
+        keywords: ['iphone_xsmax', 'xsmax', 'xs_max'],
+        confidence: 0.95,
         icon: '📱'
+      },
+      {
+        name: 'iPhone 11 Pro Max',
+        keywords: ['iphone_11_pro_max', '11_pro_max', '11pro'],
+        confidence: 0.98,
+        icon: '📱'
+      },
+      
+      // iPad Modelleri
+      {
+        name: 'iPad 3',
+        keywords: ['ipad-3', 'ipad_3'],
+        confidence: 0.90,
+        icon: '📟'
+      },
+      {
+        name: 'iPad 4',
+        keywords: ['ipad-4', 'ipad_4'],
+        confidence: 0.91,
+        icon: '📟'
+      },
+      {
+        name: 'iPad 5 (Air)',
+        keywords: ['ipad5_air', 'ipad_5', 'apple_ipad5'],
+        confidence: 0.92,
+        icon: '📟'
+      },
+      {
+        name: 'iPad Air',
+        keywords: ['ipad-air', 'ipad_air', 'ipadair'],
+        confidence: 0.93,
+        icon: '📟'
+      },
+      {
+        name: 'iPad Air 2',
+        keywords: ['ipad_air2', 'air2', '820-3633'],
+        confidence: 0.94,
+        icon: '📟'
+      },
+      {
+        name: 'iPad mini',
+        keywords: ['ipad_mini', 'ipad-mini', 'mini_4g'],
+        confidence: 0.89,
+        icon: '📟'
+      },
+      {
+        name: 'Apple PCB Layout',
+        keywords: ['pcb', 'mlb', 'layout', '820-'],
+        confidence: 0.85,
+        icon: '🔧'
+      },
+      {
+        name: 'Schematic Diagram',
+        keywords: ['schematic', 'schemitc', 'diagram'],
+        confidence: 0.80,
+        icon: '📋'
       }
     ];
 
@@ -908,69 +977,158 @@
       const statusEl = document.getElementById('connectionStatus');
       const textEl = document.getElementById('connectionText');
       
-      updateStatus('🔍 PDF sistemi debug ediliyor...');
+      updateStatus('🔍 GitHub/Vercel PDF sistemi kontrol ediliyor...');
       statusEl.className = 'connection-status loading';
-      textEl.textContent = 'Sistem Debug...';
+      textEl.textContent = 'PDF Listesi Alınıyor...';
       
-      // Detaylı debug bilgileri
-      const debugInfo = {
-        url: window.location.href,
-        protocol: window.location.protocol,
-        host: window.location.host,
-        pathname: window.location.pathname
+      // GitHub/Vercel için statik JSON dosyası kontrol et
+      const pdfSources = [
+        'pdf-list.json',      // Manuel JSON listesi
+        'pdfs.json',          // Alternatif isim
+        'files.json',         // Genel dosya listesi
+      ];
+      
+      let sourceFound = false;
+      
+      // Sırayla JSON dosyalarını dene
+      const trySource = async (sourceIndex = 0) => {
+        if (sourceIndex >= pdfSources.length) {
+          // JSON bulunamadı, manuel dosya kontrolü
+          return await tryManualCheck();
+        }
+        
+        const source = pdfSources[sourceIndex];
+        
+        try {
+          updateStatus(`${source} kontrol ediliyor...`);
+          
+          const response = await fetch(source + '?v=' + Date.now()); // Cache bypass
+          
+          if (response.ok) {
+            const contentType = response.headers.get('content-type');
+            
+            if (contentType && contentType.includes('application/json')) {
+              const pdfData = await response.json();
+              
+              console.log(`✅ ${source} başarılı:`, pdfData);
+              
+              let pdfList = [];
+              
+              // Farklı JSON formatlarını destekle
+              if (Array.isArray(pdfData)) {
+                pdfList = pdfData;
+              } else if (pdfData.pdfs && Array.isArray(pdfData.pdfs)) {
+                pdfList = pdfData.pdfs;
+              } else if (pdfData.files && Array.isArray(pdfData.files)) {
+                pdfList = pdfData.files.filter(f => f.endsWith('.pdf'));
+              }
+              
+              if (pdfList.length > 0) {
+                sourceFound = true;
+                
+                connectionStatus = 'online';
+                statusEl.className = 'connection-status online';
+                textEl.textContent = `✅ ${pdfList.length} PDF (${source})`;
+                updateStatus(`✅ ${source} başarılı! ${pdfList.length} PDF bulundu`);
+                showToast(`🎉 GitHub'dan ${pdfList.length} PDF yüklendi!`, 'success');
+                
+                models = pdfList.map(file => ({
+                  fileName: file,
+                  displayName: file,
+                  url: file.startsWith('http') ? file : `./${file}`, // Relatif veya absolute path
+                  status: 'pending',
+                  matches: [],
+                  error: null,
+                  scanned: false
+                }));
+                
+                document.getElementById('modelsCount').textContent = models.length;
+                
+                // Demo mesajını kaldır
+                const existingDemo = document.querySelector('.models-panel div[style*="background: var(--error)"]');
+                if (existingDemo) existingDemo.remove();
+                
+                return;
+              }
+            }
+          }
+          
+          throw new Error(`${source} bulunamadı veya boş`);
+          
+        } catch (error) {
+          console.log(`❌ ${source} hatası:`, error.message);
+          return await trySource(sourceIndex + 1);
+        }
       };
       
-      console.log('🔍 Debug Bilgileri:', debugInfo);
-      updateStatus('Debug: ' + JSON.stringify(debugInfo));
-      
-      // 1. index.php varlık kontrolü (detaylı)
-      fetch('index.php', {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Cache-Control': 'no-cache'
-        }
-      })
-      .then(response => {
-        console.log('📄 index.php Response:', {
-          status: response.status,
-          statusText: response.statusText,
-          headers: Object.fromEntries(response.headers),
-          url: response.url,
-          ok: response.ok
-        });
+      const tryManualCheck = async () => {
+        console.log('🔄 JSON bulunamadı, gerçek dosya listesi kontrol ediliyor...');
+        updateStatus('Gerçek GitHub dosyaları kontrol ediliyor...');
         
-        updateStatus(`index.php response: ${response.status} ${response.statusText}`);
+        // Kullanıcının gerçek dosya listesi
+        const realPdfFiles = [
+          'apple_ipad5_air_schematic.pdf',
+          'apple_ipad_mini_4g_-_.pdf',
+          'apple_iphone_8_plus_d21_mlb.pdf',
+          'iPad-4-Schematic.pdf',
+          'iPad-Air-Schematic.pdf',
+          'ipad-3-schematic.pdf',
+          'ipad_mini_schematic.pdf',
+          'ipadairschematicdiagrampcblayout-180312105911.pdf',
+          'iphone-6-schematic-__.pdf',
+          'iphone-x-qualcomm-edition.pdf',
+          'iphone5s_schematic2.pdf',
+          'iphone8_820-00871-A.pdf',
+          'iphone_11_pro_max_schematic.pdf',
+          'iphone_5c_schematics.pdf',
+          'iphone_6_plus_schematic__.pdf',
+          'iphone_6s_plus_schematic_.pdf',
+          'iphone_6s_schematics__.pdf',
+          'iphone_7_full_schematic___.pdf',
+          'iphone_8_plus_pcb.pdf',
+          'iphone_8_plus_schematic.pdf',
+          'iphone_se.pdf',
+          'iphone_se_820-00282.pdf',
+          'iphone_se_820-00282__pcb.pdf',
+          'iphone_se__r__.pdf',
+          'iphone_sen69_051-00648_4.0.0.pdf',
+          'iphone_x_schematic_intel_chipset.pdf',
+          'iphone_x_schematic_intel_chipset___.pdf',
+          'iphone_x_schematic_qualcomm_chipset.pdf',
+          'iphone_xsmax_schematic.pdf',
+          'mini__30005__36335__22270.pdf',
+          'pcb_820-3633-05_ipad_air2_4g_.pdf',
+          'schemitc_820-3633-05_ipad_air2_.pdf'
+        ];
         
-        if (response.ok) {
-          const contentType = response.headers.get('content-type');
-          console.log('📋 Content-Type:', contentType);
+        updateStatus(`${realPdfFiles.length} dosya kontrol ediliyor...`);
+        
+        const checkPromises = realPdfFiles.map(filename => 
+          fetch(filename, { method: 'HEAD' })
+            .then(response => {
+              console.log(`📄 ${filename}: ${response.status}`);
+              return response.ok ? filename : null;
+            })
+            .catch(() => null)
+        );
+        
+        const results = await Promise.allSettled(checkPromises);
+        const foundFiles = results
+          .map(result => result.status === 'fulfilled' ? result.value : null)
+          .filter(file => file !== null);
           
-          if (contentType && contentType.includes('application/json')) {
-            return response.json();
-          } else {
-            // JSON değil, metin olarak oku
-            return response.text().then(text => {
-              console.log('⚠️ index.php text response:', text);
-              updateStatus('index.php JSON değil: ' + text.substring(0, 100));
-              throw new Error('PHP dosyası JSON döndürmüyor: ' + text.substring(0, 50));
-            });
-          }
-        } else {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-      })
-      .then(pdfList => {
-        console.log('✅ PDF Listesi:', pdfList);
+        console.log('📋 Bulunan dosyalar:', foundFiles);
         
-        if (Array.isArray(pdfList) && pdfList.length > 0) {
+        if (foundFiles.length > 0) {
+          sourceFound = true;
+          
           connectionStatus = 'online';
           statusEl.className = 'connection-status online';
-          textEl.textContent = `✅ ${pdfList.length} PDF (PHP)`;
-          updateStatus(`✅ PHP başarılı! ${pdfList.length} PDF: ${pdfList.join(', ')}`);
-          showToast(`🎉 PHP çalışıyor! ${pdfList.length} PDF bulundu!`, 'success');
+          textEl.textContent = `✅ ${foundFiles.length}/${realPdfFiles.length} PDF Aktif`;
+          updateStatus(`✅ GitHub dosyaları bulundu! ${foundFiles.length}/${realPdfFiles.length} PDF erişilebilir`);
+          showToast(`🎉 ${foundFiles.length} gerçek PDF dosyası GitHub'dan yüklendi!`, 'success');
           
-          models = pdfList.map(file => ({
+          models = foundFiles.map(file => ({
             fileName: file,
             displayName: file,
             url: file,
@@ -982,83 +1140,238 @@
           
           document.getElementById('modelsCount').textContent = models.length;
           
-          // Başarılı, demo mesajını kaldır
-          const existingDemo = document.querySelector('.models-panel div[style*="background: var(--warning)"]');
+          // Demo mesajını kaldır ve başarı mesajı göster
+          const existingDemo = document.querySelector('.models-panel div[style*="background: var(--error)"]');
           if (existingDemo) existingDemo.remove();
           
-          return; // Başarılı, diğer kontrollere gerek yok
+          const successMessage = document.createElement('div');
+          successMessage.innerHTML = `
+            <div style="background: var(--success); color: white; padding: 20px; border-radius: 15px; margin: 20px 0;">
+              <h4>🎉 GitHub Dosyaları Başarıyla Yüklendi!</h4>
+              <p style="margin: 10px 0;"><strong>Bulunan:</strong> ${foundFiles.length} / ${realPdfFiles.length} PDF dosyası</p>
+              <p style="margin: 10px 0;">Artık gerçek iPhone/iPad schematic dosyalarınızı tarayabilirsiniz!</p>
+              ${foundFiles.length < realPdfFiles.length ? `
+                <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                  <strong>⚠️ Not:</strong> ${realPdfFiles.length - foundFiles.length} dosya erişilemedi. 
+                  Dosyaların GitHub repo'nuzda olduğundan ve Vercel'de deploy edildiğinden emin olun.
+                </div>
+              ` : ''}
+            </div>
+          `;
+          
+          const container = document.querySelector('.models-panel');
+          container.insertBefore(successMessage, container.querySelector('.models-header').nextSibling);
           
         } else {
-          throw new Error('PHP çalışıyor ama PDF listesi boş: ' + JSON.stringify(pdfList));
+          // Hiçbir PDF bulunamadı - özel GitHub açıklama
+          activateGitHubDemoMode();
         }
-      })
-      .catch(phpError => {
-        console.error('❌ PHP Hatası:', phpError);
-        updateStatus('PHP hatası: ' + phpError.message);
-        
-        // 2. Direkt dosya kontrolü
-        console.log('🔄 Manuel dosya kontrolüne geçiliyor...');
-        updateStatus('Manuel dosya kontrolü başlatılıyor...');
-        
-        const testFiles = [
-          'iPhone5.pdf', 'iPhone5s.pdf', 'iPhone6.pdf', 'iPhone6s.pdf', 'iPhone6Plus.pdf',
-          'iPhone7.pdf', 'iPhone7Plus.pdf', 'iPhone8.pdf', 'iPhoneX.pdf', 'iPhoneXR.pdf',
-          'resistor_values.pdf', 'component_layout.pdf', 'schematic.pdf', 'repair_guide.pdf'
-        ];
-        
-        const filePromises = testFiles.map(filename => 
-          fetch(filename, { method: 'HEAD' })
-            .then(response => {
-              console.log(`📄 ${filename}:`, response.status, response.ok);
-              return response.ok ? filename : null;
-            })
-            .catch(error => {
-              console.log(`❌ ${filename}:`, error.message);
-              return null;
-            })
-        );
-        
-        Promise.allSettled(filePromises)
-          .then(results => {
-            const foundFiles = results
-              .map(result => result.status === 'fulfilled' ? result.value : null)
-              .filter(file => file !== null);
-              
-            console.log('📋 Bulunan dosyalar:', foundFiles);
-            
-            if (foundFiles.length > 0) {
-              connectionStatus = 'online';
-              statusEl.className = 'connection-status online';
-              textEl.textContent = `✅ ${foundFiles.length} PDF Manuel`;
-              updateStatus(`✅ Manuel kontrol başarılı! ${foundFiles.length} PDF: ${foundFiles.join(', ')}`);
-              showToast(`📄 ${foundFiles.length} PDF manuel olarak bulundu!`, 'success');
-              
-              models = foundFiles.map(file => ({
-                fileName: file,
-                displayName: file,
-                url: file,
-                status: 'pending',
-                matches: [],
-                error: null,
-                scanned: false
-              }));
-              
-              document.getElementById('modelsCount').textContent = models.length;
-              
-              // Başarılı, demo mesajını kaldır
-              const existingDemo = document.querySelector('.models-panel div[style*="background: var(--warning)"]');
-              if (existingDemo) existingDemo.remove();
-              
-            } else {
-              // 3. Demo modu + detaylı hata açıklaması
-              console.log('❌ Hiçbir PDF bulunamadı, demo modu aktif');
-              activateDetailedDemoMode(phpError.message);
-            }
-          });
-      });
+      };
+      
+      // Ana kontrol başlat
+      await trySource(0);
     }
 
-    function activateDetailedDemoMode(phpError) {
+    function activateGitHubDemoMode() {
+      const statusEl = document.getElementById('connectionStatus');
+      const textEl = document.getElementById('connectionText');
+      
+      connectionStatus = 'online';
+      statusEl.className = 'connection-status online';
+      textEl.textContent = '🎮 GitHub Demo';
+      updateStatus('GitHub/Vercel demo modu aktif');
+      showToast('⚠️ PDF dosyaları erişilemedi - GitHub demo modu', 'warning');
+      
+      const demoMessage = document.createElement('div');
+      demoMessage.innerHTML = `
+        <div style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; padding: 25px; border-radius: 15px; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+          <h4>🚀 PDF Dosyalarınız Hazır Ama Erişilemedi!</h4>
+          
+          <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin: 15px 0;">
+            <p style="margin: 10px 0;">✅ Sistem dosyalarınızı tanıyor ama erişemiyor.</p>
+            <p style="margin: 10px 0;">📋 <strong>Çözüm:</strong> Aşağıdaki JSON dosyasını repo'nuzda oluşturun:</p>
+          </div>
+          
+          <details style="margin: 15px 0;" open>
+            <summary style="cursor: pointer; font-weight: bold; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">📝 Sizin Dosyalarınız İçin pdf-list.json</summary>
+            <pre style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin: 10px 0; font-size: 11px; overflow-x: auto; border: 1px solid rgba(255,255,255,0.2); white-space: pre-wrap;">[
+  "apple_ipad5_air_schematic.pdf",
+  "apple_ipad_mini_4g_-_.pdf",
+  "apple_iphone_8_plus_d21_mlb.pdf",
+  "iPad-4-Schematic.pdf",
+  "iPad-Air-Schematic.pdf",
+  "ipad-3-schematic.pdf",
+  "ipad_mini_schematic.pdf",
+  "ipadairschematicdiagrampcblayout-180312105911.pdf",
+  "iphone-6-schematic-__.pdf",
+  "iphone-x-qualcomm-edition.pdf",
+  "iphone5s_schematic2.pdf",
+  "iphone8_820-00871-A.pdf",
+  "iphone_11_pro_max_schematic.pdf",
+  "iphone_5c_schematics.pdf",
+  "iphone_6_plus_schematic__.pdf",
+  "iphone_6s_plus_schematic_.pdf",
+  "iphone_6s_schematics__.pdf",
+  "iphone_7_full_schematic___.pdf",
+  "iphone_8_plus_pcb.pdf",
+  "iphone_8_plus_schematic.pdf",
+  "iphone_se.pdf",
+  "iphone_se_820-00282.pdf",
+  "iphone_se_820-00282__pcb.pdf",
+  "iphone_se__r__.pdf",
+  "iphone_sen69_051-00648_4.0.0.pdf",
+  "iphone_x_schematic_intel_chipset.pdf",
+  "iphone_x_schematic_intel_chipset___.pdf",
+  "iphone_x_schematic_qualcomm_chipset.pdf",
+  "iphone_xsmax_schematic.pdf",
+  "mini__30005__36335__22270.pdf",
+  "pcb_820-3633-05_ipad_air2_4g_.pdf",
+  "schemitc_820-3633-05_ipad_air2_.pdf"
+]</pre>
+          </details>
+          
+          <div style="background: var(--success); padding: 15px; border-radius: 10px; margin: 15px 0; text-align: center;">
+            <h5 style="margin-bottom: 10px;">💡 Hızlı Test: Yerel Dosyalar</h5>
+            <button onclick="showFileSelector()" style="background: white; color: var(--success); border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+              📁 Bilgisayardan PDF Seç
+            </button>
+            <p style="font-size: 12px; margin-top: 8px; opacity: 0.9;">JSON oluşturmadan önce test edin!</p>
+          </div>
+          
+          <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin: 15px 0;">
+            <h5>🎯 Adım Adım Çözüm:</h5>
+            <ol style="margin: 10px 0; padding-left: 20px; line-height: 1.6;">
+              <li>Yukarıdaki JSON'u kopyalayın</li>
+              <li>GitHub repo'nuzda <code>pdf-list.json</code> dosyası oluşturun</li>
+              <li>JSON'u yapıştırın ve commit edin</li>
+              <li>Vercel otomatik deploy edecek</li>
+              <li>Bu sayfayı yenileyin - 32 PDF aktif olacak! 🎉</li>
+            </ol>
+          </div>
+          
+          <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin: 15px 0;">
+            <h5>📱 Algılanacak Modeller:</h5>
+            <p style="font-size: 13px; line-height: 1.5;">
+              • iPhone: 5s, 5c, 6, 6 Plus, 6s, 6s Plus, 7, 8, 8 Plus, SE, X, XS Max, 11 Pro Max<br>
+              • iPad: 3, 4, 5 (Air), Air, Air 2, mini<br>
+              • PCB Layout & Schematic Diyagramları
+            </p>
+          </div>
+          
+          <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+            <button onclick="location.reload()" style="background: white; color: #6366f1; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+              🔄 JSON Ekledikten Sonra Yenile
+            </button>
+            <button onclick="showFileSelector()" style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+              📁 Şimdi Test Et
+            </button>
+            <button onclick="navigator.clipboard.writeText(JSON.stringify([
+              'apple_ipad5_air_schematic.pdf','apple_ipad_mini_4g_-_.pdf','apple_iphone_8_plus_d21_mlb.pdf',
+              'iPad-4-Schematic.pdf','iPad-Air-Schematic.pdf','ipad-3-schematic.pdf','ipad_mini_schematic.pdf',
+              'ipadairschematicdiagrampcblayout-180312105911.pdf','iphone-6-schematic-__.pdf','iphone-x-qualcomm-edition.pdf',
+              'iphone5s_schematic2.pdf','iphone8_820-00871-A.pdf','iphone_11_pro_max_schematic.pdf','iphone_5c_schematics.pdf',
+              'iphone_6_plus_schematic__.pdf','iphone_6s_plus_schematic_.pdf','iphone_6s_schematics__.pdf',
+              'iphone_7_full_schematic___.pdf','iphone_8_plus_pcb.pdf','iphone_8_plus_schematic.pdf','iphone_se.pdf',
+              'iphone_se_820-00282.pdf','iphone_se_820-00282__pcb.pdf','iphone_se__r__.pdf','iphone_sen69_051-00648_4.0.0.pdf',
+              'iphone_x_schematic_intel_chipset.pdf','iphone_x_schematic_intel_chipset___.pdf','iphone_x_schematic_qualcomm_chipset.pdf',
+              'iphone_xsmax_schematic.pdf','mini__30005__36335__22270.pdf','pcb_820-3633-05_ipad_air2_4g_.pdf',
+              'schemitc_820-3633-05_ipad_air2_.pdf'
+            ], null, 2)); showToast('📋 JSON kopyalandı!', 'success');" style="background: #f59e0b; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+              📋 JSON'u Kopyala
+            </button>
+          </div>
+        </div>
+      `;
+      
+      const container = document.querySelector('.models-panel');
+      const oldDemo = container.querySelector('div[style*="background: linear-gradient"], div[style*="background: var(--error)"]');
+      if (oldDemo) oldDemo.remove();
+      
+      container.insertBefore(demoMessage, container.querySelector('.models-header').nextSibling);
+      
+      // Demo veriler - gerçek dosya isimlerinden seçilen birkaç tanesi
+      const demoFiles = [
+        'GitHub_iphone_11_pro_max_schematic.pdf',
+        'Vercel_iphone_x_qualcomm_edition.pdf',
+        'Static_iPad-Air-Schematic.pdf'
+      ];
+      
+      models = demoFiles.map(file => ({
+        fileName: file,
+        displayName: file,
+        url: `#github-demo-${file}`,
+        status: 'pending',
+        matches: [],
+        error: null,
+        scanned: false
+      }));
+      
+      document.getElementById('modelsCount').textContent = models.length;
+    }
+
+    // PHP'siz dosya seçici ekle
+    function showFileSelector() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.multiple = true;
+      input.accept = '.pdf';
+      input.style.display = 'none';
+      
+      input.onchange = function(e) {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+          loadLocalFiles(files);
+        }
+      };
+      
+      document.body.appendChild(input);
+      input.click();
+      document.body.removeChild(input);
+    }
+
+    function loadLocalFiles(files) {
+      const statusEl = document.getElementById('connectionStatus');
+      const textEl = document.getElementById('connectionText');
+      
+      connectionStatus = 'online';
+      statusEl.className = 'connection-status online';
+      textEl.textContent = `✅ ${files.length} PDF Seçildi`;
+      
+      updateStatus(`${files.length} yerel PDF dosyası yüklendi`);
+      showToast(`📄 ${files.length} PDF dosyası seçildi!`, 'success');
+      
+      models = files.map(file => ({
+        fileName: file.name,
+        displayName: file.name,
+        url: file, // File object olarak sakla
+        status: 'pending',
+        matches: [],
+        error: null,
+        scanned: false,
+        fileObject: file // Gerçek dosya objesi
+      }));
+      
+      document.getElementById('modelsCount').textContent = models.length;
+      
+      // Demo mesajını kaldır ve başarı mesajı göster
+      const existingDemo = document.querySelector('.models-panel div[style*="background: var(--error)"]');
+      if (existingDemo) existingDemo.remove();
+      
+      const successMessage = document.createElement('div');
+      successMessage.innerHTML = `
+        <div style="background: var(--success); color: white; padding: 15px; border-radius: 10px; margin: 20px 0;">
+          <h4>✅ Yerel PDF Dosyaları Yüklendi!</h4>
+          <p style="margin: 10px 0;">Artık gerçek PDF dosyalarınızı tarayabilirsiniz. Web sunucusu gerekmedi! 🎉</p>
+          <p><strong>Yüklenen:</strong> ${files.map(f => f.name).join(', ')}</p>
+        </div>
+      `;
+      
+      const container = document.querySelector('.models-panel');
+      container.insertBefore(successMessage, container.querySelector('.models-header').nextSibling);
+      
+      // Model analizini başlat
+      setTimeout(analyzeModels, 500);
+    }
       const statusEl = document.getElementById('connectionStatus');
       const textEl = document.getElementById('connectionText');
       
@@ -1502,7 +1815,7 @@ try {
       // Update UI to show scanning state
       card.classList.add('scanning');
       statusIcon.textContent = '🔄';
-      statusText.textContent = 'PDF Okunuyor...';
+      statusText.textContent = 'PDF Hazırlanıyor...';
       
       updateStatus(`${model.modelType || model.fileName} taranıyor...`);
       updateCounts();
@@ -1510,40 +1823,38 @@ try {
       try {
         let matches = [];
         
-        // Gerçek PDF dosyasını okumaya çalış
-        if (!model.url.startsWith('#demo')) {
-          try {
-            statusText.textContent = 'PDF İndiriliyor...';
-            const response = await fetch(model.url);
-            
-            if (!response.ok) {
-              throw new Error(`HTTP ${response.status}: Dosya bulunamadı`);
-            }
-            
-            statusText.textContent = 'PDF Analiz Ediliyor...';
-            const arrayBuffer = await response.arrayBuffer();
-            
-            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-            let fullText = '';
+        // Yerel dosya mı yoksa URL mi kontrol et
+        if (model.fileObject && model.fileObject instanceof File) {
+          // Yerel dosya - File object
+          statusText.textContent = 'Yerel PDF Okunuyor...';
+          
+          const arrayBuffer = await model.fileObject.arrayBuffer();
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          let fullText = '';
 
-            statusText.textContent = `${pdf.numPages} Sayfa İşleniyor...`;
+          statusText.textContent = `${pdf.numPages} Sayfa İşleniyor...`;
+          
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            const strings = content.items.map(item => item.str).join(' ');
+            fullText += strings + '\n';
             
-            for (let i = 1; i <= pdf.numPages; i++) {
-              const page = await pdf.getPage(i);
-              const content = await page.getTextContent();
-              const strings = content.items.map(item => item.str).join(' ');
-              fullText += strings + '\n';
-              
-              // Progress update
-              statusText.textContent = `Sayfa ${i}/${pdf.numPages} İşleniyor...`;
-            }
+            statusText.textContent = `Sayfa ${i}/${pdf.numPages} İşleniyor...`;
+          }
 
-            statusText.textContent = 'Direnç Değerleri Aranıyor...';
-            
-            // Direnç değerlerini ara
-            const regex = /\b\d+(\.\d+)?[kKmMrRΩ]?[Ωω]?\b/g;
+          statusText.textContent = 'Direnç Değerleri Aranıyor...';
+          
+          // Gelişmiş direnç değeri regex
+          const resistorPatterns = [
+            /\b\d+(\.\d+)?[kKmMrRΩω]\b/g,  // 330K, 1.5M, 470R, 2.2Ω
+            /\b\d+(\.\d+)?\s*[kKmM]?[Ωω]\b/g, // 330 Ω, 1.5 MΩ
+            /\b\d+(\.\d+)?\s*[kKmM]?\s*[Oo]hm[s]?\b/gi, // 330 Ohm, 1.5K Ohms
+            /\b\d+(\.\d+)?\s*[kKmM]?\s*[Rr]\b/g, // 330R, 1.5KR
+          ];
+          
+          resistorPatterns.forEach(regex => {
             let match;
-
             while ((match = regex.exec(fullText)) !== null) {
               let valText = match[0];
               let num = parseFloat(valText);
@@ -1554,7 +1865,6 @@ try {
               
               // Değer aralığı kontrolü
               if (num >= minVal && num <= maxVal) {
-                // Formatla ve ekle
                 let displayValue;
                 if (num >= 1000000) {
                   displayValue = (num / 1000000).toFixed(1) + 'M';
@@ -1569,14 +1879,70 @@ try {
                 }
               }
             }
-            
-          } catch (pdfError) {
-            console.error('PDF okuma hatası:', pdfError);
-            statusText.textContent = 'PDF Okunamadı - Demo Veri';
-            
-            // PDF okunamadıysa demo veri kullan
-            matches = generateRealisticMatches(minVal, maxVal, model.modelType || model.fileName);
+          });
+          
+        } else if (!model.url.startsWith('#demo')) {
+          // URL'den PDF okuma
+          statusText.textContent = 'PDF İndiriliyor...';
+          const response = await fetch(model.url);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: Dosya bulunamadı`);
           }
+          
+          statusText.textContent = 'PDF Analiz Ediliyor...';
+          const arrayBuffer = await response.arrayBuffer();
+          
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          let fullText = '';
+
+          statusText.textContent = `${pdf.numPages} Sayfa İşleniyor...`;
+          
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            const strings = content.items.map(item => item.str).join(' ');
+            fullText += strings + '\n';
+            
+            statusText.textContent = `Sayfa ${i}/${pdf.numPages} İşleniyor...`;
+          }
+
+          statusText.textContent = 'Direnç Değerleri Aranıyor...';
+          
+          // Aynı regex mantığı
+          const resistorPatterns = [
+            /\b\d+(\.\d+)?[kKmMrRΩω]\b/g,
+            /\b\d+(\.\d+)?\s*[kKmM]?[Ωω]\b/g,
+            /\b\d+(\.\d+)?\s*[kKmM]?\s*[Oo]hm[s]?\b/gi,
+            /\b\d+(\.\d+)?\s*[kKmM]?\s*[Rr]\b/g,
+          ];
+          
+          resistorPatterns.forEach(regex => {
+            let match;
+            while ((match = regex.exec(fullText)) !== null) {
+              let valText = match[0];
+              let num = parseFloat(valText);
+              
+              if (/k/i.test(valText)) num *= 1000;
+              if (/m/i.test(valText)) num *= 1000000;
+              
+              if (num >= minVal && num <= maxVal) {
+                let displayValue;
+                if (num >= 1000000) {
+                  displayValue = (num / 1000000).toFixed(1) + 'M';
+                } else if (num >= 1000) {
+                  displayValue = (num / 1000).toFixed(1) + 'K';
+                } else {
+                  displayValue = Math.round(num).toString();
+                }
+                
+                if (!matches.includes(displayValue)) {
+                  matches.push(displayValue);
+                }
+              }
+            }
+          });
+          
         } else {
           // Demo dosyası için simülasyon
           statusText.textContent = 'Demo Veri Oluşturuluyor...';
@@ -1700,11 +2066,53 @@ try {
       
       updateStatus(`${model.modelType || model.fileName} PDF'i açılıyor...`);
       
-      if (model.url.startsWith('#demo')) {
+      if (model.fileObject && model.fileObject instanceof File) {
+        // Yerel dosya - Blob URL oluştur ve aç
+        try {
+          const blob = new Blob([model.fileObject], { type: 'application/pdf' });
+          const url = URL.createObjectURL(blob);
+          window.open(url, '_blank');
+          showToast(`📖 ${model.fileName} yeni sekmede açılıyor...`, 'success');
+          updateStatus(`Yerel PDF başarıyla açıldı: ${model.fileName}`);
+          
+          // Memory cleanup - birkaç saniye sonra URL'i temizle
+          setTimeout(() => URL.revokeObjectURL(url), 10000);
+          
+        } catch (error) {
+          showToast('❌ Yerel PDF açılırken hata oluştu!', 'error');
+          updateStatus(`Yerel PDF açma hatası: ${error.message}`);
+        }
+        
+      } else if (model.url.startsWith('#demo')) {
+        // Demo dosyası
         showToast(`🎮 Demo: ${model.fileName} - ${model.matches.length} eşleşme var!`, 'info');
         updateStatus(`Demo PDF görüntülendi: ${model.matches.join(', ')}`);
+        
+        // Demo için detaylı bilgi penceresi
+        const infoWindow = window.open('', '_blank', 'width=600,height=400');
+        infoWindow.document.write(`
+          <html>
+            <head><title>Demo PDF - ${model.fileName}</title></head>
+            <body style="font-family: Arial; padding: 20px; background: #f5f5f5;">
+              <h2>📄 ${model.fileName}</h2>
+              <h3>🎯 Bulunan Direnç Değerleri:</h3>
+              <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0;">
+                ${model.matches.map(match => `
+                  <span style="background: #4f46e5; color: white; padding: 8px 12px; border-radius: 15px; font-weight: bold;">
+                    ⚡ ${match}Ω
+                  </span>
+                `).join('')}
+              </div>
+              <p style="color: #666; font-style: italic;">Bu bir demo PDF'dir. Gerçek dosyalarınızı taramak için "📁 PDF Dosyalarını Seç" butonunu kullanın.</p>
+              <button onclick="window.close()" style="background: #4f46e5; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 20px;">
+                Kapat
+              </button>
+            </body>
+          </html>
+        `);
+        
       } else {
-        // Gerçek PDF dosyasını aç
+        // URL'den dosya
         try {
           window.open(model.url, '_blank');
           showToast(`📖 ${model.fileName} yeni sekmede açılıyor...`, 'success');
