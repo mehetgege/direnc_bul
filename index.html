@@ -1,1550 +1,2401 @@
-<artifact type="text/html">
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎲 AI Kripto Sinyal Botu</title>
+    <title>🤖 AI Kripto Sinyal Botu</title>
     <style>
-        :root {
-            --primary-color: #FFD700;     /* Parlak altın */
-            --secondary-color: #8B0000;   /* Koyu kırmızı */
-            --accent-color: #00FF41;      /* Neon yeşil */
-            --background-dark: #0F0F1A;   /* Derin gece mavisi */
-            --text-color: #E0E0E0;        /* Açık gri */
-            --card-background: rgba(20,20,40,0.8);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: 'Monaco', 'Courier New', monospace;
-    }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0B0E11 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-    body {
-        background: radial-gradient(ellipse at bottom, var(--background-dark) 0%, #000 100%);
-        color: var(--text-color);
-        min-height: 100vh;
-        line-height: 1.6;
-        overflow-x: hidden;
-    }
+        body.light-theme {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 50%, #e0e7ff 100%);
+            color: #1a1a2e;
+        }
 
-    .casino-frame {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        border: 6px solid var(--primary-color);
-        box-shadow: 0 0 20px rgba(255,215,0,0.3);
-        pointer-events: none;
-        z-index: 9999;
-        animation: frame-pulse 3s infinite alternate;
-    }
+        .header {
+            background: rgba(11, 14, 17, 0.98);
+            backdrop-filter: blur(15px);
+            border-bottom: 2px solid #00D4AA;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 212, 170, 0.3);
+            padding: 10px 15px;
+        }
 
-    @keyframes frame-pulse {
-        from { border-color: var(--primary-color); }
-        to { border-color: var(--accent-color); }
-    }
+        .light-theme .header {
+            background: rgba(255, 255, 255, 0.98);
+            border-bottom: 2px solid #00D4AA;
+            box-shadow: 0 4px 20px rgba(0, 212, 170, 0.2);
+        }
 
-    .header {
-        background: rgba(0,0,0,0.8);
-        backdrop-filter: blur(15px);
-        border-bottom: 3px solid var(--primary-color);
-        box-shadow: 0 4px 20px rgba(255,215,0,0.3);
-        padding: 15px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .header-main {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        position: relative;
-        z-index: 10;
-    }
-
-    .header-left, .header-center, .header-right {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .status-indicator {
-        padding: 8px 15px;
-        border-radius: 20px;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.3s ease;
-    }
-
-    .connected {
-        background: rgba(0,255,65,0.2);
-        color: var(--accent-color);
-        border: 1px solid var(--accent-color);
-    }
-
-    .disconnected {
-        background: rgba(255,0,0,0.2);
-        color: red;
-        border: 1px solid red;
-    }
-
-    .connecting {
-        background: rgba(255,215,0,0.2);
-        color: var(--primary-color);
-        border: 1px solid var(--primary-color);
-        animation: pulse 1.5s infinite;
-    }
-
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
-    }
-
-    .app-title {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: var(--primary-color);
-        text-shadow: 0 0 10px rgba(255,215,0,0.5);
-    }
-
-    .current-price {
-        font-size: 2rem;
-        font-weight: bold;
-        color: var(--accent-color);
-    }
-
-    .current-change {
-        font-size: 1rem;
-        font-weight: bold;
-    }
-
-    .btn {
-        background: linear-gradient(45deg, var(--accent-color), var(--primary-color));
-        border: none;
-        color: var(--background-dark);
-        padding: 10px 20px;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-weight: bold;
-        text-transform: uppercase;
-    }
-
-    .btn:hover {
-        transform: scale(1.05) rotate(2deg);
-        box-shadow: 0 5px 15px rgba(0,255,65,0.4);
-    }
-
-    .theme-toggle {
-        background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
-        color: var(--text-color);
-        padding: 10px 15px;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .theme-toggle:hover {
-        transform: scale(1.1) rotate(360deg);
-        box-shadow: 0 5px 15px rgba(255,215,0,0.3);
-    }
-
-    input[type="text"] {
-        background: rgba(255,255,255,0.1);
-        border: 2px solid var(--primary-color);
-        color: var(--text-color);
-        padding: 10px;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-    }
-
-    input[type="text"]:focus {
-        outline: none;
-        border-color: var(--accent-color);
-        box-shadow: 0 0 15px rgba(0,255,65,0.3);
-    }
-
-    @media (max-width: 768px) {
         .header-main {
-            flex-direction: column;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
             gap: 10px;
         }
 
-        .header-left, .header-center, .header-right {
-            width: 100%;
-            justify-content: center;
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .app-title {
+            font-size: 1.2rem;
+            background: linear-gradient(45deg, #00D4AA, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .light-theme .app-title {
+            color: #00D4AA;
+        }
+
+        .ai-status {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 600;
+            font-size: 0.75rem;
+            animation: aiPulse 2s infinite;
+        }
+
+        @keyframes aiPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .header-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            flex: 1;
+            min-width: 150px;
         }
 
         .current-price {
             font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
         }
-    }
-</style>
-<artifact type="text/html">
-<body>
-    <div class="casino-frame"></div>
-<header class="header">
-    <div class="header-main">
-        <div class="header-left">
-            <div id="connectionStatus" class="status-indicator disconnected">
-                🎲 Bağlantı Yok
-            </div>
-            <div class="app-title">🎰 AI Kripto Sinyal Botu</div>
-            <div id="aiStatus" class="ai-status">🤖 AI Bekliyor...</div>
-        </div>
-        
-        <div class="header-center">
-            <div id="headerPrice" class="current-price">$0.00</div>
-            <div id="headerChange" class="current-change">📊 +0.00%</div>
-        </div>
-        
-        <div class="header-right">
-            <input 
-                id="manualSymbol" 
-                type="text" 
-                placeholder="Coin Sembolü (BTC, ETH...)"
-            >
-            <button 
-                id="connectBtn" 
-                class="btn" 
-                onclick="toggleConnection()"
-            >
-                🎲 Bağlan
-            </button>
-            <div 
-                class="theme-toggle" 
-                onclick="toggleTheme()"
-            >
-                🌓 Tema
-            </div>
-        </div>
-    </div>
-</header>
 
-<div class="main-container">
-    <!-- Sonraki parçalarda devam edecek -->
-</div>
-</body>
-</artifact>
-
-
-<artifact type="text/html">
-    <style>
-        .main-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
-            padding: 20px;
-            max-width: 1600px;
-            margin: 0 auto;
+        .light-theme .current-price {
+            color: #1a1a2e;
         }
-    .panel {
-        background: var(--card-background);
-        border: 2px solid rgba(255,215,0,0.3);
-        border-radius: 15px;
-        padding: 20px;
-        position: relative;
-        overflow: hidden;
-        transition: all 0.4s ease;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    }
 
-    .panel-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-        border-bottom: 1px solid rgba(255,215,0,0.2);
-        padding-bottom: 10px;
-    }
+        .current-change {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
 
-    .panel-title {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: var(--primary-color);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .panel-badge {
-        background: var(--accent-color);
-        color: var(--background-dark);
-        padding: 3px 8px;
-        border-radius: 20px;
-        font-size: 0.7rem;
-        font-weight: bold;
-    }
-
-    .panel-content {
-        display: grid;
-        gap: 10px;
-    }
-
-    .panel-stat {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: rgba(255,255,255,0.05);
-        padding: 10px;
-        border-radius: 8px;
-        transition: background 0.3s ease;
-    }
-
-    .panel-stat:hover {
-        background: rgba(255,255,255,0.1);
-    }
-
-    .stat-label {
-        color: var(--primary-color);
-        font-weight: 600;
-    }
-
-    .stat-value {
-        font-weight: bold;
-        color: var(--accent-color);
-    }
-</style>
-
-<div class="main-container">
-    <!-- Debug Panel -->
-    <div class="panel">
-        <div class="panel-header">
-            <div class="panel-title">
-                🐞 Debug Konsolu 
-                <span class="panel-badge">LOG</span>
-            </div>
-        </div>
-        <div id="debugPanel" class="panel-content debug-console">
-            <!-- Debug logları buraya gelecek -->
-        </div>
-    </div>
-
-    <!-- AI Öğrenme Paneli -->
-    <div class="panel">
-        <div class="panel-header">
-            <div class="panel-title">
-                🤖 AI Öğrenme Sistemi 
-                <span class="panel-badge">AI</span>
-            </div>
-        </div>
-        <div class="panel-content">
-            <div class="panel-stat">
-                <span class="stat-label">Performans Skoru</span>
-                <span id="aiScore" class="stat-value">0</span>
-            </div>
-            <div class="panel-stat">
-                <span class="stat-label">Toplam Sinyal</span>
-                <span id="totalAnalysis" class="stat-value">0</span>
-            </div>
-            <div class="panel-stat">
-                <span class="stat-label">Başarı Oranı</span>
-                <span id="successRate" class="stat-value">%0</span>
-            </div>
-        </div>
-        <div class="panel-content" style="margin-top: 15px;">
-            <div class="learning-progress">
-                <div class="progress-bar">
-                    <div id="learningProgress" class="progress-fill" style="width: 0%"></div>
-                </div>
-                <div id="learningStats" class="stat-label" style="text-align: center; margin-top: 5px;">
-                    0 veri işlendi
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Sinyal Paneli -->
-    <div class="panel">
-        <div class="panel-header">
-            <div class="panel-title">
-                📊 Aktif Sinyaller 
-                <span class="panel-badge">LIVE</span>
-            </div>
-        </div>
-        <div id="currentSignal" class="signal-indicator">
-            <div>Veri Bekleniyor...</div>
-        </div>
-        <div class="panel-content" style="margin-top: 15px;">
-            <div class="confidence-meter">
-                <div id="confidenceBar" class="confidence-fill" style="width: 0%"></div>
-            </div>
-            <div class="stat-label" style="text-align: center;">
-                Güven Seviyesi: <span id="confidencePercent">0%</span>
-            </div>
-        </div>
-    </div>
-</div>
-</artifact>
-
-<artifact type="text/html">
-    <style>
-        .volume-spike-indicator {
+        .header-right {
             display: flex;
             align-items: center;
             gap: 10px;
-            background: rgba(255,255,255,0.05);
+            flex: 1;
+            justify-content: flex-end;
+            min-width: 200px;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 15px;
+            padding: 15px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: rgba(26, 26, 46, 0.85);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(0, 212, 170, 0.2);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .light-theme .panel {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+        }
+
+        .panel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 170, 0.2);
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #00D4AA, #00ff88, #00D4AA);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .panel h3 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #00D4AA;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .light-theme .panel h3 {
+            color: #00D4AA;
+        }
+
+        .ai-learning-indicator {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7D1);
+            border-radius: 50%;
+            width: 10px;
+            height: 10px;
+            animation: aiLearning 1.5s infinite;
+        }
+
+        @keyframes aiLearning {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .signal-box {
+            background: rgba(0, 212, 170, 0.1);
+            border: 2px solid #00D4AA;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 8px 0;
+            animation: signalPulse 2s infinite;
+            position: relative;
+        }
+
+        .signal-box.sell {
+            background: rgba(248, 73, 96, 0.1);
+            border-color: #F84960;
+        }
+
+        .signal-box.scalp {
+            background: rgba(255, 193, 7, 0.1);
+            border-color: #FFC107;
+        }
+
+        @keyframes signalPulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 212, 170, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(0, 212, 170, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 212, 170, 0); }
+        }
+
+        .confidence-meter {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            height: 8px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+
+        .light-theme .confidence-meter {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FF6B6B, #FFC107, #00D4AA);
+            border-radius: 8px;
+            transition: width 0.5s ease;
+        }
+
+        .tp-sl-tracker {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 8px 0;
+        }
+
+        .tp-sl-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .light-theme .tp-sl-item {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .tp-sl-item.reached {
+            background: rgba(0, 212, 170, 0.2);
+            border: 1px solid #00D4AA;
+            animation: glow 1s ease-in-out;
+        }
+
+        .tp-sl-item.missed {
+            background: rgba(248, 73, 96, 0.2);
+            border: 1px solid #F84960;
+            animation: glow 1s ease-in-out;
+        }
+
+        @keyframes glow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .score-display {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 12px 0;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .light-theme .score-display {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .score-display:hover {
+            transform: scale(1.02);
+        }
+
+        .score-number {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00D4AA, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .light-theme .score-number {
+            color: #00D4AA;
+        }
+
+        .score-label {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .light-theme .score-label {
+            color: #555;
+        }
+
+        .ai-optimization {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+            border: 1px solid rgba(0, 212, 170, 0.1);
+        }
+
+        .light-theme .ai-optimization {
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 212, 170, 0.2);
+        }
+
+        .optimization-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.8rem;
+        }
+
+        .light-theme .optimization-item {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .optimization-item:last-child {
+            border-bottom: none;
+        }
+
+        .auto-badge {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+
+        .learning-progress {
+            margin: 12px 0;
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 6px;
+            overflow: hidden;
+        }
+
+        .light-theme .progress-bar {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FF6B6B, #4ECDC4, #45B7D1);
+            border-radius: 10px;
+            transition: width 1s ease;
+            animation: progressShimmer 2s infinite;
+        }
+
+        @keyframes progressShimmer {
+            0% { background-position: -200px 0; }
+            100% { background-position: 200px 0; }
+        }
+
+        .volume-spike-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: rgba(255, 193, 7, 0.1);
+            border-radius: 8px;
+            margin: 8px 0;
+            font-size: 0.8rem;
+        }
+
+        .spike-meter {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .light-theme .spike-meter {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .spike-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FFC107, #FF6B6B);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .orderbook-depth {
+            margin: 12px 0;
+        }
+
+        .depth-visualization {
+            display: flex;
+            height: 60px;
+            gap: 2px;
+            align-items: end;
+            margin: 8px 0;
+        }
+
+        .depth-bar {
+            flex: 1;
+            background: linear-gradient(to top, rgba(0, 212, 170, 0.3), rgba(0, 212, 170, 0.8));
+            border-radius: 3px;
+            min-height: 5px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .depth-bar:hover {
+            transform: scaleY(1.1);
+        }
+
+        .depth-bar.ask {
+            background: linear-gradient(to top, rgba(248, 73, 96, 0.3), rgba(248, 73, 96, 0.8));
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #00D4AA, #00ff88);
+            border: none;
+            border-radius: 8px;
+            color: #0B0E11;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            touch-action: manipulation;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .light-theme .btn {
+            color: #ffffff;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 170, 0.4);
+        }
+
+        .btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid #0B0E11;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes spin {
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .status-indicator {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .connected {
+            background: rgba(0, 212, 170, 0.2);
+            border: 1px solid #00D4AA;
+            color: #00D4AA;
+        }
+
+        .disconnected {
+            background: rgba(248, 73, 96, 0.2);
+            border: 1px solid #F84960;
+            color: #F84960;
+        }
+
+        .connecting {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid #FFC107;
+            color: #FFC107;
+            animation: connecting 1s infinite;
+        }
+
+        @keyframes connecting {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+
+        .debug-panel {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            max-height: 200px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #00D4AA #333;
+        }
+
+        .light-theme .debug-panel {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #ccc;
+        }
+
+        .debug-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .debug-panel::-webkit-scrollbar-track {
+            background: #333;
+        }
+
+        .debug-panel::-webkit-scrollbar-thumb {
+            background: #00D4AA;
+            border-radius: 3px;
+        }
+
+        .debug-log {
+            margin: 3px 0;
+            padding: 3px 6px;
+            border-radius: 3px;
+            word-wrap: break-word;
+        }
+
+        .debug-error {
+            background: rgba(248, 73, 96, 0.2);
+            color: #F84960;
+        }
+
+        .debug-success {
+            background: rgba(0, 212, 170, 0.2);
+            color: #00D4AA;
+        }
+
+        .debug-info {
+            background: rgba(70, 130, 180, 0.2);
+            color: #4682B4;
+        }
+
+        .debug-warning {
+            background: rgba(255, 193, 7, 0.2);
+            color: #FFC107;
+        }
+
+        .whale-status {
+            background: rgba(255, 193, 7, 0.05);
+            border-left: 3px solid #FFC107;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 8px 0;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .whale-status.bullish {
+            background: rgba(0, 212, 170, 0.05);
+            border-left-color: #00D4AA;
+        }
+
+        .whale-status.bearish {
+            background: rgba(248, 73, 96, 0.05);
+            border-left-color: #F84960;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            font-size: 0.9rem;
+            animation: slideIn 0.3s ease-out, slideOut 0.3s ease-in 2.7s;
+            display: none;
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        .toast.success {
+            background: rgba(0, 212, 170, 0.9);
+        }
+
+        .toast.error {
+            background: rgba(248, 73, 96, 0.9);
+        }
+
+        .toast.warning {
+            background: rgba(255, 193, 7, 0.9);
+            color: #000;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(100px); opacity: 0; }
+        }
+
+        .theme-toggle {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .light-theme .theme-toggle {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .light-theme .theme-toggle:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        input[type="text"] {
             padding: 10px;
             border-radius: 8px;
+            border: 1px solid #00D4AA;
+            background: #111;
+            color: #fff;
+            font-size: 0.9rem;
+            width: 140px;
+            transition: all 0.3s ease;
+            outline: none;
         }
-    .spike-meter {
-        flex: 1;
-        height: 8px;
-        background: rgba(255,255,255,0.1);
-        border-radius: 4px;
-        overflow: hidden;
-    }
 
-    .spike-fill {
-        height: 100%;
-        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-        transition: width 0.3s ease;
-    }
+        .light-theme input[type="text"] {
+            background: #f5f5f5;
+            color: #1a1a2e;
+        }
 
-    .depth-visualization {
-        display: flex;
-        height: 60px;
-        gap: 2px;
-        align-items: end;
-    }
+        input[type="text"]:focus {
+            border-color: #00ff88;
+            box-shadow: 0 0 10px rgba(0, 212, 170, 0.3);
+            transform: scale(1.02);
+        }
 
-    .depth-bar {
-        flex: 1;
-        background: linear-gradient(to top, rgba(255,215,0,0.3), rgba(255,215,0,0.8));
-        border-radius: 3px;
-        min-height: 5px;
-        transition: all 0.3s ease;
-    }
+        .settings-panel {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid rgba(0, 212, 170, 0.1);
+        }
 
-    .depth-bar.ask {
-        background: linear-gradient(to top, rgba(255,0,0,0.3), rgba(255,0,0,0.8));
-    }
+        .light-theme .settings-panel {
+            background: rgba(0, 0, 0, 0.02);
+        }
 
-    .depth-bar:hover {
-        transform: scaleY(1.1);
-    }
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 0.8rem;
+        }
 
-    .whale-status {
-        background: rgba(255,215,0,0.1);
-        border-left: 5px solid var(--primary-color);
-        padding: 10px;
-        border-radius: 8px;
-        margin-top: 15px;
-    }
+        .persistence-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 212, 170, 0.2);
+            border: 1px solid #00D4AA;
+            color: #00D4AA;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            z-index: 1500;
+            animation: fadeInOut 3s ease-in-out;
+        }
 
-    .whale-status.bullish {
-        border-left-color: var(--accent-color);
-        background: rgba(0,255,65,0.1);
-    }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            20%, 80% { opacity: 1; }
+        }
 
-    .whale-status.bearish {
-        border-left-color: red;
-        background: rgba(255,0,0,0.1);
-    }
-</style>
+        @media (max-width: 768px) {
+            .header-main {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
 
-<div class="main-container">
-    <!-- Volume & Momentum Paneli -->
-    <div class="panel">
-        <div class="panel-header">
-            <div class="panel-title">
-                📈 Volume & Momentum 
-                <span class="panel-badge">TREND</span>
+            .header-left, .header-center, .header-right {
+                width: 100%;
+                justify-content: center;
+                min-width: unset;
+            }
+
+            .header-right {
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+
+            .main-container {
+                grid-template-columns: 1fr;
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .panel {
+                padding: 12px;
+            }
+
+            .btn, input[type="text"] {
+                font-size: 1rem;
+                padding: 12px;
+                width: 100%;
+                margin: 5px 0;
+            }
+
+            .panel h3 {
+                font-size: 1rem;
+            }
+
+            .current-price {
+                font-size: 1.3rem;
+            }
+
+            .current-change {
+                font-size: 0.8rem;
+            }
+
+            .app-title {
+                font-size: 1rem;
+            }
+
+            .toast {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .ai-status {
+                font-size: 0.6rem;
+            }
+
+            .score-number {
+                font-size: 1.5rem;
+            }
+
+            .depth-visualization {
+                height: 40px;
+            }
+
+            .debug-panel {
+                max-height: 150px;
+                font-size: 0.7rem;
+            }
+        }
+
+        /* Dark mode ince ayarları */
+        @media (prefers-color-scheme: dark) {
+            body:not(.light-theme) {
+                background: linear-gradient(135deg, #0B0E11 0%, #1a1a2e 50%, #16213e 100%);
+            }
+        }
+
+        /* Animasyon performansı için GPU hızlandırması */
+        .panel, .btn, .signal-box, .tp-sl-item {
+            will-change: transform;
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-main">
+            <div class="header-left">
+                <div class="status-indicator disconnected" id="connectionStatus">🔴 Bağlantı Yok</div>
+                <span class="app-title">🤖 AI Kripto Sinyal Botu</span>
+                <div class="ai-status" id="aiStatus">🧠 AI Bekliyor...</div>
+            </div>
+            
+            <div class="header-center">
+                <div class="current-price" id="headerPrice">$0.00</div>
+                <div class="current-change" id="headerChange">📊 +0.00%</div>
+            </div>
+            
+            <div class="header-right">
+                <input id="manualSymbol" type="text" placeholder="Herhangi bir coin (BTC, PEPE, WIF...)">
+                <button class="btn" id="connectBtn" onclick="toggleConnection()">🔌 Bağlan</button>
+                <div class="theme-toggle" onclick="toggleTheme()">🌙 Tema</div>
             </div>
         </div>
-        <div class="panel-content">
+    </header>
+
+    <div class="main-container">
+        <!-- Debug Panel -->
+        <div class="panel">
+            <h3>🔧 Debug Panel</h3>
+            <div class="debug-panel" id="debugPanel">
+                <div class="debug-log debug-info">🚀 AI Kripto Sinyal Botu başlatıldı</div>
+                <div class="debug-log debug-info">💡 Coin sembolü girin ve Bağlan tuşuna basın</div>
+            </div>
+            <div style="margin-top: 8px; font-size: 0.8rem;">
+                <div>📡 WebSocket: <span id="wsStatus">Kapalı</span></div>
+                <div>🔗 URL: <span id="wsUrl">-</span></div>
+                <div>📊 Veri: <span id="dataStatus">Bekliyor</span></div>
+                <div>⏱️ Son Update: <span id="lastUpdate">-</span></div>
+                <div>💾 Hafıza: <span id="memoryStatus">Aktif</span></div>
+            </div>
+        </div>
+
+        <!-- AI Öğrenme ve Optimizasyon Paneli -->
+        <div class="panel">
+            <h3>🧠 AI Öğrenme Sistemi <div class="ai-learning-indicator"></div></h3>
+            
+            <div class="score-display">
+                <div class="score-number" id="aiScore">0</div>
+                <div class="score-label">AI Performans Skoru</div>
+            </div>
+
+            <div class="learning-progress">
+                <div style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">Öğrenme İlerlemesi</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="learningProgress" style="width: 0%"></div>
+                </div>
+                <div style="font-size: 0.7rem; color: #888; margin-top: 5px;" id="learningStats">0 veri işlendi</div>
+            </div>
+
+            <div class="ai-optimization">
+                <div style="font-weight: 700; margin-bottom: 8px; color: #00D4AA;">⚙️ Otomatik Optimizasyonlar</div>
+                <div class="optimization-item">
+                    <span>Volume Eşiği</span>
+                    <span id="autoVolumeThreshold">1.5x <span class="auto-badge">AUTO</span></span>
+                </div>
+                <div class="optimization-item">
+                    <span>TP Hedefi</span>
+                    <span id="autoTpTarget">0.8% <span class="auto-badge">AUTO</span></span>
+                </div>
+                <div class="optimization-item">
+                    <span>SL Limiti</span>
+                    <span id="autoSlLimit">0.4% <span class="auto-badge">AUTO</span></span>
+                </div>
+                <div class="optimization-item">
+                    <span>Sinyal Sıklığı</span>
+                    <span id="autoSignalFreq">15s <span class="auto-badge">AUTO</span></span>
+                </div>
+            </div>
+
+            <div style="font-size: 0.75rem; color: #888; margin-top: 8px;">
+                <div>📊 Toplam Analiz: <span id="totalAnalysis">0</span></div>
+                <div>✅ Başarılı: <span id="successfulSignals">0</span></div>
+                <div>📈 Başarı Oranı: <span id="successRate">0%</span></div>
+                <div>🎯 Avg TP Süresi: <span id="avgTpTime">-</span></div>
+            </div>
+        </div>
+
+        <!-- Gerçek Zamanlı Sinyal Paneli -->
+        <div class="panel">
+            <h3>🎯 Aktif Sinyaller</h3>
+            
+            <div id="currentSignal" class="signal-box">
+                <div style="font-weight: 700; margin-bottom: 8px;">⏳ Veri Bekleniyor...</div>
+                <div style="font-size: 0.8rem; color: #888;">WebSocket bağlantısı kurun</div>
+            </div>
+
+            <div class="confidence-meter">
+                <div class="confidence-fill" id="confidenceBar" style="width: 0%"></div>
+            </div>
+            <div style="font-size: 0.75rem; color: #888; text-align: center;">Güven Seviyesi: <span id="confidencePercent">0%</span></div>
+
+            <div class="tp-sl-tracker">
+                <div class="tp-sl-item">
+                    <div>🎯 Take Profit</div>
+                    <div id="tpStatus">Bekliyor</div>
+                </div>
+                <div class="tp-sl-item">
+                    <div>🛑 Stop Loss</div>
+                    <div id="slStatus">Bekliyor</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 12px;">
+                <div style="font-size: 0.8rem; color: #888; margin-bottom: 6px;">Son 5 Sinyal Performansı:</div>
+                <div id="recentPerformance" style="display: flex; gap: 5px; flex-wrap: wrap;">
+                    <div style="color: #888; font-size: 0.8rem;">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Volume Spike ve Momentum Takibi -->
+        <div class="panel">
+            <h3>📊 Volume & Momentum</h3>
+            
             <div class="volume-spike-indicator">
-                <span>Volume Spike:</span>
+                <span style="font-weight: 600;">Volume Spike:</span>
                 <div class="spike-meter">
-                    <div id="volumeSpikeFill" class="spike-fill" style="width: 0%"></div>
+                    <div class="spike-fill" id="volumeSpikeFill" style="width: 0%"></div>
                 </div>
                 <span id="volumeSpikeValue">1.0x</span>
             </div>
 
-            <div class="panel-stat">
-                <span class="stat-label">Price Momentum</span>
-                <span id="priceMomentum" class="stat-value">+0.00%</span>
+            <div style="margin: 12px 0;">
+                <div style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">Price Momentum (1dk)</div>
+                <div style="font-size: 1.1rem; font-weight: 700;" id="priceMomentum">+0.00%</div>
             </div>
 
-            <div class="panel-stat">
-                <span class="stat-label">RSI</span>
-                <span id="rsiValue" class="stat-value">50</span>
+            <div style="margin: 12px 0;">
+                <div style="font-size: 0.8rem; color: #888; margin-bottom: 6px;">Volume Geçmişi (15s)</div>
+                <div id="volumeHistory" style="display: flex; height: 40px; gap: 2px; align-items: end;">
+                    <!-- Volume barları buraya -->
+                </div>
             </div>
 
-            <div class="panel-stat">
-                <span class="stat-label">MACD</span>
-                <span id="macdValue" class="stat-value">0.00</span>
+            <div style="margin-top: 12px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                <div style="font-size: 0.75rem; color: #888;">Momentum Göstergeleri:</div>
+                <div style="font-size: 0.7rem; margin-top: 5px;">
+                    <div>RSI: <span id="rsiValue">50</span></div>
+                    <div>MACD: <span id="macdValue">0.00</span></div>
+                    <div>BB Position: <span id="bbPosition">Normal</span></div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- OrderBook Derinlik Analizi -->
-    <div class="panel">
-        <div class="panel-header">
-            <div class="panel-title">
-                🎲 OrderBook Analizi 
-                <span class="panel-badge">DEPTH</span>
-            </div>
-        </div>
-        <div class="panel-content">
-            <div class="depth-visualization" id="depthVisualization">
-                <!-- Derinlik görselleştirmesi buraya -->
+        <!-- OrderBook Derinlik Analizi -->
+        <div class="panel">
+            <h3>📋 OrderBook Analizi</h3>
+            
+            <div class="orderbook-depth">
+                <div style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">Bid/Ask Derinliği</div>
+                <div class="depth-visualization" id="depthVisualization">
+                    <!-- Derinlik gösterimi buraya -->
+                </div>
             </div>
 
-            <div class="panel-stat">
-                <span class="stat-label">Spread</span>
-                <span id="currentSpread" class="stat-value">$0.00</span>
+            <div style="margin: 12px 0;">
+                <div style="font-size: 0.8rem; color: #888;">Market Dengesizlik</div>
+                <div style="font-size: 1rem; font-weight: 700;" id="marketImbalance">Bekliyor</div>
             </div>
 
-            <div class="panel-stat">
-                <span class="stat-label">Bid Volume</span>
-                <span id="bidVolume" class="stat-value">0</span>
-            </div>
-
-            <div class="panel-stat">
-                <span class="stat-label">Ask Volume</span>
-                <span id="askVolume" class="stat-value">0</span>
+            <div style="margin: 12px 0;">
+                <div style="font-size: 0.75rem; color: #888;">OrderBook Metrikleri:</div>
+                <div style="font-size: 0.7rem; margin-top: 5px;">
+                    <div>Spread: <span id="currentSpread">$0.00</span></div>
+                    <div>Bid Volume: <span id="bidVolume">0</span></div>
+                    <div>Ask Volume: <span id="askVolume">0</span></div>
+                    <div>Imbalance: <span id="imbalancePercent">0%</span></div>
+                </div>
             </div>
 
             <div id="whaleAlert" class="whale-status">
-                <div id="whaleDetails">Normal seviyede - büyük emir yok</div>
+                <div>
+                    <div style="font-weight: 700; color: #FFC107; font-size: 0.8rem;">🐋 Büyük Emir Durumu</div>
+                    <div style="font-size: 0.75rem; margin-top: 3px; color: #888;" id="whaleDetails">Normal seviyede - büyük emir yok</div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-</artifact>
 
-<artifact type="text/html">
-    <style>
-        .strategy-performance {
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            padding: 10px;
-        }
-    .performance-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 8px 0;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .performance-item:last-child {
-        border-bottom: none;
-    }
-
-    .settings-panel {
-        background: rgba(255,255,255,0.05);
-        border-radius: 8px;
-        padding: 10px;
-    }
-
-    .setting-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 8px 0;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .setting-item:last-child {
-        border-bottom: none;
-    }
-
-    .signal-history {
-        max-height: 200px;
-        overflow-y: auto;
-        background: rgba(255,255,255,0.05);
-        border-radius: 8px;
-        padding: 10px;
-    }
-
-    .signal-history-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 5px 0;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        font-size: 0.8rem;
-    }
-
-    .signal-history-item:last-child {
-        border-bottom: none;
-    }
-
-    .success-signal {
-        color: var(--accent-color);
-    }
-
-    .failure-signal {
-        color: red;
-    }
-</style>
-
-<div class="main-container">
-    <!-- Performans Analizi Paneli -->
-    <div class="panel">
-        <div class="panel-header">
-            <div class="panel-title">
-                📊 Performans Analizi 
-                <span class="panel-badge">STATS</span>
-            </div>
-        </div>
-        <div class="panel-content">
-            <div class="strategy-performance">
-                <div class="panel-title" style="margin-bottom: 10px;">Strateji Performansları</div>
+        <!-- Sinyal Geçmişi ve İstatistikler -->
+        <div class="panel">
+            <h3>📈 Performans Analizi</h3>
+            
+            <div style="margin: 12px 0;">
+                <div style="font-size: 0.8rem; color: #888; margin-bottom: 6px;">Strateji Performansları:</div>
                 <div id="strategyPerformance">
-                    <div class="performance-item">
-                        <span>Scalp</span>
-                        <span class="success-signal">%75.5</span>
-                    </div>
-                    <div class="performance-item">
-                        <span>Volume</span>
-                        <span class="success-signal">%68.2</span>
-                    </div>
-                    <div class="performance-item">
-                        <span>OrderBook</span>
-                        <span class="failure-signal">%55.3</span>
+                    <div style="text-align: center; color: #888; font-size: 0.8rem; padding: 15px;">
+                        Henüz veri yok
                     </div>
                 </div>
             </div>
 
-            <div class="signal-history" style="margin-top: 15px;">
-                <div class="panel-title" style="margin-bottom: 10px;">Sinyal Geçmişi</div>
-                <div id="signalHistory">
-                    <div class="signal-history-item success-signal">
-                        <span>BTC Buy</span>
-                        <span>+%2.3</span>
-                    </div>
-                    <div class="signal-history-item failure-signal">
-                        <span>ETH Sell</span>
-                        <span>-%1.5</span>
-                    </div>
+            <div id="signalHistory" style="max-height: 180px; overflow-y: auto; margin: 12px 0;">
+                <div style="text-align: center; color: #888; font-size: 0.8rem; padding: 15px;">
+                    Sinyal geçmişi burada görünecek
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Sistem Durumu Paneli -->
-    <div class="panel">
-        <div class="panel-header">
-            <div class="panel-title">
-                🖥️ Sistem Durumu 
-                <span class="panel-badge">SYSTEM</span>
-            </div>
-        </div>
-        <div class="panel-content">
             <div class="settings-panel">
+                <div style="font-size: 0.75rem; color: #888;">AI Öğrenme Metrikleri:</div>
+                <div style="font-size: 0.7rem; margin-top: 5px;">
+                    <div class="setting-item">
+                        <span>Model Versiyonu:</span>
+                        <span id="modelVersion">v1.0</span>
+                    </div>
+                    <div class="setting-item">
+                        <span>Son Güncelleme:</span>
+                        <span id="lastModelUpdate">-</span>
+                    </div>
+                    <div class="setting-item">
+                        <span>Öğrenme Hızı:</span>
+                        <span id="learningRate">Orta</span>
+                    </div>
+                    <div class="setting-item">
+                        <span>Adaptasyon:</span>
+                        <span id="adaptationLevel">%0</span>
+                    </div>
+                    <div class="setting-item">
+                        <span>Hafıza Kullanımı:</span>
+                        <span id="memoryUsage">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sistem Durumu ve Ayarlar -->
+        <div class="panel">
+            <h3>⚙️ Sistem Durumu</h3>
+            
+            <div class="settings-panel">
+                <div style="font-size: 0.8rem; color: #888; margin-bottom: 8px;">Bağlantı Durumu:</div>
                 <div class="setting-item">
-                    <span>Model Versiyonu</span>
-                    <span id="modelVersion">v2.0</span>
+                    <span>Otomatik Yeniden Bağlanma:</span>
+                    <span id="autoReconnect" style="color: #00D4AA;">✅ Aktif</span>
                 </div>
                 <div class="setting-item">
-                    <span>Son Güncelleme</span>
-                    <span id="lastModelUpdate">-</span>
+                    <span>Ayar Kaydetme:</span>
+                    <span id="settingsPersistence" style="color: #00D4AA;">✅ Aktif</span>
                 </div>
                 <div class="setting-item">
-                    <span>Öğrenme Hızı</span>
-                    <span id="learningRate">Orta</span>
+                    <span>AI Öğrenme Kaydetme:</span>
+                    <span id="learningPersistence" style="color: #00D4AA;">✅ Aktif</span>
                 </div>
                 <div class="setting-item">
-                    <span>Adaptasyon Seviyesi</span>
-                    <span id="adaptationLevel">%0</span>
-                </div>
-                <div class="setting-item">
-                    <span>Hafıza Kullanımı</span>
-                    <span id="memoryUsage">-</span>
+                    <span>Mobil Optimizasyon:</span>
+                    <span id="mobileOptimization" style="color: #00D4AA;">✅ Aktif</span>
                 </div>
             </div>
 
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button class="btn" onclick="resetAILearning()">🔄 AI Sıfırla</button>
-                <button class="btn" onclick="exportSettings()">💾 Ayarları Dışa Aktar</button>
+            <div style="margin: 12px 0;">
+                <div style="font-size: 0.8rem; color: #888; margin-bottom: 6px;">Hızlı Ayarlar:</div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button class="btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="resetAILearning()">🔄 AI Sıfırla</button>
+                    <button class="btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="exportSettings()">📤 Ayarları Dışa Aktar</button>
+                    <button class="btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="importSettings()">📥 Ayarları İçe Aktar</button>
+                </div>
+            </div>
+
+            <div style="margin-top: 12px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                <div style="font-size: 0.75rem; color: #888;">Sistem Bilgileri:</div>
+                <div style="font-size: 0.7rem; margin-top: 5px;">
+                    <div>Tarayıcı: <span id="browserInfo">-</span></div>
+                    <div>Bağlantı Türü: <span id="connectionType">-</span></div>
+                    <div>Çalışma Süresi: <span id="uptime">-</span></div>
+                    <div>Veri Kullanımı: <span id="dataUsage">-</span></div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Toast Bildirimi -->
-<div id="toast" class="toast"></div>
+    <div id="toast" class="toast"></div>
+    <div id="persistenceIndicator" class="persistence-indicator" style="display: none;">💾 Ayarlar kaydedildi</div>
 
-<style>
-    .toast {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: rgba(0,0,0,0.8);
-        color: var(--text-color);
-        padding: 15px;
-        border-radius: 10px;
-        border: 2px solid var(--primary-color);
-        z-index: 1000;
-        display: none;
-        transition: all 0.3s ease;
-    }
-
-    .toast.show {
-        display: block;
-        animation: toast-animation 0.3s ease;
-    }
-
-    @keyframes toast-animation {
-        from { 
-            opacity: 0; 
-            transform: translateY(20px);
-        }
-        to { 
-            opacity: 1; 
-            transform: translateY(0);
-        }
-    }
-
-    .toast.success {
-        background: rgba(0,255,65,0.2);
-        border-color: var(--accent-color);
-    }
-
-    .toast.error {
-        background: rgba(255,0,0,0.2);
-        border-color: red;
-    }
-</style>
-</artifact>
-
-
-<artifact type="text/html">
-<script>
-    // Global Değişkenler
-    let ws = null;
-    let isConnected = false;
-    let currentSymbol = 'BTC_USDT';
-    let currentExchange = 'mexc';
-    let lastPrice = 0;
-    let priceHistory = [];
-    let volumeHistory = [];
-    let realOrderBookData = { bids: [], asks: [] };
-    let debugPanel = null;
-    let pingInterval = null;
-    let reconnectAttempts = 0;
-    let maxReconnectAttempts = 5;
-    let startTime = Date.now();
-    let dataUsageBytes = 0;
-// Utility Fonksiyonları
-function debugLog(message, type = 'info') {
-    const el = document.getElementById('debugPanel');
-    const logEntry = document.createElement('div');
-    logEntry.className = `debug-log debug-${type}`;
-    logEntry.innerText = `[${new Date().toLocaleTimeString()}] ${message}`;
-    el.insertBefore(logEntry, el.firstChild);
-    
-    // 100 log ile sınırla
-    if (el.children.length > 100) {
-        el.removeChild(el.lastChild);
-    }
-}
-
-function showToast(message, type = 'info') {
-    const toast = document.getElementById('toast');
-    toast.textContent = message;
-    toast.className = `toast show ${type}`;
-    
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, 3000);
-}
-
-function validateSymbol(symbol) {
-    const coin = symbol.trim().toUpperCase();
-    
-    // Sadece geçerli format kontrolü
-    if (/^[A-Z]{2,10}$/.test(coin)) {
-        return { 
-            valid: true, 
-            coin: coin, 
-            message: `🎲 ${coin}_USDT bağlantısı kuruluyor...` 
-        };
-    }
-    
-    return { 
-        valid: false, 
-        coin: null, 
-        message: `🚫 Geçersiz format: Sadece harfler, 2-10 karakter` 
-    };
-}
-
-function toggleTheme() {
-    const body = document.body;
-    const currentTheme = body.getAttribute('data-theme') || 'dark';
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
-    body.setAttribute('data-theme', newTheme);
-    localStorage.setItem('app-theme', newTheme);
-    
-    showToast(`🌓 ${newTheme === 'dark' ? 'Koyu' : 'Açık'} tema aktifleştirildi`, 'success');
-}
-
-function updatePriceDisplay(price, change = 0) {
-    const priceEl = document.getElementById('headerPrice');
-    const changeEl = document.getElementById('headerChange');
-    
-    priceEl.textContent = `$${price.toFixed(4)}`;
-    
-    const changeIcon = change >= 0 ? '📈' : '📉';
-    changeEl.textContent = `${changeIcon} ${change >= 0 ? '+' : ''}${change.toFixed(3)}%`;
-    changeEl.style.color = change >= 0 ? 'var(--accent-color)' : 'red';
-    
-    lastPrice = price;
-}
-
-function resetAILearning() {
-    if (confirm('AI öğrenme verilerini sıfırlamak istediğinizden emin misiniz?')) {
-        // Gelecek bölümlerde AI sıfırlama mantığı eklenecek
-        debugLog('🤖 AI öğrenme verileri sıfırlandı', 'warning');
-        showToast('🔄 AI verileri sıfırlandı', 'success');
-    }
-}
-
-function exportSettings() {
-    try {
-        const exportData = {
-            timestamp: new Date().toISOString(),
-            currentSymbol: currentSymbol,
-            lastPrice: lastPrice,
-            // Diğer ayarlar eklenecek
-        };
+    <script>
+        // Global değişkenler
+        let ws = null;
+        let isConnected = false;
+        let currentSymbol = 'BTC_USDT';
+        let currentExchange = 'mexc';
+        let lastPrice = 0;
+        let priceHistory = [];
+        let volumeHistory = [];
+        let realOrderBookData = { bids: [], asks: [] };
+        let debugPanel = null;
+        let pingInterval = null;
+        let reconnectAttempts = 0;
+        let maxReconnectAttempts = 5;
+        let startTime = Date.now();
+        let dataUsageBytes = 0;
         
-        const dataStr = JSON.stringify(exportData, null, 2);
-        const dataBlob = new Blob([dataStr], {type: 'application/json'});
-        const url = URL.createObjectURL(dataBlob);
-        
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `ai_crypto_bot_settings_${new Date().toISOString().split('T')[0]}.json`;
-        link.click();
-        
-        URL.revokeObjectURL(url);
-        
-        showToast('💾 Ayarlar dışa aktarıldı', 'success');
-    } catch (error) {
-        debugLog(`🚨 Dışa aktarma hatası: ${error.message}`, 'error');
-        showToast('🚫 Dışa aktarma başarısız', 'error');
-    }
-}
-
-// Sayfa yüklendiğinde çalışacak başlangıç fonksiyonu
-document.addEventListener('DOMContentLoaded', function() {
-    // Tema ayarını kontrol et
-    const savedTheme = localStorage.getItem('app-theme') || 'dark';
-    document.body.setAttribute('data-theme', savedTheme);
-
-    // Debug panelini başlat
-    debugPanel = document.getElementById('debugPanel');
-    
-    // İlk log
-    debugLog('🎲 Casino Kripto AI Bot başlatıldı', 'success');
-    
-    // Klavye kısayolları
-    document.addEventListener('keydown', function(event) {
-        if (event.ctrlKey) {
-            switch(event.key) {
-                case 't': 
-                    event.preventDefault();
-                    toggleTheme();
-                    break;
-                case 'e':
-                    event.preventDefault();
-                    exportSettings();
-                    break;
+        // Coin sembolü doğrulama fonksiyonu - sadece format kontrolü
+        function validateSymbol(symbol) {
+            const coin = symbol.trim().toUpperCase();
+            
+            // Sadece geçerli format kontrolü (2-10 karakter, sadece harfler)
+            if (/^[A-Z]{2,10}$/.test(coin)) {
+                return { 
+                    valid: true, 
+                    coin: coin, 
+                    message: `🔍 ${coin}_USDT bağlantısı kuruluyor...` 
+                };
             }
+            
+            return { 
+                valid: false, 
+                coin: null, 
+                message: `❌ Geçersiz format: Sadece harfler, 2-10 karakter` 
+            };
         }
-    });
-});
-</script>
-</artifact>
 
-<artifact type="text/html">
-<script>
-    // WebSocket Bağlantı Fonksiyonları
-    function connect() {
-        try {
-            const coin = document.getElementById('manualSymbol').value.trim().toUpperCase() || 'BTC';
-            const validation = validateSymbol(coin);
-        if (!validation.valid) {
-            showToast(validation.message, 'error');
-            return;
-        }
-        
-        currentSymbol = validation.coin + '_USDT';
-        
-        // Bağlantı UI güncellemeleri
-        document.getElementById('connectionStatus').className = 'status-indicator connecting';
-        document.getElementById('connectionStatus').innerHTML = '🎲 Bağlanıyor...';
-        document.getElementById('connectBtn').innerHTML = '🎰 Bağlanıyor';
-        document.getElementById('connectBtn').disabled = true;
-        
-        // WebSocket bağlantısı
-        const url = 'wss://futures.mexc.com/edge';
-        ws = new WebSocket(url);
-        
-        ws.onopen = () => {
-            isConnected = true;
-            reconnectAttempts = 0;
-            
-            // Bağlantı durumu güncelleme
-            document.getElementById('connectionStatus').className = 'status-indicator connected';
-            document.getElementById('connectionStatus').innerHTML = '🎉 Bağlandı';
-            document.getElementById('connectBtn').innerHTML = '🚫 Bağlantıyı Kes';
-            document.getElementById('connectBtn').disabled = false;
-            
-            debugLog(`🎲 ${currentSymbol} için WebSocket bağlantısı kuruldu`, 'success');
-            showToast(`🎉 ${currentSymbol} bağlandı`, 'success');
-            
-            // Coin için abonelik
-            subscribeToPair(currentSymbol);
-            startPing();
-        };
-        
-        ws.onmessage = (event) => {
-            try {
-                dataUsageBytes += event.data.length;
-                const data = JSON.parse(event.data);
-                
-                if (data.channel) {
-                    handleWebSocketData(data);
+        // Enhanced AI sistem sınıfları
+        class AILearningSystem {
+            constructor() {
+                this.version = '2.0';
+                this.learningData = this.loadLearningData();
+                this.currentScore = 0;
+                this.totalSignals = 0;
+                this.successfulSignals = 0;
+                this.optimizationParams = this.loadOptimizationParams();
+                this.performanceMetrics = {
+                    avgTpTime: 0,
+                    strategyPerformance: {
+                        scalp: { success: 0, total: 0 },
+                        volume: { success: 0, total: 0 },
+                        orderbook: { success: 0, total: 0 }
+                    }
+                };
+                this.memoryUsage = this.calculateMemoryUsage();
+            }
+
+            loadLearningData() {
+                try {
+                    const data = JSON.parse(localStorage.getItem('aiLearningData_v2') || '{}');
+                    if (!data.signals) {
+                        // Eski versiyon varsa migrate et
+                        const oldData = JSON.parse(localStorage.getItem('aiLearningData') || '{}');
+                        if (oldData.signals) {
+                            this.migrateLearningData(oldData);
+                            return oldData;
+                        }
+                        return { signals: [], optimizations: [], version: '2.0' };
+                    }
+                    return data;
+                } catch (error) {
+                    debugLog(`❌ Öğrenme verisi yükleme hatası: ${error.message}`, 'error');
+                    return { signals: [], optimizations: [], version: '2.0' };
                 }
-            } catch (error) {
-                debugLog(`🚨 Mesaj işleme hatası: ${error.message}`, 'error');
-            }
-        };
-        
-        ws.onclose = () => {
-            isConnected = false;
-            
-            document.getElementById('connectionStatus').className = 'status-indicator disconnected';
-            document.getElementById('connectionStatus').innerHTML = '🎲 Bağlantı Kesildi';
-            document.getElementById('connectBtn').innerHTML = '🎰 Bağlan';
-            document.getElementById('connectBtn').disabled = false;
-            
-            debugLog('🚫 WebSocket bağlantısı kapandı', 'warning');
-            showToast('🚫 Bağlantı kesildi', 'warning');
-            
-            stopPing();
-            attemptReconnect();
-        };
-        
-        ws.onerror = (err) => {
-            debugLog(`🚨 WebSocket hatası: ${err}`, 'error');
-            showToast('🚨 Bağlantı hatası', 'error');
-        };
-    } catch (error) {
-        debugLog(`🚨 Bağlantı başlatma hatası: ${error.message}`, 'error');
-        showToast('🚨 Bağlantı başlatılamadı', 'error');
-    }
-}
-
-function disconnect() {
-    if (ws) {
-        ws.close();
-        ws = null;
-    }
-    
-    isConnected = false;
-    
-    document.getElementById('connectionStatus').className = 'status-indicator disconnected';
-    document.getElementById('connectionStatus').innerHTML = '🎲 Bağlantı Yok';
-    document.getElementById('connectBtn').innerHTML = '🎰 Bağlan';
-    
-    debugLog('🚫 Bağlantı manuel olarak kesildi', 'info');
-    showToast('🚫 Bağlantı kesildi', 'info');
-    
-    stopPing();
-    reconnectAttempts = 0;
-}
-
-function toggleConnection() {
-    if (isConnected) {
-        disconnect();
-    } else {
-        connect();
-    }
-}
-
-function subscribeToPair(symbol) {
-    if (ws && ws.readyState === WebSocket.OPEN) {
-        const subscriptions = [
-            { method: 'sub.deal', param: { symbol }, id: 'deal_' + symbol },
-            { method: 'sub.depth', param: { symbol, depth: 20 }, id: 'depth_' + symbol },
-            { method: 'sub.ticker', param: { symbol }, id: 'ticker_' + symbol }
-        ];
-        
-        subscriptions.forEach(sub => {
-            ws.send(JSON.stringify(sub));
-            debugLog(`🎲 Abonelik: ${sub.method} - ${symbol}`, 'info');
-        });
-    }
-}
-
-function startPing() {
-    pingInterval = setInterval(() => {
-        if (ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ method: 'ping' }));
-        }
-    }, 30000);
-}
-
-function stopPing() {
-    if (pingInterval) {
-        clearInterval(pingInterval);
-        pingInterval = null;
-    }
-}
-
-function attemptReconnect() {
-    if (reconnectAttempts < maxReconnectAttempts) {
-        reconnectAttempts++;
-        
-        debugLog(`🔄 Yeniden bağlanma girişimi ${reconnectAttempts}/${maxReconnectAttempts}`, 'warning');
-        showToast(`🔄 Yeniden bağlanma ${reconnectAttempts}/${maxReconnectAttempts}`, 'warning');
-        
-        setTimeout(connect, 5000 * reconnectAttempts);
-    } else {
-        debugLog('🚫 Maksimum yeniden bağlanma denemesi tamamlandı', 'error');
-        showToast('🚫 Otomatik yeniden bağlanma durduruldu', 'error');
-    }
-}
-
-function handleWebSocketData(data) {
-    if (!data.channel || !data.data) return;
-
-    try {
-        if (data.channel === 'push.deal') {
-            const deal = data.data;
-            const price = parseFloat(deal.p);
-            const volume = parseFloat(deal.v);
-            
-            priceHistory.push(price);
-            if (priceHistory.length > 100) priceHistory.shift();
-            
-            const change = lastPrice ? ((price - lastPrice) / lastPrice * 100) : 0;
-            updatePriceDisplay(price, change);
-            
-            // Volume history güncelleme
-            volumeHistory.push(volume);
-            if (volumeHistory.length > 15) volumeHistory.shift();
-            
-        } else if (data.channel === 'push.depth') {
-            realOrderBookData = {
-                bids: data.data.bids.map(([price, volume]) => [parseFloat(price), parseFloat(volume)]),
-                asks: data.data.asks.map(([price, volume]) => [parseFloat(price), parseFloat(volume)])
-            };
-            
-            // OrderBook derinlik görselleştirmesi
-            updateOrderBookDepth();
-            
-        } else if (data.channel === 'push.ticker') {
-            const ticker = data.data;
-            const price = parseFloat(ticker.lastPrice);
-            const change = parseFloat(ticker.priceChangePercent);
-            updatePriceDisplay(price, change);
-        }
-    } catch (error) {
-        debugLog(`🚨 WebSocket veri işleme hatası: ${error.message}`, 'error');
-    }
-}
-
-function updateOrderBookDepth() {
-    try {
-        const depthViz = document.getElementById('depthVisualization');
-        const maxVolume = Math.max(
-            ...realOrderBookData.bids.slice(0, 5).map(b => b[1]),
-            ...realOrderBookData.asks.slice(0, 5).map(b => b[1]),
-            1
-        );
-        
-        const bars = [
-            ...realOrderBookData.bids.slice(0, 5).map(([price, vol]) => `
-                <div 
-                    class="depth-bar" 
-                    style="height: ${(vol / maxVolume) * 60}px;"
-                    title="Bid: $${price} (${vol.toFixed(2)})"
-                ></div>
-            `),
-            ...realOrderBookData.asks.slice(0, 5).map(([price, vol]) => `
-                <div 
-                    class="depth-bar ask" 
-                    style="height: ${(vol / maxVolume) * 60}px;"
-                    title="Ask: $${price} (${vol.toFixed(2)})"
-                ></div>
-            `)
-        ].join('');
-        
-        depthViz.innerHTML = bars;
-        
-        // Spread hesaplama
-        const bidVolume = realOrderBookData.bids.reduce((sum, [_, vol]) => sum + vol, 0);
-        const askVolume = realOrderBookData.asks.reduce((sum, [_, vol]) => sum + vol, 0);
-        
-        const imbalance = ((bidVolume - askVolume) / (bidVolume + askVolume) * 100) || 0;
-        
-        document.getElementById('bidVolume').textContent = bidVolume.toFixed(2);
-        document.getElementById('askVolume').textContent = askVolume.toFixed(2);
-        
-        const whaleAlert = document.getElementById('whaleAlert');
-        const whaleDetails = document.getElementById('whaleDetails');
-        
-        if (Math.abs(imbalance) > 25) {
-            whaleAlert.className = `whale-status ${imbalance > 0 ? 'bullish' : 'bearish'}`;
-            whaleDetails.innerHTML = imbalance > 0 
-                ? `🚀 Güçlü alım baskısı: +${Math.abs(imbalance).toFixed(1)}%` 
-                : `📉 Güçlü satım baskısı: -${Math.abs(imbalance).toFixed(1)}%`;
-        } else {
-            whaleAlert.className = 'whale-status';
-            whaleDetails.innerHTML = 'Normal piyasa dengesi';
-        }
-    } catch (error) {
-        debugLog(`🚨 OrderBook güncelleme hatası: ${error.message}`, 'error');
-    }
-}
-</script>
-</artifact>
-
-
-<artifact type="text/html">
-<script>
-    // AI Öğrenme Sistemi
-    class AILearningSystem {
-        constructor() {
-            this.version = '2.1';
-            this.learningData = this.loadLearningData();
-            this.currentScore = 0;
-            this.totalSignals = 0;
-            this.successfulSignals = 0;
-            this.optimizationParams = this.loadOptimizationParams();
-        }
-    loadLearningData() {
-        try {
-            const data = JSON.parse(localStorage.getItem('aiLearningData_v2') || '{}');
-            return {
-                signals: data.signals || [],
-                version: this.version
-            };
-        } catch (error) {
-            debugLog(`🤖 Öğrenme verisi yüklenirken hata: ${error.message}`, 'error');
-            return { signals: [], version: this.version };
-        }
-    }
-
-    loadOptimizationParams() {
-        return {
-            volumeThreshold: 1.5,
-            tpTarget: 0.8,
-            slLimit: 0.4,
-            signalFrequency: 15000,
-            maxActiveSignals: 3
-        };
-    }
-
-    learn(signalData) {
-        try {
-            // Sinyal verilerini kaydet
-            this.learningData.signals.push({
-                ...signalData,
-                timestamp: Date.now()
-            });
-
-            // Sinyal sayılarını güncelle
-            this.totalSignals++;
-            if (signalData.success) {
-                this.successfulSignals++;
             }
 
-            // Performans skorunu hesapla
-            this.updatePerformanceScore();
-
-            // Verileri kaydet
-            this.saveLearningData();
-        } catch (error) {
-            debugLog(`🤖 Öğrenme hatası: ${error.message}`, 'error');
-        }
-    }
-
-    updatePerformanceScore() {
-        try {
-            const recentSignals = this.learningData.signals.slice(-20);
-            if (recentSignals.length === 0) return;
-
-            const successRate = recentSignals.filter(s => s.success).length / recentSignals.length;
-            const avgProfit = recentSignals.reduce((sum, s) => sum + (s.profit || 0), 0) / recentSignals.length;
-
-            // Performans skoru hesaplama
-            this.currentScore = Math.round((successRate * 70) + (Math.abs(avgProfit) * 30));
-
-            // UI güncelleme
-            document.getElementById('aiScore').textContent = this.currentScore;
-            document.getElementById('totalAnalysis').textContent = this.totalSignals;
-            document.getElementById('successRate').textContent = 
-                `${(this.successfulSignals / (this.totalSignals || 1) * 100).toFixed(1)}%`;
-        } catch (error) {
-            debugLog(`🤖 Performans skoru güncellenirken hata: ${error.message}`, 'error');
-        }
-    }
-
-    saveLearningData() {
-        try {
-            localStorage.setItem('aiLearningData_v2', JSON.stringify({
-                signals: this.learningData.signals.slice(-100), // Son 100 sinyali sakla
-                version: this.version
-            }));
-        } catch (error) {
-            debugLog(`🤖 Öğrenme verisi kaydedilemedi: ${error.message}`, 'error');
-        }
-    }
-
-    generateOptimizedSignal(analysis) {
-        try {
-            const { rsi, volumeSpike, orderBookImbalance } = analysis;
-            let confidence = 0;
-            let direction = 'buy';
-            let strategy = 'volume';
-
-            // Basit sinyal üretme mantığı
-            if (rsi < 30 && volumeSpike > this.optimizationParams.volumeThreshold) {
-                confidence = Math.min(90, 50 + (volumeSpike * 10) + Math.abs(orderBookImbalance));
-                direction = 'buy';
-                strategy = 'rsi_oversold';
-            } else if (rsi > 70 && volumeSpike > this.optimizationParams.volumeThreshold) {
-                confidence = Math.min(90, 50 + (volumeSpike * 10) + Math.abs(orderBookImbalance));
-                direction = 'sell';
-                strategy = 'rsi_overbought';
+            migrateLearningData(oldData) {
+                try {
+                    const newData = {
+                        ...oldData,
+                        version: '2.0',
+                        migrationDate: Date.now()
+                    };
+                    localStorage.setItem('aiLearningData_v2', JSON.stringify(newData));
+                    localStorage.removeItem('aiLearningData');
+                    showToast('📈 AI verisi yeni versiyona güncellendi', 'success');
+                } catch (error) {
+                    debugLog(`❌ Veri migrasyonu hatası: ${error.message}`, 'error');
+                }
             }
 
-            if (confidence > 60) {
-                const multiplier = direction === 'buy' ? 1 : -1;
-                return {
-                    direction,
-                    entryPrice: lastPrice,
-                    takeProfit: lastPrice * (1 + (this.optimizationParams.tpTarget / 100) * multiplier),
-                    stopLoss: lastPrice * (1 - (this.optimizationParams.slLimit / 100) * multiplier),
-                    confidence,
+            loadOptimizationParams() {
+                try {
+                    const params = JSON.parse(localStorage.getItem('aiOptimizationParams_v2') || '{}');
+                    return {
+                        volumeThreshold: params.volumeThreshold || 1.5,
+                        tpTarget: params.tpTarget || 0.8,
+                        slLimit: params.slLimit || 0.4,
+                        signalFrequency: params.signalFrequency || 15000,
+                        riskLevel: params.riskLevel || 'medium',
+                        maxActiveSignals: params.maxActiveSignals || 3
+                    };
+                } catch (error) {
+                    debugLog(`❌ Optimizasyon parametreleri yükleme hatası: ${error.message}`, 'error');
+                    return {
+                        volumeThreshold: 1.5,
+                        tpTarget: 0.8,
+                        slLimit: 0.4,
+                        signalFrequency: 15000,
+                        riskLevel: 'medium',
+                        maxActiveSignals: 3
+                    };
+                }
+            }
+
+            calculateMemoryUsage() {
+                try {
+                    const learningDataSize = JSON.stringify(this.learningData).length;
+                    const optimizationSize = JSON.stringify(this.optimizationParams).length;
+                    return {
+                        learningData: (learningDataSize / 1024).toFixed(2) + ' KB',
+                        optimization: (optimizationSize / 1024).toFixed(2) + ' KB',
+                        total: ((learningDataSize + optimizationSize) / 1024).toFixed(2) + ' KB'
+                    };
+                } catch (error) {
+                    return { learningData: '0 KB', optimization: '0 KB', total: '0 KB' };
+                }
+            }
+
+            saveLearningData() {
+                try {
+                    const dataToSave = {
+                        ...this.learningData,
+                        version: this.version,
+                        lastSaved: Date.now(),
+                        totalSignals: this.totalSignals,
+                        successfulSignals: this.successfulSignals
+                    };
+                    localStorage.setItem('aiLearningData_v2', JSON.stringify(dataToSave));
+                    localStorage.setItem('aiOptimizationParams_v2', JSON.stringify(this.optimizationParams));
+                    
+                    this.memoryUsage = this.calculateMemoryUsage();
+                    document.getElementById('memoryUsage').textContent = this.memoryUsage.total;
+                    
+                    showPersistenceIndicator();
+                } catch (error) {
+                    debugLog(`❌ Veri kaydetme hatası: ${error.message}`, 'error');
+                    showToast('❌ Veri kaydedilemedi', 'error');
+                }
+            }
+
+            learn(signalData) {
+                this.learningData.signals.push({
+                    ...signalData,
                     timestamp: Date.now(),
-                    strategy,
                     symbol: currentSymbol
+                });
+
+                if (this.learningData.signals.length > 500) {
+                    this.learningData.signals = this.learningData.signals.slice(-200);
+                }
+
+                this.analyzeAndOptimize();
+                this.updatePerformanceScore();
+                this.saveLearningData();
+            }
+
+            analyzeAndOptimize() {
+                const recentSignals = this.learningData.signals.slice(-50);
+                if (recentSignals.length < 10) return;
+
+                const successfulSignals = recentSignals.filter(s => s.success);
+                const successRate = successfulSignals.length / recentSignals.length;
+
+                if (successRate < 0.5) {
+                    this.optimizationParams.volumeThreshold = Math.min(3.0, this.optimizationParams.volumeThreshold + 0.1);
+                    this.optimizationParams.tpTarget = Math.max(0.5, this.optimizationParams.tpTarget - 0.1);
+                    this.optimizationParams.signalFrequency = Math.min(30000, this.optimizationParams.signalFrequency + 2000);
+                } else if (successRate > 0.8) {
+                    this.optimizationParams.volumeThreshold = Math.max(1.2, this.optimizationParams.volumeThreshold - 0.05);
+                    this.optimizationParams.tpTarget = Math.min(1.5, this.optimizationParams.tpTarget + 0.05);
+                    this.optimizationParams.signalFrequency = Math.max(10000, this.optimizationParams.signalFrequency - 1000);
+                }
+
+                this.updateOptimizationUI();
+                this.saveLearningData();
+            }
+
+            updatePerformanceScore() {
+                try {
+                    const recentPerformance = this.learningData.signals.slice(-20);
+                    if (recentPerformance.length === 0) return;
+
+                    const successRate = recentPerformance.filter(s => s.success).length / recentPerformance.length;
+                    const avgProfit = recentPerformance.reduce((sum, s) => sum + (s.profit || 0), 0) / recentPerformance.length;
+
+                    this.currentScore = Math.round((successRate * 70) + (Math.abs(avgProfit) * 30));
+                    document.getElementById('aiScore').textContent = this.currentScore;
+                } catch (error) {
+                    debugLog(`❌ Performans skoru güncelleme hatası: ${error.message}`, 'error');
+                }
+            }
+
+            updateOptimizationUI() {
+                document.getElementById('autoVolumeThreshold').innerHTML = `${this.optimizationParams.volumeThreshold.toFixed(1)}x <span class="auto-badge">AUTO</span>`;
+                document.getElementById('autoTpTarget').innerHTML = `${this.optimizationParams.tpTarget.toFixed(1)}% <span class="auto-badge">AUTO</span>`;
+                document.getElementById('autoSlLimit').innerHTML = `${this.optimizationParams.slLimit.toFixed(1)}% <span class="auto-badge">AUTO</span>`;
+                document.getElementById('autoSignalFreq').innerHTML = `${(this.optimizationParams.signalFrequency / 1000).toFixed(1)}s <span class="auto-badge">AUTO</span>`;
+            }
+
+            generateOptimizedSignal(analysis) {
+                const { rsi, macd, bbPosition, volumeSpike, orderBookImbalance } = analysis;
+                let confidence = 0;
+                let direction = 'buy';
+                let strategy = 'volume';
+
+                if (rsi < 30 && macd.macd > macd.signal && bbPosition === 'Alt Bant' && volumeSpike > this.optimizationParams.volumeThreshold) {
+                    confidence = Math.min(95, 50 + (volumeSpike * 10) + Math.abs(orderBookImbalance));
+                    direction = 'buy';
+                    strategy = 'rsi_oversold';
+                } else if (rsi > 70 && macd.macd < macd.signal && bbPosition === 'Üst Bant' && volumeSpike > this.optimizationParams.volumeThreshold) {
+                    confidence = Math.min(95, 50 + (volumeSpike * 10) + Math.abs(orderBookImbalance));
+                    direction = 'sell';
+                    strategy = 'rsi_overbought';
+                } else if (volumeSpike > 2 && Math.abs(orderBookImbalance) > 20) {
+                    confidence = Math.min(90, 40 + (volumeSpike * 8) + Math.abs(orderBookImbalance));
+                    direction = orderBookImbalance > 0 ? 'buy' : 'sell';
+                    strategy = 'scalp';
+                }
+
+                if (confidence > 60) {
+                    const multiplier = direction === 'buy' ? 1 : -1;
+                    return {
+                        direction,
+                        entryPrice: lastPrice,
+                        takeProfit: lastPrice * (1 + (this.optimizationParams.tpTarget / 100) * multiplier),
+                        stopLoss: lastPrice * (1 - (this.optimizationParams.slLimit / 100) * multiplier),
+                        confidence,
+                        timestamp: Date.now(),
+                        strategy,
+                        symbol: currentSymbol
+                    };
+                }
+                return null;
+            }
+
+            reset() {
+                try {
+                    localStorage.removeItem('aiLearningData_v2');
+                    localStorage.removeItem('aiOptimizationParams_v2');
+                    localStorage.removeItem('totalProcessedData'); // Öğrenme ilerlemesini de sıfırla
+                    this.learningData = { signals: [], optimizations: [], version: '2.0' };
+                    this.optimizationParams = {
+                        volumeThreshold: 1.5,
+                        tpTarget: 0.8,
+                        slLimit: 0.4,
+                        signalFrequency: 15000,
+                        riskLevel: 'medium',
+                        maxActiveSignals: 3
+                    };
+                    this.currentScore = 0;
+                    this.totalSignals = 0;
+                    this.successfulSignals = 0;
+                    this.updateOptimizationUI();
+                    this.updatePerformanceScore();
+                    
+                    // Öğrenme ilerlemesini sıfırla
+                    document.getElementById('learningStats').textContent = '0 veri işlendi';
+                    document.getElementById('learningProgress').style.width = '0%';
+                    
+                    showToast('🔄 AI öğrenme verisi tamamen sıfırlandı', 'success');
+                } catch (error) {
+                    debugLog(`❌ AI sıfırlama hatası: ${error.message}`, 'error');
+                    showToast('❌ AI sıfırlama hatası', 'error');
+                }
+            }
+
+            exportData() {
+                try {
+                    const exportData = {
+                        learningData: this.learningData,
+                        optimizationParams: this.optimizationParams,
+                        currentScore: this.currentScore,
+                        totalSignals: this.totalSignals,
+                        successfulSignals: this.successfulSignals,
+                        exportDate: Date.now(),
+                        version: this.version
+                    };
+                    return JSON.stringify(exportData, null, 2);
+                } catch (error) {
+                    debugLog(`❌ Veri dışa aktarma hatası: ${error.message}`, 'error');
+                    return null;
+                }
+            }
+
+            importData(jsonData) {
+                try {
+                    const importedData = JSON.parse(jsonData);
+                    if (importedData.learningData && importedData.optimizationParams) {
+                        this.learningData = importedData.learningData;
+                        this.optimizationParams = importedData.optimizationParams;
+                        this.currentScore = importedData.currentScore || 0;
+                        this.totalSignals = importedData.totalSignals || 0;
+                        this.successfulSignals = importedData.successfulSignals || 0;
+                        this.saveLearningData();
+                        this.updateOptimizationUI();
+                        this.updatePerformanceScore();
+                        showToast('📥 AI verisi başarıyla içe aktarıldı', 'success');
+                        return true;
+                    }
+                    return false;
+                } catch (error) {
+                    debugLog(`❌ Veri içe aktarma hatası: ${error.message}`, 'error');
+                    return false;
+                }
+            }
+        }
+
+        class MarketAnalyzer {
+            constructor() {
+                this.rsiPeriod = 14;
+                this.macdFast = 12;
+                this.macdSlow = 26;
+                this.macdSignal = 9;
+                this.lastAnalysis = null;
+            }
+
+            analyzeMarket(price, volume, orderBook) {
+                try {
+                    const rsi = this.calculateRSI(priceHistory.slice(-this.rsiPeriod));
+                    const macd = this.calculateMACD(priceHistory);
+                    const bbPosition = this.calculateBollingerBands(priceHistory);
+                    
+                    const bidVolume = orderBook.bids.reduce((sum, [_, vol]) => sum + vol, 0);
+                    const askVolume = orderBook.asks.reduce((sum, [_, vol]) => sum + vol, 0);
+                    const imbalance = ((bidVolume - askVolume) / (bidVolume + askVolume) * 100) || 0;
+
+                    const avgVolume = volumeHistory.reduce((a, b) => a + b, 0) / Math.max(1, volumeHistory.length);
+                    const volumeSpike = volume / (avgVolume || 1);
+
+                    this.lastAnalysis = {
+                        rsi,
+                        macd,
+                        bbPosition,
+                        volumeSpike,
+                        orderBookImbalance: imbalance,
+                        timestamp: Date.now()
+                    };
+
+                    return this.lastAnalysis;
+                } catch (error) {
+                    debugLog(`❌ Market analizi hatası: ${error.message}`, 'error');
+                    return this.lastAnalysis || {
+                        rsi: 50,
+                        macd: { macd: 0, signal: 0 },
+                        bbPosition: 'Normal',
+                        volumeSpike: 1,
+                        orderBookImbalance: 0,
+                        timestamp: Date.now()
+                    };
+                }
+            }
+
+            calculateRSI(prices) {
+                if (prices.length < this.rsiPeriod) return 50;
+                let gains = 0, losses = 0;
+                for (let i = 1; i < prices.length; i++) {
+                    const diff = prices[i] - prices[i - 1];
+                    if (diff > 0) gains += diff;
+                    else losses -= diff;
+                }
+                const avgGain = gains / this.rsiPeriod;
+                const avgLoss = losses / this.rsiPeriod;
+                const rs = avgGain / (avgLoss || 1);
+                return 100 - (100 / (1 + rs));
+            }
+
+            calculateMACD(prices) {
+                if (prices.length < this.macdSlow) return { macd: 0, signal: 0 };
+                const ema = (period, data) => {
+                    const k = 2 / (period + 1);
+                    return data.reduce((ema, price, i) => i === 0 ? price : price * k + ema * (1 - k), data[0]);
                 };
+                const fastEMA = ema(this.macdFast, prices.slice(-this.macdFast));
+                const slowEMA = ema(this.macdSlow, prices.slice(-this.macdSlow));
+                const macd = fastEMA - slowEMA;
+                const signal = ema(this.macdSignal, prices.slice(-this.macdSignal));
+                return { macd, signal };
             }
 
-            return null;
-        } catch (error) {
-            debugLog(`🤖 Optimize sinyal üretiminde hata: ${error.message}`, 'error');
-            return null;
-        }
-    }
-
-    reset() {
-        try {
-            localStorage.removeItem('aiLearningData_v2');
-            this.learningData = { signals: [], version: this.version };
-            this.currentScore = 0;
-            this.totalSignals = 0;
-            this.successfulSignals = 0;
-
-            // UI güncelleme
-            document.getElementById('aiScore').textContent = '0';
-            document.getElementById('totalAnalysis').textContent = '0';
-            document.getElementById('successRate').textContent = '0%';
-
-            debugLog('🤖 AI öğrenme verileri sıfırlandı', 'warning');
-            showToast('🔄 AI verileri sıfırlandı', 'success');
-        } catch (error) {
-            debugLog(`🤖 Sıfırlama hatası: ${error.message}`, 'error');
-        }
-    }
-}
-
-// Sinyal İzleme Sınıfı
-class SignalTracker {
-    constructor(aiSystem) {
-        this.aiSystem = aiSystem;
-        this.activeSignals = [];
-        this.completedSignals = this.loadCompletedSignals();
-    }
-
-    loadCompletedSignals() {
-        try {
-            return JSON.parse(localStorage.getItem('completedSignals_v2') || '[]');
-        } catch (error) {
-            debugLog(`🎲 Tamamlanan sinyaller yüklenemedi: ${error.message}`, 'error');
-            return [];
-        }
-    }
-
-    addSignal(signal) {
-        if (this.activeSignals.length >= this.aiSystem.optimizationParams.maxActiveSignals) {
-            debugLog('🚫 Maksimum aktif sinyal sayısına ulaşıldı', 'warning');
-            return false;
-        }
-
-        this.activeSignals.push(signal);
-        this.updateSignalUI();
-        
-        showToast(`🎲 Yeni ${signal.direction.toUpperCase()} sinyali - %${signal.confidence.toFixed(0)} güven`, 'success');
-        return true;
-    }
-
-    updateSignals(currentPrice) {
-        this.activeSignals = this.activeSignals.filter(signal => {
-            const profitTarget = signal.direction === 'buy' ? signal.takeProfit : signal.stopLoss;
-            const lossTarget = signal.direction === 'buy' ? signal.stopLoss : signal.takeProfit;
-            
-            if ((signal.direction === 'buy' && currentPrice >= profitTarget) || 
-                (signal.direction === 'sell' && currentPrice <= profitTarget)) {
-                // Kar hedefine ulaşıldı
-                signal.success = true;
-                signal.profit = ((profitTarget - signal.entryPrice) / signal.entryPrice * 100);
-                this.processCompletedSignal(signal);
-                return false;
-            } else if ((signal.direction === 'buy' && currentPrice <= lossTarget) || 
-                       (signal.direction === 'sell' && currentPrice >= lossTarget)) {
-                // Zarar durdurma tetiklendi
-                signal.success = false;
-                signal.profit = ((lossTarget - signal.entryPrice) / signal.entryPrice * 100);
-                this.processCompletedSignal(signal);
-                return false;
+            calculateBollingerBands(prices) {
+                if (prices.length < 20) return 'Normal';
+                const sma = prices.reduce((sum, p) => sum + p, 0) / prices.length;
+                const stdDev = Math.sqrt(prices.reduce((sum, p) => sum + Math.pow(p - sma, 2), 0) / prices.length);
+                const upper = sma + 2 * stdDev;
+                const lower = sma - 2 * stdDev;
+                const lastPrice = prices[prices.length - 1];
+                if (lastPrice > upper) return 'Üst Bant';
+                if (lastPrice < lower) return 'Alt Bant';
+                return 'Normal';
             }
-            
-            return true;
-        });
-
-        this.updateSignalUI();
-    }
-
-    processCompletedSignal(signal) {
-        signal.exitTime = Date.now();
-        this.completedSignals.push(signal);
-        this.saveCompletedSignals();
-        this.aiSystem.learn(signal);
-
-        // Toast bildirimi
-        showToast(
-            `🎲 ${signal.direction.toUpperCase()} sinyali ${signal.success ? 'TP' : 'SL'}: %${signal.profit.toFixed(2)}`, 
-            signal.success ? 'success' : 'error'
-        );
-    }
-
-    saveCompletedSignals() {
-        try {
-            localStorage.setItem('completedSignals_v2', JSON.stringify(this.completedSignals.slice(-50)));
-        } catch (error) {
-            debugLog(`🎲 Tamamlanan sinyaller kaydedilemedi: ${error.message}`, 'error');
         }
-    }
 
-    updateSignalUI() {
-        const signalHistoryEl = document.getElementById('signalHistory');
-        
-        // Son 10 sinyali göster
-        const recentSignals = this.completedSignals.slice(-10).reverse();
-        
-        signalHistoryEl.innerHTML = recentSignals.map(signal => `
-            <div class="signal-history-item ${signal.success ? 'success-signal' : 'failure-signal'}">
-                <span>${signal.symbol} ${signal.direction.toUpperCase()}</span>
-                <span>${signal.success ? '+' : ''}${signal.profit.toFixed(2)}%</span>
-            </div>
-        `).join('');
-    }
-}
+        class SignalTracker {
+            constructor(aiSystem) {
+                this.aiSystem = aiSystem;
+                this.activeSignals = [];
+                this.completedSignals = this.loadCompletedSignals();
+            }
 
-// Başlatma fonksiyonu
-function initializeAI() {
-    try {
-        // AI sistemlerini başlat
-        window.aiSystem = new AILearningSystem();
-        window.signalTracker = new SignalTracker(window.aiSystem);
+            loadCompletedSignals() {
+                try {
+                    return JSON.parse(localStorage.getItem('completedSignals_v2') || '[]');
+                } catch (error) {
+                    return [];
+                }
+            }
 
-        debugLog('🎲 AI sistemleri başlatıldı', 'success');
-        showToast('🤖 AI sistemleri hazır', 'success');
-    } catch (error) {
-        debugLog(`🚨 AI başlatma hatası: ${error.message}`, 'error');
-        showToast('🚨 AI başlatılamadı', 'error');
-    }
-}
+            saveCompletedSignals() {
+                try {
+                    localStorage.setItem('completedSignals_v2', JSON.stringify(this.completedSignals.slice(-100)));
+                } catch (error) {
+                    debugLog(`❌ Tamamlanan sinyalleri kaydetme hatası: ${error.message}`, 'error');
+                }
+            }
 
-// Sayfa yüklendiğinde AI'ı başlat
-document.addEventListener('DOMContentLoaded', initializeAI);
-</script>
-</artifact>
+            addSignal(signal) {
+                if (this.activeSignals.length >= this.aiSystem.optimizationParams.maxActiveSignals) {
+                    debugLog('⚠️ Maksimum aktif sinyal sayısına ulaşıldı', 'warning');
+                    return false;
+                }
 
+                this.activeSignals.push(signal);
+                this.aiSystem.totalSignals++;
+                this.updateUI();
+                showToast(`🎯 Yeni ${signal.direction.toUpperCase()} sinyali (${signal.strategy}) - %${signal.confidence.toFixed(0)} güven`, 'success');
+                return true;
+            }
 
-<artifact type="text/html">
-<script>
-    // Performans ve Risk Yönetimi
-    function monitorPerformance() {
-        setInterval(() => {
+            updateSignals(currentPrice) {
+                this.activeSignals = this.activeSignals.filter(signal => {
+                    const profitTarget = signal.direction === 'buy' ? signal.takeProfit : signal.stopLoss;
+                    const lossTarget = signal.direction === 'buy' ? signal.stopLoss : signal.takeProfit;
+                    
+                    if ((signal.direction === 'buy' && currentPrice >= profitTarget) || 
+                        (signal.direction === 'sell' && currentPrice <= profitTarget)) {
+                        signal.success = true;
+                        signal.profit = ((profitTarget - signal.entryPrice) / signal.entryPrice * 100);
+                        signal.exitPrice = currentPrice;
+                        signal.exitTime = Date.now();
+                        this.completedSignals.push(signal);
+                        this.aiSystem.successfulSignals++;
+                        this.aiSystem.learn(signal);
+                        this.saveCompletedSignals();
+                        showToast(`✅ ${signal.direction.toUpperCase()} sinyali TP: %${signal.profit.toFixed(2)}`, 'success');
+                        return false;
+                    } else if ((signal.direction === 'buy' && currentPrice <= lossTarget) || 
+                               (signal.direction === 'sell' && currentPrice >= lossTarget)) {
+                        signal.success = false;
+                        signal.profit = ((lossTarget - signal.entryPrice) / signal.entryPrice * 100);
+                        signal.exitPrice = currentPrice;
+                        signal.exitTime = Date.now();
+                        this.completedSignals.push(signal);
+                        this.aiSystem.learn(signal);
+                        this.saveCompletedSignals();
+                        showToast(`🛑 ${signal.direction.toUpperCase()} sinyali SL: %${signal.profit.toFixed(2)}`, 'error');
+                        return false;
+                    }
+                    return true;
+                });
+                this.updateUI();
+            }
+
+            updateSignalHistory() {
+                const historyDiv = document.getElementById('signalHistory');
+                const recentSignals = this.completedSignals.slice(-10);
+                
+                if (recentSignals.length === 0) {
+                    historyDiv.innerHTML = '<div style="text-align: center; color: #888; font-size: 0.8rem; padding: 15px;">Sinyal geçmişi burada görünecek</div>';
+                    return;
+                }
+
+                historyDiv.innerHTML = recentSignals.map(s => `
+                    <div style="padding: 6px; font-size: 0.75rem; color: ${s.success ? '#00D4AA' : '#F84960'}; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>[${new Date(s.timestamp).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}] ${s.direction.toUpperCase()}</span>
+                            <span style="font-weight: 600;">${s.success ? 'TP' : 'SL'}: ${s.profit.toFixed(2)}%</span>
+                        </div>
+                        <div style="font-size: 0.7rem; color: #888; margin-top: 2px;">
+                            ${s.strategy} | Giriş: $${s.entryPrice.toFixed(2)} | Çıkış: $${s.exitPrice?.toFixed(2) || 'N/A'}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            updateUI() {
+                const signalBox = document.getElementById('currentSignal');
+                if (this.activeSignals.length > 0) {
+                    const signal = this.activeSignals[0];
+                    signalBox.className = `signal-box ${signal.strategy || signal.direction.toLowerCase()}`;
+                    signalBox.innerHTML = `
+                        <div style="font-weight: 700; margin-bottom: 8px; display: flex; justify-content: space-between;">
+                            <span>${signal.direction.toUpperCase()} Sinyali</span>
+                            <span style="font-size: 0.8rem;">(${signal.strategy})</span>
+                        </div>
+                        <div style="font-size: 0.8rem; margin: 3px 0;">Giriş: $${signal.entryPrice.toFixed(4)}</div>
+                        <div style="font-size: 0.8rem; margin: 3px 0;">TP: $${signal.takeProfit.toFixed(4)}</div>
+                        <div style="font-size: 0.8rem; margin: 3px 0;">SL: $${signal.stopLoss.toFixed(4)}</div>
+                        <div style="font-size: 0.7rem; color: #888; margin-top: 5px;">
+                            Aktif: ${this.activeSignals.length}/${this.aiSystem.optimizationParams.maxActiveSignals}
+                        </div>
+                    `;
+                    document.getElementById('confidenceBar').style.width = `${signal.confidence}%`;
+                    document.getElementById('confidencePercent').textContent = `${signal.confidence}%`;
+                    document.getElementById('tpStatus').textContent = `$${signal.takeProfit.toFixed(4)}`;
+                    document.getElementById('slStatus').textContent = `$${signal.stopLoss.toFixed(4)}`;
+                } else {
+                    signalBox.className = 'signal-box';
+                    signalBox.innerHTML = `
+                        <div style="font-weight: 700; margin-bottom: 8px;">⏳ Sinyal Bekleniyor...</div>
+                        <div style="font-size: 0.8rem; color: #888;">Piyasa analiz ediliyor</div>
+                    `;
+                    document.getElementById('confidenceBar').style.width = '0%';
+                    document.getElementById('confidencePercent').textContent = '0%';
+                    document.getElementById('tpStatus').textContent = 'Bekliyor';
+                    document.getElementById('slStatus').textContent = 'Bekliyor';
+                }
+
+                const recentPerformance = document.getElementById('recentPerformance');
+                const recentSignals = this.completedSignals.slice(-5);
+                if (recentSignals.length > 0) {
+                    recentPerformance.innerHTML = recentSignals.map(s => `
+                        <div style="color: ${s.success ? '#00D4AA' : '#F84960'}; font-size: 0.8rem; padding: 2px 6px; border-radius: 4px; background: rgba(${s.success ? '0,212,170' : '248,73,96'},0.1);">
+                            ${s.direction.toUpperCase()}: ${s.profit.toFixed(1)}%
+                        </div>
+                    `).join('');
+                } else {
+                    recentPerformance.innerHTML = '<div style="color: #888; font-size: 0.8rem;">Henüz sinyal yok</div>';
+                }
+
+                document.getElementById('totalAnalysis').textContent = this.aiSystem.totalSignals;
+                document.getElementById('successfulSignals').textContent = this.aiSystem.successfulSignals;
+                document.getElementById('successRate').textContent = this.aiSystem.totalSignals > 0 ? 
+                    ((this.aiSystem.successfulSignals / this.aiSystem.totalSignals) * 100).toFixed(1) + '%' : '0%';
+
+                if (this.completedSignals.length > 0) {
+                    const avgTime = this.completedSignals.reduce((sum, s) => {
+                        if (s.exitTime && s.timestamp) {
+                            return sum + (s.exitTime - s.timestamp);
+                        }
+                        return sum;
+                    }, 0) / this.completedSignals.length;
+                    document.getElementById('avgTpTime').textContent = `${(avgTime / 1000).toFixed(1)}s`;
+                } else {
+                    document.getElementById('avgTpTime').textContent = '-';
+                }
+
+                this.updateSignalHistory();
+            }
+        }
+
+        class UIManager {
+            updateTechnicalIndicators(analysis) {
+                try {
+                    document.getElementById('rsiValue').textContent = analysis.rsi.toFixed(2);
+                    document.getElementById('macdValue').textContent = analysis.macd.macd.toFixed(4);
+                    document.getElementById('bbPosition').textContent = analysis.bbPosition;
+                    document.getElementById('marketImbalance').textContent = `${analysis.orderBookImbalance.toFixed(1)}%`;
+                    
+                    const momentum = priceHistory.length >= 2 ? 
+                        ((priceHistory[priceHistory.length - 1] - priceHistory[priceHistory.length - 2]) / priceHistory[priceHistory.length - 2] * 100) : 0;
+                    document.getElementById('priceMomentum').textContent = `${momentum >= 0 ? '+' : ''}${momentum.toFixed(3)}%`;
+                    document.getElementById('priceMomentum').style.color = momentum >= 0 ? '#00D4AA' : '#F84960';
+                } catch (error) {
+                    debugLog(`❌ Teknik göstergeler güncelleme hatası: ${error.message}`, 'error');
+                }
+            }
+
+            updateVolumeSpike(volume, avgVolume) {
+                try {
+                    const spike = volume / (avgVolume || 1);
+                    document.getElementById('volumeSpikeValue').textContent = `${spike.toFixed(1)}x`;
+                    document.getElementById('volumeSpikeFill').style.width = `${Math.min(spike * 20, 100)}%`;
+
+                    volumeHistory.push(volume);
+                    if (volumeHistory.length > 15) volumeHistory.shift();
+
+                    const maxVolume = Math.max(...volumeHistory, 1);
+                    const volumeBars = volumeHistory.map((v, i) => `
+                        <div style="flex: 1; background: linear-gradient(to top, 
+                            rgba(0, 212, 170, ${0.3 + (i / volumeHistory.length) * 0.5}), 
+                            rgba(0, 212, 170, ${0.8 + (i / volumeHistory.length) * 0.2}));
+                            height: ${(v / maxVolume) * 40}px; border-radius: 2px; margin: 0 1px;
+                            transition: all 0.3s ease;">
+                        </div>
+                    `).join('');
+                    document.getElementById('volumeHistory').innerHTML = volumeBars;
+                } catch (error) {
+                    debugLog(`❌ Volume spike güncelleme hatası: ${error.message}`, 'error');
+                }
+            }
+
+            updateOrderBookDisplay(analysis) {
+                try {
+                    if (!realOrderBookData.bids.length || !realOrderBookData.asks.length) return;
+
+                    const maxVolume = Math.max(
+                        ...realOrderBookData.bids.slice(0, 5).map(b => b[1]),
+                        ...realOrderBookData.asks.slice(0, 5).map(b => b[1]),
+                        1
+                    );
+                    
+                    const depthBars = [
+                        ...realOrderBookData.bids.slice(0, 5).map(([price, vol]) => `
+                            <div class="depth-bar" style="height: ${(vol / maxVolume) * 60}px;" 
+                                 title="Bid: $${price} (${vol.toFixed(2)})"></div>
+                        `),
+                        ...realOrderBookData.asks.slice(0, 5).map(([price, vol]) => `
+                            <div class="depth-bar ask" style="height: ${(vol / maxVolume) * 60}px;" 
+                                 title="Ask: $${price} (${vol.toFixed(2)})"></div>
+                        `)
+                    ].join('');
+                    document.getElementById('depthVisualization').innerHTML = depthBars;
+
+                    const bidVolume = realOrderBookData.bids.reduce((sum, [_, vol]) => sum + vol, 0);
+                    const askVolume = realOrderBookData.asks.reduce((sum, [_, vol]) => sum + vol, 0);
+                    document.getElementById('bidVolume').textContent = bidVolume.toFixed(2);
+                    document.getElementById('askVolume').textContent = askVolume.toFixed(2);
+                    document.getElementById('imbalancePercent').textContent = `${analysis.orderBookImbalance.toFixed(1)}%`;
+
+                    if (realOrderBookData.bids.length > 0 && realOrderBookData.asks.length > 0) {
+                        const spread = realOrderBookData.asks[0][0] - realOrderBookData.bids[0][0];
+                        document.getElementById('currentSpread').textContent = `$${spread.toFixed(6)}`;
+                    }
+                } catch (error) {
+                    debugLog(`❌ OrderBook güncelleme hatası: ${error.message}`, 'error');
+                }
+            }
+
+            addAlert(title, message) {
+                debugLog(`🚨 ${title}: ${message}`, 'warning');
+                showToast(`${title}: ${message}`, 'warning');
+            }
+        }
+
+        // Utility functions
+        function debugLog(message, type = 'info') {
+            const el = document.getElementById('debugPanel');
+            const logEntry = document.createElement('div');
+            logEntry.className = `debug-log debug-${type}`;
+            logEntry.innerText = `[${new Date().toLocaleTimeString('tr-TR')}] ${message}`;
+            el.insertBefore(logEntry, el.firstChild);
+            if (el.children.length > 100) el.removeChild(el.lastChild);
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast show ${type}`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function showPersistenceIndicator() {
+            const indicator = document.getElementById('persistenceIndicator');
+            indicator.style.display = 'block';
+            setTimeout(() => indicator.style.display = 'none', 3000);
+        }
+
+        function updateSystemInfo() {
             try {
-                if (!window.aiSystem || !window.signalTracker) return;
-            const completedSignals = window.signalTracker.completedSignals;
-            
-            if (completedSignals.length > 0) {
-                // Strateji performanslarını hesapla
-                const strategies = {
-                    'rsi_oversold': { success: 0, total: 0 },
-                    'rsi_overbought': { success: 0, total: 0 },
-                    'volume': { success: 0, total: 0 }
+                const browserInfo = navigator.userAgent.split(' ').slice(-2).join(' ');
+                document.getElementById('browserInfo').textContent = browserInfo;
+                
+                const connectionType = navigator.connection ? navigator.connection.effectiveType : 'Bilinmiyor';
+                document.getElementById('connectionType').textContent = connectionType;
+                
+                const uptime = ((Date.now() - startTime) / 1000 / 60).toFixed(1);
+                document.getElementById('uptime').textContent = `${uptime} dakika`;
+                
+                const dataUsage = (dataUsageBytes / 1024).toFixed(2);
+                document.getElementById('dataUsage').textContent = `${dataUsage} KB`;
+            } catch (error) {
+                debugLog(`❌ Sistem bilgileri güncelleme hatası: ${error.message}`, 'error');
+            }
+        }
+
+        // WebSocket functions
+        function connect() {
+            try {
+                const coin = document.getElementById('manualSymbol').value.trim().toUpperCase() || 'BTC';
+                const validation = validateSymbol(coin);
+                
+                if (!validation.valid) {
+                    showToast(validation.message, 'error');
+                    return;
+                }
+                
+                currentSymbol = validation.coin + '_USDT';
+                localStorage.setItem('currentSymbol', validation.coin);
+                localStorage.setItem('autoConnect', 'true');
+                
+                const url = 'wss://futures.mexc.com/edge';
+                document.getElementById('wsUrl').textContent = url;
+                document.getElementById('connectBtn').innerHTML = '🔗 Bağlanıyor...';
+                document.getElementById('connectBtn').classList.add('btn-loading');
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('connectionStatus').className = 'status-indicator connecting';
+                document.getElementById('connectionStatus').innerHTML = '🟡 Bağlanıyor...';
+
+                ws = new WebSocket(url);
+
+                ws.onopen = () => {
+                    isConnected = true;
+                    reconnectAttempts = 0;
+                    updateConnectionStatus(true);
+                    document.getElementById('wsStatus').textContent = 'Açık';
+                    document.getElementById('dataStatus').textContent = 'Bağlandı';
+                    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('tr-TR');
+                    document.getElementById('connectBtn').innerHTML = '🔌 Bağlantıyı Kes';
+                    document.getElementById('connectBtn').classList.remove('btn-loading');
+                    document.getElementById('connectBtn').disabled = false;
+                    debugLog('✅ WebSocket bağlantısı kuruldu', 'success');
+                    showToast('✅ WebSocket bağlandı', 'success');
+                    subscribeToPair(currentSymbol);
+                    startPing();
                 };
 
-                completedSignals.slice(-50).forEach(signal => {
-                    if (strategies[signal.strategy]) {
-                        strategies[signal.strategy].total++;
-                        if (signal.success) {
-                            strategies[signal.strategy].success++;
+                ws.onmessage = (event) => {
+                    try {
+                        dataUsageBytes += event.data.length;
+                        const data = JSON.parse(event.data);
+                        if (data.channel) {
+                            handleWebSocketData(data);
+                        }
+                    } catch (error) {
+                        debugLog(`❌ Mesaj işleme hatası: ${error.message}`, 'error');
+                    }
+                };
+
+                ws.onclose = () => {
+                    isConnected = false;
+                    updateConnectionStatus(false);
+                    document.getElementById('wsStatus').textContent = 'Kapalı';
+                    document.getElementById('dataStatus').textContent = 'Bekleniyor';
+                    document.getElementById('connectBtn').innerHTML = '🔌 Bağlan';
+                    document.getElementById('connectBtn').classList.remove('btn-loading');
+                    document.getElementById('connectBtn').disabled = false;
+                    debugLog('⚠️ WebSocket bağlantısı kapandı', 'warning');
+                    showToast('⚠️ Bağlantı kapandı', 'warning');
+                    stopPing();
+                    attemptReconnect();
+                };
+
+                ws.onerror = (err) => {
+                    debugLog(`❌ WebSocket hatası`, 'error');
+                    showToast('❌ Bağlantı hatası', 'error');
+                };
+            } catch (error) {
+                debugLog(`❌ Bağlantı başlatma hatası: ${error.message}`, 'error');
+                showToast('❌ Bağlantı başlatılamadı', 'error');
+                resetConnectionUI();
+            }
+        }
+
+        function disconnect() {
+            try {
+                if (ws) {
+                    ws.close();
+                    ws = null;
+                }
+                isConnected = false;
+                localStorage.setItem('autoConnect', 'false');
+                updateConnectionStatus(false);
+                resetConnectionUI();
+                debugLog("🔴 Bağlantı kapatıldı", 'info');
+                showToast('🔴 Bağlantı kapatıldı', 'info');
+                stopPing();
+                reconnectAttempts = 0;
+            } catch (error) {
+                debugLog(`❌ Bağlantı kapatma hatası: ${error.message}`, 'error');
+            }
+        }
+
+        function resetConnectionUI() {
+            document.getElementById('connectBtn').innerHTML = '🔌 Bağlan';
+            document.getElementById('connectBtn').classList.remove('btn-loading');
+            document.getElementById('connectBtn').disabled = false;
+            document.getElementById('wsStatus').textContent = 'Kapalı';
+            document.getElementById('dataStatus').textContent = 'Bekleniyor';
+            document.getElementById('wsUrl').textContent = '-';
+            document.getElementById('lastUpdate').textContent = '-';
+        }
+
+        function attemptReconnect() {
+            if (reconnectAttempts < maxReconnectAttempts && localStorage.getItem('autoConnect') === 'true') {
+                reconnectAttempts++;
+                debugLog(`🔄 Yeniden bağlanma ${reconnectAttempts}/${maxReconnectAttempts}`, 'warning');
+                showToast(`🔄 Yeniden bağlanma ${reconnectAttempts}/${maxReconnectAttempts}`, 'warning');
+                setTimeout(connect, 5000 * reconnectAttempts);
+            } else if (reconnectAttempts >= maxReconnectAttempts) {
+                debugLog('❌ Maksimum yeniden bağlanma denemesi aşıldı', 'error');
+                showToast('❌ Otomatik yeniden bağlanma durdu', 'error');
+                localStorage.setItem('autoConnect', 'false');
+            }
+        }
+
+        function toggleConnection() {
+            if (isConnected) {
+                disconnect();
+            } else {
+                connect();
+            }
+        }
+
+        function subscribeToPair(symbol) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                const subscriptions = [
+                    { method: 'sub.deal', param: { symbol }, id: 'deal_' + symbol },
+                    { method: 'sub.depth', param: { symbol, depth: 20 }, id: 'depth_' + symbol },
+                    { method: 'sub.ticker', param: { symbol }, id: 'ticker_' + symbol }
+                ];
+                subscriptions.forEach(sub => {
+                    ws.send(JSON.stringify(sub));
+                    debugLog(`📡 Abonelik: ${sub.method} - ${symbol}`, 'info');
+                });
+            }
+        }
+
+        function startPing() {
+            pingInterval = setInterval(() => {
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ method: 'ping' }));
+                }
+            }, 30000);
+        }
+
+        function stopPing() {
+            if (pingInterval) {
+                clearInterval(pingInterval);
+                pingInterval = null;
+            }
+        }
+
+        function handleWebSocketData(data) {
+            if (!data.channel || !data.data) return;
+
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('tr-TR');
+
+            if (data.channel === 'push.deal') {
+                const deal = data.data;
+                const price = parseFloat(deal.p);
+                const volume = parseFloat(deal.v);
+                
+                priceHistory.push(price);
+                if (priceHistory.length > 100) priceHistory.shift();
+                
+                const change = lastPrice ? ((price - lastPrice) / lastPrice * 100) : 0;
+                lastPrice = price;
+                updatePriceDisplay(price, change);
+                triggerAIAnalysis(price, volume);
+                
+            } else if (data.channel === 'push.depth') {
+                realOrderBookData = {
+                    bids: data.data.bids.map(([price, volume]) => [parseFloat(price), parseFloat(volume)]),
+                    asks: data.data.asks.map(([price, volume]) => [parseFloat(price), parseFloat(volume)])
+                };
+                
+                const analysis = marketAnalyzer.analyzeMarket(lastPrice, volumeHistory[volumeHistory.length - 1] || 0, realOrderBookData);
+                uiManager.updateOrderBookDisplay(analysis);
+
+                const bidVolume = realOrderBookData.bids.reduce((sum, [_, vol]) => sum + vol, 0);
+                const askVolume = realOrderBookData.asks.reduce((sum, [_, vol]) => sum + vol, 0);
+                
+                // Büyük emir kontrolü - artık sabit panel
+                const whaleAlert = document.getElementById('whaleAlert');
+                const whaleDetails = document.getElementById('whaleDetails');
+                const whaleThreshold = 2.5; // Eşik değeri
+                
+                if (bidVolume > askVolume * whaleThreshold) {
+                    whaleAlert.className = 'whale-status bullish';
+                    whaleDetails.innerHTML = `📈 Güçlü alış baskısı: ${bidVolume.toFixed(2)} (${(bidVolume/askVolume).toFixed(1)}x)`;
+                    whaleDetails.style.color = '#00D4AA';
+                } else if (askVolume > bidVolume * whaleThreshold) {
+                    whaleAlert.className = 'whale-status bearish';
+                    whaleDetails.innerHTML = `📉 Güçlü satış baskısı: ${askVolume.toFixed(2)} (${(askVolume/bidVolume).toFixed(1)}x)`;
+                    whaleDetails.style.color = '#F84960';
+                } else {
+                    whaleAlert.className = 'whale-status';
+                    whaleDetails.innerHTML = `Normal seviyede - büyük emir yok (B:${bidVolume.toFixed(1)} / A:${askVolume.toFixed(1)})`;
+                    whaleDetails.style.color = '#888';
+                }
+                
+                // Sadece çok büyük emirler için toast göster (eşik 5x)
+                if (bidVolume > askVolume * 5 || askVolume > bidVolume * 5) {
+                    showToast(`🐋 Çok büyük ${bidVolume > askVolume ? 'alış' : 'satış'} emri: ${Math.max(bidVolume, askVolume).toFixed(2)}`, 'warning');
+                }
+                
+            } else if (data.channel === 'push.ticker') {
+                const ticker = data.data;
+                const price = parseFloat(ticker.lastPrice);
+                const change = parseFloat(ticker.priceChangePercent);
+                updatePriceDisplay(price, change);
+            }
+        }
+
+        function updateConnectionStatus(connected) {
+            const status = document.getElementById('connectionStatus');
+            if (connected) {
+                status.className = 'status-indicator connected';
+                status.innerHTML = '🟢 Bağlı';
+                document.getElementById('aiStatus').textContent = '🧠 AI Aktif';
+            } else {
+                status.className = 'status-indicator disconnected';
+                status.innerHTML = '🔴 Bağlantı Yok';
+                document.getElementById('aiStatus').textContent = '🧠 AI Bekliyor...';
+            }
+        }
+
+        function updatePriceDisplay(price, change = 0) {
+            document.getElementById('headerPrice').textContent = `$${price.toFixed(4)}`;
+            
+            const changeIcon = change >= 0 ? '📈' : '📉';
+            const changeClass = change >= 0 ? 'positive' : 'negative';
+            const changeText = `${changeIcon} ${change >= 0 ? '+' : ''}${change.toFixed(3)}%`;
+            
+            document.getElementById('headerChange').textContent = changeText;
+            document.getElementById('headerChange').style.color = change >= 0 ? '#00D4AA' : '#F84960';
+            
+            lastPrice = price;
+        }
+
+        function triggerAIAnalysis(price, volume) {
+            if (!aiSystem || !marketAnalyzer || !signalTracker || !uiManager) return;
+            
+            try {
+                const analysis = marketAnalyzer.analyzeMarket(price, volume, realOrderBookData);
+                
+                uiManager.updateTechnicalIndicators(analysis);
+                uiManager.updateVolumeSpike(
+                    volume, 
+                    volumeHistory.reduce((a,b) => a+b, 0) / Math.max(1, volumeHistory.length)
+                );
+                
+                signalTracker.updateSignals(price);
+                
+                if (Date.now() - (window.lastSignalCheck || 0) > aiSystem.optimizationParams.signalFrequency) {
+                    window.lastSignalCheck = Date.now();
+                    
+                    if (signalTracker.activeSignals.length < aiSystem.optimizationParams.maxActiveSignals) {
+                        const signal = aiSystem.generateOptimizedSignal(analysis);
+                        if (signal) {
+                            signalTracker.addSignal(signal);
+                        }
+                    }
+                }
+
+                // Öğrenme ilerlemesi - kalıcı veri kullan
+                const totalLearningData = aiSystem.learningData.signals.length + 
+                                        signalTracker.completedSignals.length + 
+                                        (priceHistory.length + volumeHistory.length);
+                
+                document.getElementById('learningStats').textContent = `${totalLearningData} toplam veri işlendi`;
+                document.getElementById('learningProgress').style.width = `${Math.min(totalLearningData / 1000 * 100, 100)}%`;
+                
+                // Toplam veriyi localStorage'a kaydet
+                localStorage.setItem('totalProcessedData', totalLearningData.toString());
+                
+            } catch (error) {
+                debugLog(`❌ AI analiz hatası: ${error.message}`, 'error');
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const isLightTheme = body.classList.toggle('light-theme');
+            localStorage.setItem('theme', isLightTheme ? 'light' : 'dark');
+            document.querySelector('.theme-toggle').textContent = isLightTheme ? '🌞 Tema' : '🌙 Tema';
+            showToast(`${isLightTheme ? '🌞 Açık' : '🌙 Koyu'} tema aktif`, 'success');
+        }
+
+        function resetAILearning() {
+            if (confirm('AI öğrenme verilerini sıfırlamak istediğinizden emin misiniz?')) {
+                aiSystem.reset();
+                if (signalTracker) {
+                    signalTracker.completedSignals = [];
+                    signalTracker.saveCompletedSignals();
+                    signalTracker.updateUI();
+                }
+                debugLog('🔄 AI öğrenme verileri sıfırlandı', 'success');
+            }
+        }
+
+        function exportSettings() {
+            try {
+                const exportData = {
+                    aiData: aiSystem.exportData(),
+                    currentSymbol: localStorage.getItem('currentSymbol'),
+                    theme: localStorage.getItem('theme'),
+                    autoConnect: localStorage.getItem('autoConnect'),
+                    completedSignals: signalTracker.completedSignals,
+                    exportDate: new Date().toISOString(),
+                    version: '2.0'
+                };
+                
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `ai_crypto_bot_settings_${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                URL.revokeObjectURL(url);
+                
+                showToast('📤 Ayarlar dışa aktarıldı', 'success');
+            } catch (error) {
+                debugLog(`❌ Ayar dışa aktarma hatası: ${error.message}`, 'error');
+                showToast('❌ Dışa aktarma hatası', 'error');
+            }
+        }
+
+        function importSettings() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const importData = JSON.parse(e.target.result);
+                            
+                            if (importData.aiData) {
+                                aiSystem.importData(importData.aiData);
+                            }
+                            
+                            if (importData.currentSymbol) {
+                                localStorage.setItem('currentSymbol', importData.currentSymbol);
+                                document.getElementById('manualSymbol').value = importData.currentSymbol;
+                            }
+                            
+                            if (importData.theme) {
+                                localStorage.setItem('theme', importData.theme);
+                                if (importData.theme === 'light') {
+                                    document.body.classList.add('light-theme');
+                                    document.querySelector('.theme-toggle').textContent = '🌞 Tema';
+                                }
+                            }
+                            
+                            if (importData.completedSignals && signalTracker) {
+                                signalTracker.completedSignals = importData.completedSignals;
+                                signalTracker.saveCompletedSignals();
+                                signalTracker.updateUI();
+                            }
+                            
+                            showToast('📥 Ayarlar başarıyla içe aktarıldı', 'success');
+                        } catch (error) {
+                            debugLog(`❌ Ayar içe aktarma hatası: ${error.message}`, 'error');
+                            showToast('❌ İçe aktarma hatası', 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        // System initialization
+        let aiSystem, marketAnalyzer, signalTracker, uiManager;
+
+        function initializeBot() {
+            try {
+                debugLog("🤖 AI sistemleri başlatılıyor...", 'info');
+                
+                aiSystem = new AILearningSystem();
+                marketAnalyzer = new MarketAnalyzer();
+                signalTracker = new SignalTracker(aiSystem);
+                uiManager = new UIManager();
+                
+                const savedSymbol = localStorage.getItem('currentSymbol');
+                if (savedSymbol) {
+                    const validation = validateSymbol(savedSymbol);
+                    if (validation.valid) {
+                        document.getElementById('manualSymbol').value = savedSymbol;
+                        currentSymbol = savedSymbol + '_USDT';
+                    }
+                }
+
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'light') {
+                    document.body.classList.add('light-theme');
+                    document.querySelector('.theme-toggle').textContent = '🌞 Tema';
+                }
+
+                if (localStorage.getItem('autoConnect') === 'true' && savedSymbol) {
+                    setTimeout(connect, 1000);
+                }
+
+                // Öğrenme ilerlemesini yükle
+                const totalProcessedData = parseInt(localStorage.getItem('totalProcessedData') || '0');
+                if (totalProcessedData > 0) {
+                    document.getElementById('learningStats').textContent = `${totalProcessedData} toplam veri işlendi`;
+                    document.getElementById('learningProgress').style.width = `${Math.min(totalProcessedData / 1000 * 100, 100)}%`;
+                    debugLog(`📊 ${totalProcessedData} önceki veri yüklendi`, 'success');
+                }
+
+                document.getElementById('modelVersion').textContent = `v${aiSystem.version}`;
+                document.getElementById('lastModelUpdate').textContent = new Date().toLocaleTimeString('tr-TR');
+                document.getElementById('memoryUsage').textContent = aiSystem.memoryUsage.total;
+                aiSystem.updateOptimizationUI();
+                signalTracker.updateUI();
+
+                document.getElementById('manualSymbol').addEventListener('input', () => {
+                    const coin = document.getElementById('manualSymbol').value.trim().toUpperCase();
+                    if (coin) {
+                        const validation = validateSymbol(coin);
+                        if (validation.valid) {
+                            localStorage.setItem('currentSymbol', coin);
+                            if (isConnected) {
+                                disconnect();
+                                setTimeout(connect, 1000);
+                            }
                         }
                     }
                 });
 
-                // Strateji performans panelini güncelle
-                const strategyPerformanceEl = document.getElementById('strategyPerformance');
-                strategyPerformanceEl.innerHTML = Object.entries(strategies).map(([strategy, perf]) => {
-                    const successRate = perf.total > 0 
-                        ? ((perf.success / perf.total) * 100).toFixed(1) 
-                        : '0.0';
-                    
-                    const color = successRate > 70 
-                        ? 'var(--accent-color)' 
-                        : successRate > 50 
-                            ? 'var(--primary-color)' 
-                            : 'red';
+                updateSystemInfo();
+                setInterval(updateSystemInfo, 60000);
 
-                    return `
-                        <div class="performance-item">
-                            <span>${strategy.replace('_', ' ').toUpperCase()}</span>
-                            <span style="color: ${color}">${successRate}% (${perf.success}/${perf.total})</span>
-                        </div>
-                    `;
-                }).join('');
-
-                // Risk seviyesi belirleme
-                const recentSignals = completedSignals.slice(-10);
-                const failureRate = recentSignals.filter(s => !s.success).length / recentSignals.length;
-
-                let riskLevel = 'Düşük';
-                if (failureRate > 0.7) riskLevel = 'Yüksek';
-                else if (failureRate > 0.4) riskLevel = 'Orta';
-
-                document.getElementById('adaptationLevel').textContent = `%${(failureRate * 100).toFixed(0)}`;
-            }
-        } catch (error) {
-            debugLog(`🚨 Performans izleme hatası: ${error.message}`, 'error');
-        }
-    }, 30000); // 30 saniyede bir çalış
-}
-
-// Risk Yönetimi ve Adaptasyon
-function manageRiskAdaptation() {
-    setInterval(() => {
-        try {
-            if (!window.aiSystem) return;
-
-            const completedSignals = window.signalTracker.completedSignals;
-            
-            if (completedSignals.length > 20) {
-                const recentSignals = completedSignals.slice(-20);
-                const successRate = recentSignals.filter(s => s.success).length / recentSignals.length;
-
-                // Dinamik optimizasyon parametreleri
-                if (successRate < 0.4) {
-                    // Düşük performans durumunda ayarları sıkılaştır
-                    window.aiSystem.optimizationParams.volumeThreshold = Math.min(3.0, window.aiSystem.optimizationParams.volumeThreshold + 0.2);
-                    window.aiSystem.optimizationParams.slLimit = Math.max(0.2, window.aiSystem.optimizationParams.slLimit - 0.1);
-                    
-                    debugLog('🚨 Düşük performans - risk parametreleri daraltılıyor', 'warning');
-                    showToast('🚨 Risk yönetimi aktif', 'warning');
-                } else if (successRate > 0.7) {
-                    // Yüksek performans durumunda ayarları gevşet
-                    window.aiSystem.optimizationParams.volumeThreshold = Math.max(1.2, window.aiSystem.optimizationParams.volumeThreshold - 0.1);
-                    window.aiSystem.optimizationParams.slLimit = Math.min(0.6, window.aiSystem.optimizationParams.slLimit + 0.1);
-                    
-                    debugLog('🚀 Yüksek performans - risk parametreleri genişletiliyor', 'success');
-                    showToast('🚀 Performans optimizasyonu', 'success');
-                }
-            }
-        } catch (error) {
-            debugLog(`🚨 Risk yönetimi hatası: ${error.message}`, 'error');
-        }
-    }, 60000); // 1 dakikada bir çalış
-}
-
-// Whale (Büyük Emirleri) İzleme
-function monitorWhaleActivity() {
-    setInterval(() => {
-        try {
-            if (!realOrderBookData.bids || !realOrderBookData.asks) return;
-
-            const bidVolume = realOrderBookData.bids.reduce((sum, [_, vol]) => sum + vol, 0);
-            const askVolume = realOrderBookData.asks.reduce((sum, [_, vol]) => sum + vol, 0);
-            
-            const volumeRatio = bidVolume / (askVolume || 1);
-            const imbalance = ((bidVolume - askVolume) / (bidVolume + askVolume) * 100) || 0;
-
-            const whaleThreshold = 3; // 3 kat fark
-            const whaleAlert = document.getElementById('whaleAlert');
-            const whaleDetails = document.getElementById('whaleDetails');
-
-            if (volumeRatio > whaleThreshold) {
-                whaleAlert.className = 'whale-status bullish';
-                whaleDetails.innerHTML = `🚀 Güçlü alım baskısı: ${volumeRatio.toFixed(1)}x`;
-                whaleDetails.style.color = 'var(--accent-color)';
+                debugLog("✅ AI sistemleri başarıyla başlatıldı", 'success');
+                showToast("✅ Sistem hazır!", 'success');
                 
-                // Yüksek alım baskısı durumunda sinyal üretmeye çalış
-                if (window.signalTracker && window.aiSystem) {
-                    const analysis = {
-                        rsi: 25, // Varsayılan düşük RSI
-                        volumeSpike: volumeRatio,
-                        orderBookImbalance: imbalance
-                    };
-                    const potentialSignal = window.aiSystem.generateOptimizedSignal(analysis);
-                    if (potentialSignal) {
-                        window.signalTracker.addSignal(potentialSignal);
+                setTimeout(() => {
+                    debugLog("🚀 Herhangi bir coin sembolü girin ve bağlanın", 'info');
+                    debugLog(`💡 Örnek: BTC, ETH, PEPE, WIF, BONK, FLOKI, NOT vb.`, 'info');
+                    debugLog(`🌐 MEXC Futures'de olan tüm coinler destekleniyor`, 'info');
+                }, 1000);
+                
+            } catch (error) {
+                debugLog(`❌ Sistem başlatma hatası: ${error.message}`, 'error');
+                showToast('❌ Sistem başlatma hatası', 'error');
+            }
+        }
+
+        function updateStrategyPerformance() {
+            if (!aiSystem || !signalTracker) return;
+            
+            const container = document.getElementById('strategyPerformance');
+            const strategies = aiSystem.performanceMetrics.strategyPerformance;
+            
+            const hasData = Object.values(strategies).some(s => s.total > 0);
+            if (!hasData) {
+                container.innerHTML = '<div style="text-align: center; color: #888; font-size: 0.8rem; padding: 15px;">Henüz strateji verisi yok</div>';
+                return;
+            }
+
+            container.innerHTML = Object.keys(strategies).map(strategy => {
+                const perf = strategies[strategy];
+                const rate = perf.total > 0 ? (perf.success / perf.total * 100).toFixed(1) : 0;
+                const color = rate > 70 ? '#00D4AA' : rate > 50 ? '#FFC107' : '#F84960';
+                
+                return `
+                    <div style="display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <span style="text-transform: capitalize;">${strategy}</span>
+                        <span style="color: ${color}; font-weight: 600;">
+                            ${rate}% (${perf.success}/${perf.total})
+                        </span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function monitorPerformance() {
+            setInterval(() => {
+                if (!signalTracker || !aiSystem) return;
+                
+                updateStrategyPerformance();
+                
+                if (signalTracker.completedSignals.length > 0) {
+                    const recentSuccess = signalTracker.completedSignals.slice(-10);
+                    if (recentSuccess.length > 0) {
+                        const successRate = recentSuccess.filter(s => s.success).length / recentSuccess.length;
+                        
+                        let learningRate = 'Düşük';
+                        if (successRate > 0.8) learningRate = 'Yüksek';
+                        else if (successRate > 0.6) learningRate = 'Orta';
+                        
+                        document.getElementById('learningRate').textContent = learningRate;
+                        
+                        const adaptationLevel = Math.min(100, signalTracker.completedSignals.length * 2);
+                        document.getElementById('adaptationLevel').textContent = `%${adaptationLevel}`;
                     }
                 }
-            } else if (volumeRatio < 1 / whaleThreshold) {
-                whaleAlert.className = 'whale-status bearish';
-                whaleDetails.innerHTML = `📉 Güçlü satım baskısı: ${(1/volumeRatio).toFixed(1)}x`;
-                whaleDetails.style.color = 'red';
-                
-                // Yüksek satım baskısı durumunda sinyal üretmeye çalış
-                if (window.signalTracker && window.aiSystem) {
-                    const analysis = {
-                        rsi: 75, // Varsayılan yüksek RSI
-                        volumeSpike: 1/volumeRatio,
-                        orderBookImbalance: imbalance
-                    };
-                    const potentialSignal = window.aiSystem.generateOptimizedSignal(analysis);
-                    if (potentialSignal) {
-                        window.signalTracker.addSignal(potentialSignal);
-                    }
-                }
-            } else {
-                whaleAlert.className = 'whale-status';
-                whaleDetails.innerHTML = 'Normal piyasa dengesi';
-                whaleDetails.style.color = 'var(--text-color)';
-            }
-        } catch (error) {
-            debugLog(`🐳 Whale aktivite izleme hatası: ${error.message}`, 'error');
+            }, 30000);
         }
-    }, 45000); // 45 saniyede bir çalış
-}
 
-// Sayfa yüklendiğinde performans izleme mekanizmalarını başlat
-document.addEventListener('DOMContentLoaded', () => {
-    // Performans ve risk yönetimi fonksiyonlarını başlat
-    monitorPerformance();
-    manageRiskAdaptation();
-    monitorWhaleActivity();
+        function checkRiskLimits() {
+            if (!signalTracker || !aiSystem) return;
+            
+            const activeSignals = signalTracker.activeSignals.length;
+            const recentFailures = signalTracker.completedSignals
+                .slice(-5)
+                .filter(s => !s.success).length;
+            
+            if (activeSignals >= aiSystem.optimizationParams.maxActiveSignals) {
+                debugLog("⚠️ Maksimum aktif sinyal sayısına ulaşıldı", 'warning');
+            }
+            
+            if (recentFailures >= 4) {
+                debugLog("🛑 Çok fazla başarısız sinyal", 'warning');
+                showToast("🛑 Risk seviyesi yüksek - parametreler ayarlanıyor", 'warning');
+                
+                aiSystem.optimizationParams.volumeThreshold += 0.3;
+                aiSystem.optimizationParams.signalFrequency += 5000;
+                aiSystem.optimizationParams.maxActiveSignals = Math.max(1, aiSystem.optimizationParams.maxActiveSignals - 1);
+                aiSystem.updateOptimizationUI();
+                aiSystem.saveLearningData();
+            }
+        }
 
-    debugLog('🎲 Performans izleme mekanizmaları aktif', 'success');
-});
-</script>
+        // Event listeners and initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                initializeBot();
+                monitorPerformance();
+                
+                setInterval(checkRiskLimits, 120000);
+                
+                // Auto-save every 2 minutes
+                setInterval(() => {
+                    if (aiSystem) {
+                        aiSystem.saveLearningData();
+                    }
+                }, 120000);
+                
+                // Keyboard shortcuts
+                document.addEventListener('keydown', function(event) {
+                    if (event.ctrlKey || event.metaKey) {
+                        switch(event.key) {
+                            case 'Enter':
+                                event.preventDefault();
+                                toggleConnection();
+                                break;
+                            case 'r':
+                                event.preventDefault();
+                                if (confirm('AI ayarlarını varsayılana sıfırla?')) {
+                                    resetAILearning();
+                                }
+                                break;
+                            case 'e':
+                                event.preventDefault();
+                                exportSettings();
+                                break;
+                            case 'i':
+                                event.preventDefault();
+                                importSettings();
+                                break;
+                        }
+                    }
+                });
+
+                // Before unload save
+                window.addEventListener('beforeunload', () => {
+                    if (aiSystem) {
+                        aiSystem.saveLearningData();
+                    }
+                    if (signalTracker) {
+                        signalTracker.saveCompletedSignals();
+                    }
+                });
+
+                setTimeout(() => {
+                    debugLog("🎉 AI Kripto Sinyal Botu hazır!", 'success');
+                    debugLog("💾 Tüm ayarlar otomatik kaydediliyor", 'info');
+                    debugLog("📱 Mobil uyumlu arayüz aktif", 'info');
+                    debugLog("🔄 Ctrl+Enter: Bağlan/Kes | Ctrl+R: Reset | Ctrl+E: Export | Ctrl+I: Import", 'info');
+                }, 2000);
+                
+            } catch (error) {
+                debugLog(`❌ Uygulama başlatma hatası: ${error.message}`, 'error');
+                showToast('❌ Kritik hata', 'error');
+            }
+        });
+    </script>
 </body>
 </html>
-</artifact>
