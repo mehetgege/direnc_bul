@@ -1,0 +1,1550 @@
+<artifact type="text/html">
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎲 AI Kripto Sinyal Botu</title>
+    <style>
+        :root {
+            --primary-color: #FFD700;     /* Parlak altın */
+            --secondary-color: #8B0000;   /* Koyu kırmızı */
+            --accent-color: #00FF41;      /* Neon yeşil */
+            --background-dark: #0F0F1A;   /* Derin gece mavisi */
+            --text-color: #E0E0E0;        /* Açık gri */
+            --card-background: rgba(20,20,40,0.8);
+        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Monaco', 'Courier New', monospace;
+    }
+
+    body {
+        background: radial-gradient(ellipse at bottom, var(--background-dark) 0%, #000 100%);
+        color: var(--text-color);
+        min-height: 100vh;
+        line-height: 1.6;
+        overflow-x: hidden;
+    }
+
+    .casino-frame {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border: 6px solid var(--primary-color);
+        box-shadow: 0 0 20px rgba(255,215,0,0.3);
+        pointer-events: none;
+        z-index: 9999;
+        animation: frame-pulse 3s infinite alternate;
+    }
+
+    @keyframes frame-pulse {
+        from { border-color: var(--primary-color); }
+        to { border-color: var(--accent-color); }
+    }
+
+    .header {
+        background: rgba(0,0,0,0.8);
+        backdrop-filter: blur(15px);
+        border-bottom: 3px solid var(--primary-color);
+        box-shadow: 0 4px 20px rgba(255,215,0,0.3);
+        padding: 15px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .header-main {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        z-index: 10;
+    }
+
+    .header-left, .header-center, .header-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .status-indicator {
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .connected {
+        background: rgba(0,255,65,0.2);
+        color: var(--accent-color);
+        border: 1px solid var(--accent-color);
+    }
+
+    .disconnected {
+        background: rgba(255,0,0,0.2);
+        color: red;
+        border: 1px solid red;
+    }
+
+    .connecting {
+        background: rgba(255,215,0,0.2);
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    .app-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        text-shadow: 0 0 10px rgba(255,215,0,0.5);
+    }
+
+    .current-price {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--accent-color);
+    }
+
+    .current-change {
+        font-size: 1rem;
+        font-weight: bold;
+    }
+
+    .btn {
+        background: linear-gradient(45deg, var(--accent-color), var(--primary-color));
+        border: none;
+        color: var(--background-dark);
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .btn:hover {
+        transform: scale(1.05) rotate(2deg);
+        box-shadow: 0 5px 15px rgba(0,255,65,0.4);
+    }
+
+    .theme-toggle {
+        background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+        color: var(--text-color);
+        padding: 10px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+        transform: scale(1.1) rotate(360deg);
+        box-shadow: 0 5px 15px rgba(255,215,0,0.3);
+    }
+
+    input[type="text"] {
+        background: rgba(255,255,255,0.1);
+        border: 2px solid var(--primary-color);
+        color: var(--text-color);
+        padding: 10px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    input[type="text"]:focus {
+        outline: none;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 15px rgba(0,255,65,0.3);
+    }
+
+    @media (max-width: 768px) {
+        .header-main {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .header-left, .header-center, .header-right {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .current-price {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+<artifact type="text/html">
+<body>
+    <div class="casino-frame"></div>
+<header class="header">
+    <div class="header-main">
+        <div class="header-left">
+            <div id="connectionStatus" class="status-indicator disconnected">
+                🎲 Bağlantı Yok
+            </div>
+            <div class="app-title">🎰 AI Kripto Sinyal Botu</div>
+            <div id="aiStatus" class="ai-status">🤖 AI Bekliyor...</div>
+        </div>
+        
+        <div class="header-center">
+            <div id="headerPrice" class="current-price">$0.00</div>
+            <div id="headerChange" class="current-change">📊 +0.00%</div>
+        </div>
+        
+        <div class="header-right">
+            <input 
+                id="manualSymbol" 
+                type="text" 
+                placeholder="Coin Sembolü (BTC, ETH...)"
+            >
+            <button 
+                id="connectBtn" 
+                class="btn" 
+                onclick="toggleConnection()"
+            >
+                🎲 Bağlan
+            </button>
+            <div 
+                class="theme-toggle" 
+                onclick="toggleTheme()"
+            >
+                🌓 Tema
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="main-container">
+    <!-- Sonraki parçalarda devam edecek -->
+</div>
+</body>
+</artifact>
+
+
+<artifact type="text/html">
+    <style>
+        .main-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+    .panel {
+        background: var(--card-background);
+        border: 2px solid rgba(255,215,0,0.3);
+        border-radius: 15px;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s ease;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        border-bottom: 1px solid rgba(255,215,0,0.2);
+        padding-bottom: 10px;
+    }
+
+    .panel-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .panel-badge {
+        background: var(--accent-color);
+        color: var(--background-dark);
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: bold;
+    }
+
+    .panel-content {
+        display: grid;
+        gap: 10px;
+    }
+
+    .panel-stat {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(255,255,255,0.05);
+        padding: 10px;
+        border-radius: 8px;
+        transition: background 0.3s ease;
+    }
+
+    .panel-stat:hover {
+        background: rgba(255,255,255,0.1);
+    }
+
+    .stat-label {
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    .stat-value {
+        font-weight: bold;
+        color: var(--accent-color);
+    }
+</style>
+
+<div class="main-container">
+    <!-- Debug Panel -->
+    <div class="panel">
+        <div class="panel-header">
+            <div class="panel-title">
+                🐞 Debug Konsolu 
+                <span class="panel-badge">LOG</span>
+            </div>
+        </div>
+        <div id="debugPanel" class="panel-content debug-console">
+            <!-- Debug logları buraya gelecek -->
+        </div>
+    </div>
+
+    <!-- AI Öğrenme Paneli -->
+    <div class="panel">
+        <div class="panel-header">
+            <div class="panel-title">
+                🤖 AI Öğrenme Sistemi 
+                <span class="panel-badge">AI</span>
+            </div>
+        </div>
+        <div class="panel-content">
+            <div class="panel-stat">
+                <span class="stat-label">Performans Skoru</span>
+                <span id="aiScore" class="stat-value">0</span>
+            </div>
+            <div class="panel-stat">
+                <span class="stat-label">Toplam Sinyal</span>
+                <span id="totalAnalysis" class="stat-value">0</span>
+            </div>
+            <div class="panel-stat">
+                <span class="stat-label">Başarı Oranı</span>
+                <span id="successRate" class="stat-value">%0</span>
+            </div>
+        </div>
+        <div class="panel-content" style="margin-top: 15px;">
+            <div class="learning-progress">
+                <div class="progress-bar">
+                    <div id="learningProgress" class="progress-fill" style="width: 0%"></div>
+                </div>
+                <div id="learningStats" class="stat-label" style="text-align: center; margin-top: 5px;">
+                    0 veri işlendi
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sinyal Paneli -->
+    <div class="panel">
+        <div class="panel-header">
+            <div class="panel-title">
+                📊 Aktif Sinyaller 
+                <span class="panel-badge">LIVE</span>
+            </div>
+        </div>
+        <div id="currentSignal" class="signal-indicator">
+            <div>Veri Bekleniyor...</div>
+        </div>
+        <div class="panel-content" style="margin-top: 15px;">
+            <div class="confidence-meter">
+                <div id="confidenceBar" class="confidence-fill" style="width: 0%"></div>
+            </div>
+            <div class="stat-label" style="text-align: center;">
+                Güven Seviyesi: <span id="confidencePercent">0%</span>
+            </div>
+        </div>
+    </div>
+</div>
+</artifact>
+
+<artifact type="text/html">
+    <style>
+        .volume-spike-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 8px;
+        }
+    .spike-meter {
+        flex: 1;
+        height: 8px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .spike-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        transition: width 0.3s ease;
+    }
+
+    .depth-visualization {
+        display: flex;
+        height: 60px;
+        gap: 2px;
+        align-items: end;
+    }
+
+    .depth-bar {
+        flex: 1;
+        background: linear-gradient(to top, rgba(255,215,0,0.3), rgba(255,215,0,0.8));
+        border-radius: 3px;
+        min-height: 5px;
+        transition: all 0.3s ease;
+    }
+
+    .depth-bar.ask {
+        background: linear-gradient(to top, rgba(255,0,0,0.3), rgba(255,0,0,0.8));
+    }
+
+    .depth-bar:hover {
+        transform: scaleY(1.1);
+    }
+
+    .whale-status {
+        background: rgba(255,215,0,0.1);
+        border-left: 5px solid var(--primary-color);
+        padding: 10px;
+        border-radius: 8px;
+        margin-top: 15px;
+    }
+
+    .whale-status.bullish {
+        border-left-color: var(--accent-color);
+        background: rgba(0,255,65,0.1);
+    }
+
+    .whale-status.bearish {
+        border-left-color: red;
+        background: rgba(255,0,0,0.1);
+    }
+</style>
+
+<div class="main-container">
+    <!-- Volume & Momentum Paneli -->
+    <div class="panel">
+        <div class="panel-header">
+            <div class="panel-title">
+                📈 Volume & Momentum 
+                <span class="panel-badge">TREND</span>
+            </div>
+        </div>
+        <div class="panel-content">
+            <div class="volume-spike-indicator">
+                <span>Volume Spike:</span>
+                <div class="spike-meter">
+                    <div id="volumeSpikeFill" class="spike-fill" style="width: 0%"></div>
+                </div>
+                <span id="volumeSpikeValue">1.0x</span>
+            </div>
+
+            <div class="panel-stat">
+                <span class="stat-label">Price Momentum</span>
+                <span id="priceMomentum" class="stat-value">+0.00%</span>
+            </div>
+
+            <div class="panel-stat">
+                <span class="stat-label">RSI</span>
+                <span id="rsiValue" class="stat-value">50</span>
+            </div>
+
+            <div class="panel-stat">
+                <span class="stat-label">MACD</span>
+                <span id="macdValue" class="stat-value">0.00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- OrderBook Derinlik Analizi -->
+    <div class="panel">
+        <div class="panel-header">
+            <div class="panel-title">
+                🎲 OrderBook Analizi 
+                <span class="panel-badge">DEPTH</span>
+            </div>
+        </div>
+        <div class="panel-content">
+            <div class="depth-visualization" id="depthVisualization">
+                <!-- Derinlik görselleştirmesi buraya -->
+            </div>
+
+            <div class="panel-stat">
+                <span class="stat-label">Spread</span>
+                <span id="currentSpread" class="stat-value">$0.00</span>
+            </div>
+
+            <div class="panel-stat">
+                <span class="stat-label">Bid Volume</span>
+                <span id="bidVolume" class="stat-value">0</span>
+            </div>
+
+            <div class="panel-stat">
+                <span class="stat-label">Ask Volume</span>
+                <span id="askVolume" class="stat-value">0</span>
+            </div>
+
+            <div id="whaleAlert" class="whale-status">
+                <div id="whaleDetails">Normal seviyede - büyük emir yok</div>
+            </div>
+        </div>
+    </div>
+</div>
+</artifact>
+
+<artifact type="text/html">
+    <style>
+        .strategy-performance {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 10px;
+        }
+    .performance-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .performance-item:last-child {
+        border-bottom: none;
+    }
+
+    .settings-panel {
+        background: rgba(255,255,255,0.05);
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    .setting-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .setting-item:last-child {
+        border-bottom: none;
+    }
+
+    .signal-history {
+        max-height: 200px;
+        overflow-y: auto;
+        background: rgba(255,255,255,0.05);
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    .signal-history-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        font-size: 0.8rem;
+    }
+
+    .signal-history-item:last-child {
+        border-bottom: none;
+    }
+
+    .success-signal {
+        color: var(--accent-color);
+    }
+
+    .failure-signal {
+        color: red;
+    }
+</style>
+
+<div class="main-container">
+    <!-- Performans Analizi Paneli -->
+    <div class="panel">
+        <div class="panel-header">
+            <div class="panel-title">
+                📊 Performans Analizi 
+                <span class="panel-badge">STATS</span>
+            </div>
+        </div>
+        <div class="panel-content">
+            <div class="strategy-performance">
+                <div class="panel-title" style="margin-bottom: 10px;">Strateji Performansları</div>
+                <div id="strategyPerformance">
+                    <div class="performance-item">
+                        <span>Scalp</span>
+                        <span class="success-signal">%75.5</span>
+                    </div>
+                    <div class="performance-item">
+                        <span>Volume</span>
+                        <span class="success-signal">%68.2</span>
+                    </div>
+                    <div class="performance-item">
+                        <span>OrderBook</span>
+                        <span class="failure-signal">%55.3</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="signal-history" style="margin-top: 15px;">
+                <div class="panel-title" style="margin-bottom: 10px;">Sinyal Geçmişi</div>
+                <div id="signalHistory">
+                    <div class="signal-history-item success-signal">
+                        <span>BTC Buy</span>
+                        <span>+%2.3</span>
+                    </div>
+                    <div class="signal-history-item failure-signal">
+                        <span>ETH Sell</span>
+                        <span>-%1.5</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sistem Durumu Paneli -->
+    <div class="panel">
+        <div class="panel-header">
+            <div class="panel-title">
+                🖥️ Sistem Durumu 
+                <span class="panel-badge">SYSTEM</span>
+            </div>
+        </div>
+        <div class="panel-content">
+            <div class="settings-panel">
+                <div class="setting-item">
+                    <span>Model Versiyonu</span>
+                    <span id="modelVersion">v2.0</span>
+                </div>
+                <div class="setting-item">
+                    <span>Son Güncelleme</span>
+                    <span id="lastModelUpdate">-</span>
+                </div>
+                <div class="setting-item">
+                    <span>Öğrenme Hızı</span>
+                    <span id="learningRate">Orta</span>
+                </div>
+                <div class="setting-item">
+                    <span>Adaptasyon Seviyesi</span>
+                    <span id="adaptationLevel">%0</span>
+                </div>
+                <div class="setting-item">
+                    <span>Hafıza Kullanımı</span>
+                    <span id="memoryUsage">-</span>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn" onclick="resetAILearning()">🔄 AI Sıfırla</button>
+                <button class="btn" onclick="exportSettings()">💾 Ayarları Dışa Aktar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Bildirimi -->
+<div id="toast" class="toast"></div>
+
+<style>
+    .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(0,0,0,0.8);
+        color: var(--text-color);
+        padding: 15px;
+        border-radius: 10px;
+        border: 2px solid var(--primary-color);
+        z-index: 1000;
+        display: none;
+        transition: all 0.3s ease;
+    }
+
+    .toast.show {
+        display: block;
+        animation: toast-animation 0.3s ease;
+    }
+
+    @keyframes toast-animation {
+        from { 
+            opacity: 0; 
+            transform: translateY(20px);
+        }
+        to { 
+            opacity: 1; 
+            transform: translateY(0);
+        }
+    }
+
+    .toast.success {
+        background: rgba(0,255,65,0.2);
+        border-color: var(--accent-color);
+    }
+
+    .toast.error {
+        background: rgba(255,0,0,0.2);
+        border-color: red;
+    }
+</style>
+</artifact>
+
+
+<artifact type="text/html">
+<script>
+    // Global Değişkenler
+    let ws = null;
+    let isConnected = false;
+    let currentSymbol = 'BTC_USDT';
+    let currentExchange = 'mexc';
+    let lastPrice = 0;
+    let priceHistory = [];
+    let volumeHistory = [];
+    let realOrderBookData = { bids: [], asks: [] };
+    let debugPanel = null;
+    let pingInterval = null;
+    let reconnectAttempts = 0;
+    let maxReconnectAttempts = 5;
+    let startTime = Date.now();
+    let dataUsageBytes = 0;
+// Utility Fonksiyonları
+function debugLog(message, type = 'info') {
+    const el = document.getElementById('debugPanel');
+    const logEntry = document.createElement('div');
+    logEntry.className = `debug-log debug-${type}`;
+    logEntry.innerText = `[${new Date().toLocaleTimeString()}] ${message}`;
+    el.insertBefore(logEntry, el.firstChild);
+    
+    // 100 log ile sınırla
+    if (el.children.length > 100) {
+        el.removeChild(el.lastChild);
+    }
+}
+
+function showToast(message, type = 'info') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = `toast show ${type}`;
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+function validateSymbol(symbol) {
+    const coin = symbol.trim().toUpperCase();
+    
+    // Sadece geçerli format kontrolü
+    if (/^[A-Z]{2,10}$/.test(coin)) {
+        return { 
+            valid: true, 
+            coin: coin, 
+            message: `🎲 ${coin}_USDT bağlantısı kuruluyor...` 
+        };
+    }
+    
+    return { 
+        valid: false, 
+        coin: null, 
+        message: `🚫 Geçersiz format: Sadece harfler, 2-10 karakter` 
+    };
+}
+
+function toggleTheme() {
+    const body = document.body;
+    const currentTheme = body.getAttribute('data-theme') || 'dark';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('app-theme', newTheme);
+    
+    showToast(`🌓 ${newTheme === 'dark' ? 'Koyu' : 'Açık'} tema aktifleştirildi`, 'success');
+}
+
+function updatePriceDisplay(price, change = 0) {
+    const priceEl = document.getElementById('headerPrice');
+    const changeEl = document.getElementById('headerChange');
+    
+    priceEl.textContent = `$${price.toFixed(4)}`;
+    
+    const changeIcon = change >= 0 ? '📈' : '📉';
+    changeEl.textContent = `${changeIcon} ${change >= 0 ? '+' : ''}${change.toFixed(3)}%`;
+    changeEl.style.color = change >= 0 ? 'var(--accent-color)' : 'red';
+    
+    lastPrice = price;
+}
+
+function resetAILearning() {
+    if (confirm('AI öğrenme verilerini sıfırlamak istediğinizden emin misiniz?')) {
+        // Gelecek bölümlerde AI sıfırlama mantığı eklenecek
+        debugLog('🤖 AI öğrenme verileri sıfırlandı', 'warning');
+        showToast('🔄 AI verileri sıfırlandı', 'success');
+    }
+}
+
+function exportSettings() {
+    try {
+        const exportData = {
+            timestamp: new Date().toISOString(),
+            currentSymbol: currentSymbol,
+            lastPrice: lastPrice,
+            // Diğer ayarlar eklenecek
+        };
+        
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `ai_crypto_bot_settings_${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        
+        URL.revokeObjectURL(url);
+        
+        showToast('💾 Ayarlar dışa aktarıldı', 'success');
+    } catch (error) {
+        debugLog(`🚨 Dışa aktarma hatası: ${error.message}`, 'error');
+        showToast('🚫 Dışa aktarma başarısız', 'error');
+    }
+}
+
+// Sayfa yüklendiğinde çalışacak başlangıç fonksiyonu
+document.addEventListener('DOMContentLoaded', function() {
+    // Tema ayarını kontrol et
+    const savedTheme = localStorage.getItem('app-theme') || 'dark';
+    document.body.setAttribute('data-theme', savedTheme);
+
+    // Debug panelini başlat
+    debugPanel = document.getElementById('debugPanel');
+    
+    // İlk log
+    debugLog('🎲 Casino Kripto AI Bot başlatıldı', 'success');
+    
+    // Klavye kısayolları
+    document.addEventListener('keydown', function(event) {
+        if (event.ctrlKey) {
+            switch(event.key) {
+                case 't': 
+                    event.preventDefault();
+                    toggleTheme();
+                    break;
+                case 'e':
+                    event.preventDefault();
+                    exportSettings();
+                    break;
+            }
+        }
+    });
+});
+</script>
+</artifact>
+
+<artifact type="text/html">
+<script>
+    // WebSocket Bağlantı Fonksiyonları
+    function connect() {
+        try {
+            const coin = document.getElementById('manualSymbol').value.trim().toUpperCase() || 'BTC';
+            const validation = validateSymbol(coin);
+        if (!validation.valid) {
+            showToast(validation.message, 'error');
+            return;
+        }
+        
+        currentSymbol = validation.coin + '_USDT';
+        
+        // Bağlantı UI güncellemeleri
+        document.getElementById('connectionStatus').className = 'status-indicator connecting';
+        document.getElementById('connectionStatus').innerHTML = '🎲 Bağlanıyor...';
+        document.getElementById('connectBtn').innerHTML = '🎰 Bağlanıyor';
+        document.getElementById('connectBtn').disabled = true;
+        
+        // WebSocket bağlantısı
+        const url = 'wss://futures.mexc.com/edge';
+        ws = new WebSocket(url);
+        
+        ws.onopen = () => {
+            isConnected = true;
+            reconnectAttempts = 0;
+            
+            // Bağlantı durumu güncelleme
+            document.getElementById('connectionStatus').className = 'status-indicator connected';
+            document.getElementById('connectionStatus').innerHTML = '🎉 Bağlandı';
+            document.getElementById('connectBtn').innerHTML = '🚫 Bağlantıyı Kes';
+            document.getElementById('connectBtn').disabled = false;
+            
+            debugLog(`🎲 ${currentSymbol} için WebSocket bağlantısı kuruldu`, 'success');
+            showToast(`🎉 ${currentSymbol} bağlandı`, 'success');
+            
+            // Coin için abonelik
+            subscribeToPair(currentSymbol);
+            startPing();
+        };
+        
+        ws.onmessage = (event) => {
+            try {
+                dataUsageBytes += event.data.length;
+                const data = JSON.parse(event.data);
+                
+                if (data.channel) {
+                    handleWebSocketData(data);
+                }
+            } catch (error) {
+                debugLog(`🚨 Mesaj işleme hatası: ${error.message}`, 'error');
+            }
+        };
+        
+        ws.onclose = () => {
+            isConnected = false;
+            
+            document.getElementById('connectionStatus').className = 'status-indicator disconnected';
+            document.getElementById('connectionStatus').innerHTML = '🎲 Bağlantı Kesildi';
+            document.getElementById('connectBtn').innerHTML = '🎰 Bağlan';
+            document.getElementById('connectBtn').disabled = false;
+            
+            debugLog('🚫 WebSocket bağlantısı kapandı', 'warning');
+            showToast('🚫 Bağlantı kesildi', 'warning');
+            
+            stopPing();
+            attemptReconnect();
+        };
+        
+        ws.onerror = (err) => {
+            debugLog(`🚨 WebSocket hatası: ${err}`, 'error');
+            showToast('🚨 Bağlantı hatası', 'error');
+        };
+    } catch (error) {
+        debugLog(`🚨 Bağlantı başlatma hatası: ${error.message}`, 'error');
+        showToast('🚨 Bağlantı başlatılamadı', 'error');
+    }
+}
+
+function disconnect() {
+    if (ws) {
+        ws.close();
+        ws = null;
+    }
+    
+    isConnected = false;
+    
+    document.getElementById('connectionStatus').className = 'status-indicator disconnected';
+    document.getElementById('connectionStatus').innerHTML = '🎲 Bağlantı Yok';
+    document.getElementById('connectBtn').innerHTML = '🎰 Bağlan';
+    
+    debugLog('🚫 Bağlantı manuel olarak kesildi', 'info');
+    showToast('🚫 Bağlantı kesildi', 'info');
+    
+    stopPing();
+    reconnectAttempts = 0;
+}
+
+function toggleConnection() {
+    if (isConnected) {
+        disconnect();
+    } else {
+        connect();
+    }
+}
+
+function subscribeToPair(symbol) {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        const subscriptions = [
+            { method: 'sub.deal', param: { symbol }, id: 'deal_' + symbol },
+            { method: 'sub.depth', param: { symbol, depth: 20 }, id: 'depth_' + symbol },
+            { method: 'sub.ticker', param: { symbol }, id: 'ticker_' + symbol }
+        ];
+        
+        subscriptions.forEach(sub => {
+            ws.send(JSON.stringify(sub));
+            debugLog(`🎲 Abonelik: ${sub.method} - ${symbol}`, 'info');
+        });
+    }
+}
+
+function startPing() {
+    pingInterval = setInterval(() => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ method: 'ping' }));
+        }
+    }, 30000);
+}
+
+function stopPing() {
+    if (pingInterval) {
+        clearInterval(pingInterval);
+        pingInterval = null;
+    }
+}
+
+function attemptReconnect() {
+    if (reconnectAttempts < maxReconnectAttempts) {
+        reconnectAttempts++;
+        
+        debugLog(`🔄 Yeniden bağlanma girişimi ${reconnectAttempts}/${maxReconnectAttempts}`, 'warning');
+        showToast(`🔄 Yeniden bağlanma ${reconnectAttempts}/${maxReconnectAttempts}`, 'warning');
+        
+        setTimeout(connect, 5000 * reconnectAttempts);
+    } else {
+        debugLog('🚫 Maksimum yeniden bağlanma denemesi tamamlandı', 'error');
+        showToast('🚫 Otomatik yeniden bağlanma durduruldu', 'error');
+    }
+}
+
+function handleWebSocketData(data) {
+    if (!data.channel || !data.data) return;
+
+    try {
+        if (data.channel === 'push.deal') {
+            const deal = data.data;
+            const price = parseFloat(deal.p);
+            const volume = parseFloat(deal.v);
+            
+            priceHistory.push(price);
+            if (priceHistory.length > 100) priceHistory.shift();
+            
+            const change = lastPrice ? ((price - lastPrice) / lastPrice * 100) : 0;
+            updatePriceDisplay(price, change);
+            
+            // Volume history güncelleme
+            volumeHistory.push(volume);
+            if (volumeHistory.length > 15) volumeHistory.shift();
+            
+        } else if (data.channel === 'push.depth') {
+            realOrderBookData = {
+                bids: data.data.bids.map(([price, volume]) => [parseFloat(price), parseFloat(volume)]),
+                asks: data.data.asks.map(([price, volume]) => [parseFloat(price), parseFloat(volume)])
+            };
+            
+            // OrderBook derinlik görselleştirmesi
+            updateOrderBookDepth();
+            
+        } else if (data.channel === 'push.ticker') {
+            const ticker = data.data;
+            const price = parseFloat(ticker.lastPrice);
+            const change = parseFloat(ticker.priceChangePercent);
+            updatePriceDisplay(price, change);
+        }
+    } catch (error) {
+        debugLog(`🚨 WebSocket veri işleme hatası: ${error.message}`, 'error');
+    }
+}
+
+function updateOrderBookDepth() {
+    try {
+        const depthViz = document.getElementById('depthVisualization');
+        const maxVolume = Math.max(
+            ...realOrderBookData.bids.slice(0, 5).map(b => b[1]),
+            ...realOrderBookData.asks.slice(0, 5).map(b => b[1]),
+            1
+        );
+        
+        const bars = [
+            ...realOrderBookData.bids.slice(0, 5).map(([price, vol]) => `
+                <div 
+                    class="depth-bar" 
+                    style="height: ${(vol / maxVolume) * 60}px;"
+                    title="Bid: $${price} (${vol.toFixed(2)})"
+                ></div>
+            `),
+            ...realOrderBookData.asks.slice(0, 5).map(([price, vol]) => `
+                <div 
+                    class="depth-bar ask" 
+                    style="height: ${(vol / maxVolume) * 60}px;"
+                    title="Ask: $${price} (${vol.toFixed(2)})"
+                ></div>
+            `)
+        ].join('');
+        
+        depthViz.innerHTML = bars;
+        
+        // Spread hesaplama
+        const bidVolume = realOrderBookData.bids.reduce((sum, [_, vol]) => sum + vol, 0);
+        const askVolume = realOrderBookData.asks.reduce((sum, [_, vol]) => sum + vol, 0);
+        
+        const imbalance = ((bidVolume - askVolume) / (bidVolume + askVolume) * 100) || 0;
+        
+        document.getElementById('bidVolume').textContent = bidVolume.toFixed(2);
+        document.getElementById('askVolume').textContent = askVolume.toFixed(2);
+        
+        const whaleAlert = document.getElementById('whaleAlert');
+        const whaleDetails = document.getElementById('whaleDetails');
+        
+        if (Math.abs(imbalance) > 25) {
+            whaleAlert.className = `whale-status ${imbalance > 0 ? 'bullish' : 'bearish'}`;
+            whaleDetails.innerHTML = imbalance > 0 
+                ? `🚀 Güçlü alım baskısı: +${Math.abs(imbalance).toFixed(1)}%` 
+                : `📉 Güçlü satım baskısı: -${Math.abs(imbalance).toFixed(1)}%`;
+        } else {
+            whaleAlert.className = 'whale-status';
+            whaleDetails.innerHTML = 'Normal piyasa dengesi';
+        }
+    } catch (error) {
+        debugLog(`🚨 OrderBook güncelleme hatası: ${error.message}`, 'error');
+    }
+}
+</script>
+</artifact>
+
+
+<artifact type="text/html">
+<script>
+    // AI Öğrenme Sistemi
+    class AILearningSystem {
+        constructor() {
+            this.version = '2.1';
+            this.learningData = this.loadLearningData();
+            this.currentScore = 0;
+            this.totalSignals = 0;
+            this.successfulSignals = 0;
+            this.optimizationParams = this.loadOptimizationParams();
+        }
+    loadLearningData() {
+        try {
+            const data = JSON.parse(localStorage.getItem('aiLearningData_v2') || '{}');
+            return {
+                signals: data.signals || [],
+                version: this.version
+            };
+        } catch (error) {
+            debugLog(`🤖 Öğrenme verisi yüklenirken hata: ${error.message}`, 'error');
+            return { signals: [], version: this.version };
+        }
+    }
+
+    loadOptimizationParams() {
+        return {
+            volumeThreshold: 1.5,
+            tpTarget: 0.8,
+            slLimit: 0.4,
+            signalFrequency: 15000,
+            maxActiveSignals: 3
+        };
+    }
+
+    learn(signalData) {
+        try {
+            // Sinyal verilerini kaydet
+            this.learningData.signals.push({
+                ...signalData,
+                timestamp: Date.now()
+            });
+
+            // Sinyal sayılarını güncelle
+            this.totalSignals++;
+            if (signalData.success) {
+                this.successfulSignals++;
+            }
+
+            // Performans skorunu hesapla
+            this.updatePerformanceScore();
+
+            // Verileri kaydet
+            this.saveLearningData();
+        } catch (error) {
+            debugLog(`🤖 Öğrenme hatası: ${error.message}`, 'error');
+        }
+    }
+
+    updatePerformanceScore() {
+        try {
+            const recentSignals = this.learningData.signals.slice(-20);
+            if (recentSignals.length === 0) return;
+
+            const successRate = recentSignals.filter(s => s.success).length / recentSignals.length;
+            const avgProfit = recentSignals.reduce((sum, s) => sum + (s.profit || 0), 0) / recentSignals.length;
+
+            // Performans skoru hesaplama
+            this.currentScore = Math.round((successRate * 70) + (Math.abs(avgProfit) * 30));
+
+            // UI güncelleme
+            document.getElementById('aiScore').textContent = this.currentScore;
+            document.getElementById('totalAnalysis').textContent = this.totalSignals;
+            document.getElementById('successRate').textContent = 
+                `${(this.successfulSignals / (this.totalSignals || 1) * 100).toFixed(1)}%`;
+        } catch (error) {
+            debugLog(`🤖 Performans skoru güncellenirken hata: ${error.message}`, 'error');
+        }
+    }
+
+    saveLearningData() {
+        try {
+            localStorage.setItem('aiLearningData_v2', JSON.stringify({
+                signals: this.learningData.signals.slice(-100), // Son 100 sinyali sakla
+                version: this.version
+            }));
+        } catch (error) {
+            debugLog(`🤖 Öğrenme verisi kaydedilemedi: ${error.message}`, 'error');
+        }
+    }
+
+    generateOptimizedSignal(analysis) {
+        try {
+            const { rsi, volumeSpike, orderBookImbalance } = analysis;
+            let confidence = 0;
+            let direction = 'buy';
+            let strategy = 'volume';
+
+            // Basit sinyal üretme mantığı
+            if (rsi < 30 && volumeSpike > this.optimizationParams.volumeThreshold) {
+                confidence = Math.min(90, 50 + (volumeSpike * 10) + Math.abs(orderBookImbalance));
+                direction = 'buy';
+                strategy = 'rsi_oversold';
+            } else if (rsi > 70 && volumeSpike > this.optimizationParams.volumeThreshold) {
+                confidence = Math.min(90, 50 + (volumeSpike * 10) + Math.abs(orderBookImbalance));
+                direction = 'sell';
+                strategy = 'rsi_overbought';
+            }
+
+            if (confidence > 60) {
+                const multiplier = direction === 'buy' ? 1 : -1;
+                return {
+                    direction,
+                    entryPrice: lastPrice,
+                    takeProfit: lastPrice * (1 + (this.optimizationParams.tpTarget / 100) * multiplier),
+                    stopLoss: lastPrice * (1 - (this.optimizationParams.slLimit / 100) * multiplier),
+                    confidence,
+                    timestamp: Date.now(),
+                    strategy,
+                    symbol: currentSymbol
+                };
+            }
+
+            return null;
+        } catch (error) {
+            debugLog(`🤖 Optimize sinyal üretiminde hata: ${error.message}`, 'error');
+            return null;
+        }
+    }
+
+    reset() {
+        try {
+            localStorage.removeItem('aiLearningData_v2');
+            this.learningData = { signals: [], version: this.version };
+            this.currentScore = 0;
+            this.totalSignals = 0;
+            this.successfulSignals = 0;
+
+            // UI güncelleme
+            document.getElementById('aiScore').textContent = '0';
+            document.getElementById('totalAnalysis').textContent = '0';
+            document.getElementById('successRate').textContent = '0%';
+
+            debugLog('🤖 AI öğrenme verileri sıfırlandı', 'warning');
+            showToast('🔄 AI verileri sıfırlandı', 'success');
+        } catch (error) {
+            debugLog(`🤖 Sıfırlama hatası: ${error.message}`, 'error');
+        }
+    }
+}
+
+// Sinyal İzleme Sınıfı
+class SignalTracker {
+    constructor(aiSystem) {
+        this.aiSystem = aiSystem;
+        this.activeSignals = [];
+        this.completedSignals = this.loadCompletedSignals();
+    }
+
+    loadCompletedSignals() {
+        try {
+            return JSON.parse(localStorage.getItem('completedSignals_v2') || '[]');
+        } catch (error) {
+            debugLog(`🎲 Tamamlanan sinyaller yüklenemedi: ${error.message}`, 'error');
+            return [];
+        }
+    }
+
+    addSignal(signal) {
+        if (this.activeSignals.length >= this.aiSystem.optimizationParams.maxActiveSignals) {
+            debugLog('🚫 Maksimum aktif sinyal sayısına ulaşıldı', 'warning');
+            return false;
+        }
+
+        this.activeSignals.push(signal);
+        this.updateSignalUI();
+        
+        showToast(`🎲 Yeni ${signal.direction.toUpperCase()} sinyali - %${signal.confidence.toFixed(0)} güven`, 'success');
+        return true;
+    }
+
+    updateSignals(currentPrice) {
+        this.activeSignals = this.activeSignals.filter(signal => {
+            const profitTarget = signal.direction === 'buy' ? signal.takeProfit : signal.stopLoss;
+            const lossTarget = signal.direction === 'buy' ? signal.stopLoss : signal.takeProfit;
+            
+            if ((signal.direction === 'buy' && currentPrice >= profitTarget) || 
+                (signal.direction === 'sell' && currentPrice <= profitTarget)) {
+                // Kar hedefine ulaşıldı
+                signal.success = true;
+                signal.profit = ((profitTarget - signal.entryPrice) / signal.entryPrice * 100);
+                this.processCompletedSignal(signal);
+                return false;
+            } else if ((signal.direction === 'buy' && currentPrice <= lossTarget) || 
+                       (signal.direction === 'sell' && currentPrice >= lossTarget)) {
+                // Zarar durdurma tetiklendi
+                signal.success = false;
+                signal.profit = ((lossTarget - signal.entryPrice) / signal.entryPrice * 100);
+                this.processCompletedSignal(signal);
+                return false;
+            }
+            
+            return true;
+        });
+
+        this.updateSignalUI();
+    }
+
+    processCompletedSignal(signal) {
+        signal.exitTime = Date.now();
+        this.completedSignals.push(signal);
+        this.saveCompletedSignals();
+        this.aiSystem.learn(signal);
+
+        // Toast bildirimi
+        showToast(
+            `🎲 ${signal.direction.toUpperCase()} sinyali ${signal.success ? 'TP' : 'SL'}: %${signal.profit.toFixed(2)}`, 
+            signal.success ? 'success' : 'error'
+        );
+    }
+
+    saveCompletedSignals() {
+        try {
+            localStorage.setItem('completedSignals_v2', JSON.stringify(this.completedSignals.slice(-50)));
+        } catch (error) {
+            debugLog(`🎲 Tamamlanan sinyaller kaydedilemedi: ${error.message}`, 'error');
+        }
+    }
+
+    updateSignalUI() {
+        const signalHistoryEl = document.getElementById('signalHistory');
+        
+        // Son 10 sinyali göster
+        const recentSignals = this.completedSignals.slice(-10).reverse();
+        
+        signalHistoryEl.innerHTML = recentSignals.map(signal => `
+            <div class="signal-history-item ${signal.success ? 'success-signal' : 'failure-signal'}">
+                <span>${signal.symbol} ${signal.direction.toUpperCase()}</span>
+                <span>${signal.success ? '+' : ''}${signal.profit.toFixed(2)}%</span>
+            </div>
+        `).join('');
+    }
+}
+
+// Başlatma fonksiyonu
+function initializeAI() {
+    try {
+        // AI sistemlerini başlat
+        window.aiSystem = new AILearningSystem();
+        window.signalTracker = new SignalTracker(window.aiSystem);
+
+        debugLog('🎲 AI sistemleri başlatıldı', 'success');
+        showToast('🤖 AI sistemleri hazır', 'success');
+    } catch (error) {
+        debugLog(`🚨 AI başlatma hatası: ${error.message}`, 'error');
+        showToast('🚨 AI başlatılamadı', 'error');
+    }
+}
+
+// Sayfa yüklendiğinde AI'ı başlat
+document.addEventListener('DOMContentLoaded', initializeAI);
+</script>
+</artifact>
+
+
+<artifact type="text/html">
+<script>
+    // Performans ve Risk Yönetimi
+    function monitorPerformance() {
+        setInterval(() => {
+            try {
+                if (!window.aiSystem || !window.signalTracker) return;
+            const completedSignals = window.signalTracker.completedSignals;
+            
+            if (completedSignals.length > 0) {
+                // Strateji performanslarını hesapla
+                const strategies = {
+                    'rsi_oversold': { success: 0, total: 0 },
+                    'rsi_overbought': { success: 0, total: 0 },
+                    'volume': { success: 0, total: 0 }
+                };
+
+                completedSignals.slice(-50).forEach(signal => {
+                    if (strategies[signal.strategy]) {
+                        strategies[signal.strategy].total++;
+                        if (signal.success) {
+                            strategies[signal.strategy].success++;
+                        }
+                    }
+                });
+
+                // Strateji performans panelini güncelle
+                const strategyPerformanceEl = document.getElementById('strategyPerformance');
+                strategyPerformanceEl.innerHTML = Object.entries(strategies).map(([strategy, perf]) => {
+                    const successRate = perf.total > 0 
+                        ? ((perf.success / perf.total) * 100).toFixed(1) 
+                        : '0.0';
+                    
+                    const color = successRate > 70 
+                        ? 'var(--accent-color)' 
+                        : successRate > 50 
+                            ? 'var(--primary-color)' 
+                            : 'red';
+
+                    return `
+                        <div class="performance-item">
+                            <span>${strategy.replace('_', ' ').toUpperCase()}</span>
+                            <span style="color: ${color}">${successRate}% (${perf.success}/${perf.total})</span>
+                        </div>
+                    `;
+                }).join('');
+
+                // Risk seviyesi belirleme
+                const recentSignals = completedSignals.slice(-10);
+                const failureRate = recentSignals.filter(s => !s.success).length / recentSignals.length;
+
+                let riskLevel = 'Düşük';
+                if (failureRate > 0.7) riskLevel = 'Yüksek';
+                else if (failureRate > 0.4) riskLevel = 'Orta';
+
+                document.getElementById('adaptationLevel').textContent = `%${(failureRate * 100).toFixed(0)}`;
+            }
+        } catch (error) {
+            debugLog(`🚨 Performans izleme hatası: ${error.message}`, 'error');
+        }
+    }, 30000); // 30 saniyede bir çalış
+}
+
+// Risk Yönetimi ve Adaptasyon
+function manageRiskAdaptation() {
+    setInterval(() => {
+        try {
+            if (!window.aiSystem) return;
+
+            const completedSignals = window.signalTracker.completedSignals;
+            
+            if (completedSignals.length > 20) {
+                const recentSignals = completedSignals.slice(-20);
+                const successRate = recentSignals.filter(s => s.success).length / recentSignals.length;
+
+                // Dinamik optimizasyon parametreleri
+                if (successRate < 0.4) {
+                    // Düşük performans durumunda ayarları sıkılaştır
+                    window.aiSystem.optimizationParams.volumeThreshold = Math.min(3.0, window.aiSystem.optimizationParams.volumeThreshold + 0.2);
+                    window.aiSystem.optimizationParams.slLimit = Math.max(0.2, window.aiSystem.optimizationParams.slLimit - 0.1);
+                    
+                    debugLog('🚨 Düşük performans - risk parametreleri daraltılıyor', 'warning');
+                    showToast('🚨 Risk yönetimi aktif', 'warning');
+                } else if (successRate > 0.7) {
+                    // Yüksek performans durumunda ayarları gevşet
+                    window.aiSystem.optimizationParams.volumeThreshold = Math.max(1.2, window.aiSystem.optimizationParams.volumeThreshold - 0.1);
+                    window.aiSystem.optimizationParams.slLimit = Math.min(0.6, window.aiSystem.optimizationParams.slLimit + 0.1);
+                    
+                    debugLog('🚀 Yüksek performans - risk parametreleri genişletiliyor', 'success');
+                    showToast('🚀 Performans optimizasyonu', 'success');
+                }
+            }
+        } catch (error) {
+            debugLog(`🚨 Risk yönetimi hatası: ${error.message}`, 'error');
+        }
+    }, 60000); // 1 dakikada bir çalış
+}
+
+// Whale (Büyük Emirleri) İzleme
+function monitorWhaleActivity() {
+    setInterval(() => {
+        try {
+            if (!realOrderBookData.bids || !realOrderBookData.asks) return;
+
+            const bidVolume = realOrderBookData.bids.reduce((sum, [_, vol]) => sum + vol, 0);
+            const askVolume = realOrderBookData.asks.reduce((sum, [_, vol]) => sum + vol, 0);
+            
+            const volumeRatio = bidVolume / (askVolume || 1);
+            const imbalance = ((bidVolume - askVolume) / (bidVolume + askVolume) * 100) || 0;
+
+            const whaleThreshold = 3; // 3 kat fark
+            const whaleAlert = document.getElementById('whaleAlert');
+            const whaleDetails = document.getElementById('whaleDetails');
+
+            if (volumeRatio > whaleThreshold) {
+                whaleAlert.className = 'whale-status bullish';
+                whaleDetails.innerHTML = `🚀 Güçlü alım baskısı: ${volumeRatio.toFixed(1)}x`;
+                whaleDetails.style.color = 'var(--accent-color)';
+                
+                // Yüksek alım baskısı durumunda sinyal üretmeye çalış
+                if (window.signalTracker && window.aiSystem) {
+                    const analysis = {
+                        rsi: 25, // Varsayılan düşük RSI
+                        volumeSpike: volumeRatio,
+                        orderBookImbalance: imbalance
+                    };
+                    const potentialSignal = window.aiSystem.generateOptimizedSignal(analysis);
+                    if (potentialSignal) {
+                        window.signalTracker.addSignal(potentialSignal);
+                    }
+                }
+            } else if (volumeRatio < 1 / whaleThreshold) {
+                whaleAlert.className = 'whale-status bearish';
+                whaleDetails.innerHTML = `📉 Güçlü satım baskısı: ${(1/volumeRatio).toFixed(1)}x`;
+                whaleDetails.style.color = 'red';
+                
+                // Yüksek satım baskısı durumunda sinyal üretmeye çalış
+                if (window.signalTracker && window.aiSystem) {
+                    const analysis = {
+                        rsi: 75, // Varsayılan yüksek RSI
+                        volumeSpike: 1/volumeRatio,
+                        orderBookImbalance: imbalance
+                    };
+                    const potentialSignal = window.aiSystem.generateOptimizedSignal(analysis);
+                    if (potentialSignal) {
+                        window.signalTracker.addSignal(potentialSignal);
+                    }
+                }
+            } else {
+                whaleAlert.className = 'whale-status';
+                whaleDetails.innerHTML = 'Normal piyasa dengesi';
+                whaleDetails.style.color = 'var(--text-color)';
+            }
+        } catch (error) {
+            debugLog(`🐳 Whale aktivite izleme hatası: ${error.message}`, 'error');
+        }
+    }, 45000); // 45 saniyede bir çalış
+}
+
+// Sayfa yüklendiğinde performans izleme mekanizmalarını başlat
+document.addEventListener('DOMContentLoaded', () => {
+    // Performans ve risk yönetimi fonksiyonlarını başlat
+    monitorPerformance();
+    manageRiskAdaptation();
+    monitorWhaleActivity();
+
+    debugLog('🎲 Performans izleme mekanizmaları aktif', 'success');
+});
+</script>
+</body>
+</html>
+</artifact>
