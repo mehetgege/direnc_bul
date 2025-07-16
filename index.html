@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🤖 AI Kripto Sinyal Botu</title>
-    <style>
+    <title>🤖 AI OrderBook Sinyal Botu v4.0</title>
+<style>
         * {
             margin: 0;
             padding: 0;
@@ -12,33 +12,48 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #0B0E11 0%, #1a1a2e 50%, #16213e 100%);
             color: #ffffff;
             min-height: 100vh;
             overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 80%, rgba(0, 212, 170, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255, 107, 107, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
         }
 
         body.light-theme {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 50%, #e0e7ff 100%);
-            color: #1a1a2e;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+            color: #1e293b;
         }
-
-        .header {
-            background: rgba(11, 14, 17, 0.98);
-            backdrop-filter: blur(15px);
-            border-bottom: 2px solid #00D4AA;
+       
+       .header {
+            background: rgba(11, 14, 17, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 212, 170, 0.3);
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 4px 20px rgba(0, 212, 170, 0.3);
-            padding: 10px 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            padding: 15px 20px;
+            transition: all 0.3s ease;
         }
 
         .light-theme .header {
-            background: rgba(255, 255, 255, 0.98);
-            border-bottom: 2px solid #00D4AA;
-            box-shadow: 0 4px 20px rgba(0, 212, 170, 0.2);
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid rgba(0, 212, 170, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
         .header-main {
@@ -46,105 +61,237 @@
             flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         .header-left {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
             flex: 1;
-            min-width: 200px;
+            min-width: 250px;
         }
 
         .app-title {
-            font-size: 1.2rem;
-            background: linear-gradient(45deg, #00D4AA, #00ff88);
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, #00D4AA, #00ff88, #4ECDC4);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
+            animation: titleGlow 3s ease-in-out infinite;
         }
 
-        .light-theme .app-title {
-            color: #00D4AA;
+        @keyframes titleGlow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
         }
-
-        .ai-status {
-            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+       
+       .ai-status {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7D1);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 600;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             animation: aiPulse 2s infinite;
+            position: relative;
+        }
+
+        .ai-status::before {
+            content: '●';
+            position: absolute;
+            left: -15px;
+            color: #00D4AA;
+            animation: aiDot 1.5s infinite;
         }
 
         @keyframes aiPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        @keyframes aiDot {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
         }
 
         .header-center {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
             flex: 1;
-            min-width: 150px;
+            min-width: 200px;
         }
 
         .current-price {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 1.8rem;
+            font-weight: 800;
             color: #ffffff;
+            text-shadow: 0 0 20px rgba(0, 212, 170, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .current-price:hover {
+            transform: scale(1.05);
+            text-shadow: 0 0 30px rgba(0, 212, 170, 0.5);
         }
 
         .light-theme .current-price {
-            color: #1a1a2e;
+            color: #1e293b;
+            text-shadow: 0 0 20px rgba(0, 212, 170, 0.2);
         }
-
-        .current-change {
-            font-size: 0.9rem;
+       
+       .current-change {
+            font-size: 1rem;
             font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
         }
 
         .header-right {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             flex: 1;
             justify-content: flex-end;
-            min-width: 200px;
+            min-width: 250px;
         }
 
-        .main-container {
+        .btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #00D4AA, #00ff88);
+            border: none;
+            border-radius: 12px;
+            color: #0B0E11;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 212, 170, 0.3);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 212, 170, 0.4);
+        }
+
+        .btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+       
+       .status-indicator {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-indicator::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: inherit;
+            filter: brightness(1.2);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .status-indicator:hover::before {
+            opacity: 1;
+        }
+
+        .connected {
+            background: rgba(0, 212, 170, 0.2);
+            border: 1px solid #00D4AA;
+            color: #00D4AA;
+            box-shadow: 0 0 20px rgba(0, 212, 170, 0.3);
+        }
+
+        .disconnected {
+            background: rgba(248, 73, 96, 0.2);
+            border: 1px solid #F84960;
+            color: #F84960;
+            box-shadow: 0 0 20px rgba(248, 73, 96, 0.3);
+        }
+
+        .connecting {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid #FFC107;
+            color: #FFC107;
+            animation: connectingPulse 1.5s infinite;
+        }
+
+        @keyframes connectingPulse {
+            0%, 100% { 
+                opacity: 0.8; 
+                transform: scale(1);
+                box-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
+            }
+            50% { 
+                opacity: 1; 
+                transform: scale(1.02);
+                box-shadow: 0 0 20px rgba(255, 193, 7, 0.5);
+            }
+        }
+       .main-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 15px;
-            padding: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            padding: 20px;
             max-width: 1400px;
             margin: 0 auto;
         }
 
         .panel {
-            background: rgba(26, 26, 46, 0.85);
-            border-radius: 12px;
-            padding: 16px;
-            border: 1px solid rgba(0, 212, 170, 0.2);
-            backdrop-filter: blur(10px);
+            background: rgba(26, 26, 46, 0.9);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(0, 212, 170, 0.15);
+            backdrop-filter: blur(20px);
             position: relative;
             overflow: hidden;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
         .light-theme .panel {
             background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(0, 212, 170, 0.3);
-        }
-
-        .panel:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 212, 170, 0.2);
+            border: 1px solid rgba(0, 212, 170, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
         .panel::before {
@@ -153,51 +300,65 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #00D4AA, #00ff88, #00D4AA);
-            animation: shimmer 2s infinite;
+            height: 2px;
+            background: linear-gradient(90deg, #00D4AA, #00ff88, #4ECDC4);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 212, 170, 0.2);
+            border-color: rgba(0, 212, 170, 0.3);
+        }
+
+        .panel:hover::before {
+            opacity: 1;
         }
 
         .panel h3 {
-            font-size: 1.1rem;
-            margin-bottom: 12px;
+            font-size: 1.2rem;
+            margin-bottom: 16px;
             color: #00D4AA;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            font-weight: 700;
         }
-
-        .light-theme .panel h3 {
-            color: #00D4AA;
-        }
-
-        .ai-learning-indicator {
-            background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7D1);
-            border-radius: 50%;
-            width: 10px;
-            height: 10px;
-            animation: aiLearning 1.5s infinite;
-        }
-
-        @keyframes aiLearning {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.3); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
+        
         .signal-box {
             background: rgba(0, 212, 170, 0.1);
             border: 2px solid #00D4AA;
-            border-radius: 10px;
-            padding: 12px;
-            margin: 8px 0;
-            animation: signalPulse 2s infinite;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 12px 0;
             position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .signal-box::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00D4AA, #00ff88, #4ECDC4, #00D4AA);
+            z-index: -1;
+            border-radius: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .signal-box:hover::before {
+            opacity: 0.7;
+            animation: borderRotate 3s linear infinite;
+        }
+
+        @keyframes borderRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .signal-box.sell {
@@ -205,346 +366,68 @@
             border-color: #F84960;
         }
 
-        .signal-box.scalp {
-            background: rgba(255, 193, 7, 0.1);
-            border-color: #FFC107;
+        .signal-box.sell::before {
+            background: linear-gradient(45deg, #F84960, #FF6B6B, #FF8A80, #F84960);
         }
 
-        @keyframes signalPulse {
-            0% { box-shadow: 0 0 0 0 rgba(0, 212, 170, 0.7); }
-            70% { box-shadow: 0 0 0 8px rgba(0, 212, 170, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 212, 170, 0); }
+        .signal-box.buy {
+            background: rgba(0, 212, 170, 0.1);
+            border-color: #00D4AA;
         }
 
         .confidence-meter {
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            height: 8px;
-            margin: 8px 0;
+            border-radius: 10px;
+            height: 10px;
+            margin: 12px 0;
             overflow: hidden;
-        }
-
-        .light-theme .confidence-meter {
-            background: rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
         .confidence-fill {
             height: 100%;
             background: linear-gradient(90deg, #FF6B6B, #FFC107, #00D4AA);
-            border-radius: 8px;
-            transition: width 0.5s ease;
-        }
-
-        .tp-sl-tracker {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin: 8px 0;
-        }
-
-        .tp-sl-item {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 8px;
-            border-radius: 6px;
-            text-align: center;
-            font-size: 0.8rem;
-            transition: all 0.3s ease;
-        }
-
-        .light-theme .tp-sl-item {
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        .tp-sl-item.reached {
-            background: rgba(0, 212, 170, 0.2);
-            border: 1px solid #00D4AA;
-            animation: glow 1s ease-in-out;
-        }
-
-        .tp-sl-item.missed {
-            background: rgba(248, 73, 96, 0.2);
-            border: 1px solid #F84960;
-            animation: glow 1s ease-in-out;
-        }
-
-        @keyframes glow {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .score-display {
-            background: rgba(255, 255, 255, 0.05);
             border-radius: 10px;
-            padding: 15px;
-            margin: 12px 0;
-            text-align: center;
-            transition: transform 0.3s ease;
-        }
-
-        .light-theme .score-display {
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        .score-display:hover {
-            transform: scale(1.02);
-        }
-
-        .score-number {
-            font-size: 2rem;
-            font-weight: 700;
-            background: linear-gradient(45deg, #00D4AA, #00ff88);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .light-theme .score-number {
-            color: #00D4AA;
-        }
-
-        .score-label {
-            font-size: 0.8rem;
-            color: #888;
-            margin-top: 5px;
-        }
-
-        .light-theme .score-label {
-            color: #555;
-        }
-
-        .ai-optimization {
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 8px;
-            padding: 12px;
-            margin: 12px 0;
-            border: 1px solid rgba(0, 212, 170, 0.1);
-        }
-
-        .light-theme .ai-optimization {
-            background: rgba(0, 0, 0, 0.02);
-            border: 1px solid rgba(0, 212, 170, 0.2);
-        }
-
-        .optimization-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 0.8rem;
-        }
-
-        .light-theme .optimization-item {
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        }
-
-        .optimization-item:last-child {
-            border-bottom: none;
-        }
-
-        .auto-badge {
-            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.8; }
-            50% { opacity: 1; }
-            100% { opacity: 0.8; }
-        }
-
-        .learning-progress {
-            margin: 12px 0;
-        }
-
-        .progress-bar {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            height: 6px;
-            overflow: hidden;
-        }
-
-        .light-theme .progress-bar {
-            background: rgba(0, 0, 0, 0.1);
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #FF6B6B, #4ECDC4, #45B7D1);
-            border-radius: 10px;
-            transition: width 1s ease;
-            animation: progressShimmer 2s infinite;
-        }
-
-        @keyframes progressShimmer {
-            0% { background-position: -200px 0; }
-            100% { background-position: 200px 0; }
-        }
-
-        .volume-spike-indicator {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px;
-            background: rgba(255, 193, 7, 0.1);
-            border-radius: 8px;
-            margin: 8px 0;
-            font-size: 0.8rem;
-        }
-
-        .spike-meter {
-            flex: 1;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .light-theme .spike-meter {
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        .spike-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #FFC107, #FF6B6B);
-            border-radius: 3px;
-            transition: width 0.3s ease;
-        }
-
-        .orderbook-depth {
-            margin: 12px 0;
-        }
-
-        .depth-visualization {
-            display: flex;
-            height: 60px;
-            gap: 2px;
-            align-items: end;
-            margin: 8px 0;
-        }
-
-        .depth-bar {
-            flex: 1;
-            background: linear-gradient(to top, rgba(0, 212, 170, 0.3), rgba(0, 212, 170, 0.8));
-            border-radius: 3px;
-            min-height: 5px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .depth-bar:hover {
-            transform: scaleY(1.1);
-        }
-
-        .depth-bar.ask {
-            background: linear-gradient(to top, rgba(248, 73, 96, 0.3), rgba(248, 73, 96, 0.8));
-        }
-
-        .btn {
-            padding: 10px 20px;
-            background: linear-gradient(45deg, #00D4AA, #00ff88);
-            border: none;
-            border-radius: 8px;
-            color: #0B0E11;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-            touch-action: manipulation;
+            transition: width 0.8s ease;
             position: relative;
             overflow: hidden;
         }
 
-        .light-theme .btn {
-            color: #ffffff;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 212, 170, 0.4);
-        }
-
-        .btn:disabled {
-            background: #555;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-loading::after {
+        .confidence-fill::after {
             content: '';
             position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 16px;
-            height: 16px;
-            border: 2px solid transparent;
-            border-top: 2px solid #0B0E11;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            transform: translate(-50%, -50%);
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: confidenceShine 2s infinite;
         }
 
-        @keyframes spin {
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        @keyframes confidenceShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
-
-        .status-indicator {
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.3s ease;
-        }
-
-        .connected {
-            background: rgba(0, 212, 170, 0.2);
-            border: 1px solid #00D4AA;
-            color: #00D4AA;
-        }
-
-        .disconnected {
-            background: rgba(248, 73, 96, 0.2);
-            border: 1px solid #F84960;
-            color: #F84960;
-        }
-
-        .connecting {
-            background: rgba(255, 193, 7, 0.2);
-            border: 1px solid #FFC107;
-            color: #FFC107;
-            animation: connecting 1s infinite;
-        }
-
-        @keyframes connecting {
-            0% { opacity: 0.7; }
-            50% { opacity: 1; }
-            100% { opacity: 0.7; }
-        }
-
+        
         .debug-panel {
             background: rgba(0, 0, 0, 0.8);
             border: 1px solid #333;
-            border-radius: 8px;
-            padding: 10px;
-            margin: 8px 0;
-            font-family: 'Courier New', monospace;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 12px 0;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
             font-size: 0.75rem;
-            max-height: 200px;
+            max-height: 220px;
             overflow-y: auto;
             scrollbar-width: thin;
             scrollbar-color: #00D4AA #333;
+            position: relative;
         }
 
         .light-theme .debug-panel {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid #ccc;
+            background: rgba(248, 250, 252, 0.9);
+            border: 1px solid #e2e8f0;
+            color: #334155;
         }
 
         .debug-panel::-webkit-scrollbar {
@@ -552,78 +435,70 @@
         }
 
         .debug-panel::-webkit-scrollbar-track {
-            background: #333;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
         }
 
         .debug-panel::-webkit-scrollbar-thumb {
-            background: #00D4AA;
+            background: linear-gradient(135deg, #00D4AA, #4ECDC4);
             border-radius: 3px;
         }
 
         .debug-log {
-            margin: 3px 0;
-            padding: 3px 6px;
-            border-radius: 3px;
+            margin: 4px 0;
+            padding: 4px 8px;
+            border-radius: 6px;
             word-wrap: break-word;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .debug-log:hover {
+            transform: translateX(3px);
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .debug-error {
-            background: rgba(248, 73, 96, 0.2);
-            color: #F84960;
-        }
-
-        .debug-success {
-            background: rgba(0, 212, 170, 0.2);
-            color: #00D4AA;
-        }
-
-        .debug-info {
-            background: rgba(70, 130, 180, 0.2);
-            color: #4682B4;
-        }
-
-        .debug-warning {
-            background: rgba(255, 193, 7, 0.2);
-            color: #FFC107;
-        }
-
-        .whale-status {
-            background: rgba(255, 193, 7, 0.05);
-            border-left: 3px solid #FFC107;
-            padding: 8px 12px;
-            border-radius: 6px;
-            margin: 8px 0;
-            min-height: 50px;
-            display: flex;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-
-        .whale-status.bullish {
-            background: rgba(0, 212, 170, 0.05);
-            border-left-color: #00D4AA;
-        }
-
-        .whale-status.bearish {
-            background: rgba(248, 73, 96, 0.05);
+            background: rgba(248, 73, 96, 0.15);
+            color: #FF8A80;
             border-left-color: #F84960;
         }
 
+        .debug-success {
+            background: rgba(0, 212, 170, 0.15);
+            color: #4ECDC4;
+            border-left-color: #00D4AA;
+        }
+
+        .debug-info {
+            background: rgba(70, 130, 180, 0.15);
+            color: #87CEEB;
+            border-left-color: #4682B4;
+        }
+
+        .debug-warning {
+            background: rgba(255, 193, 7, 0.15);
+            color: #FFD54F;
+            border-left-color: #FFC107;
+        }
+        
         .toast {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 25px;
+            right: 25px;
             background: rgba(0, 0, 0, 0.9);
             color: #fff;
-            padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             z-index: 2000;
             font-size: 0.9rem;
-            animation: slideIn 0.3s ease-out, slideOut 0.3s ease-in 2.7s;
+            font-weight: 500;
+            animation: toastSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             display: none;
-            max-width: 300px;
+            max-width: 350px;
             word-wrap: break-word;
+            border-left: 4px solid #00D4AA;
         }
 
         .toast.show {
@@ -631,118 +506,121 @@
         }
 
         .toast.success {
-            background: rgba(0, 212, 170, 0.9);
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.9), rgba(76, 205, 196, 0.9));
+            border-left-color: #00D4AA;
         }
 
         .toast.error {
-            background: rgba(248, 73, 96, 0.9);
+            background: linear-gradient(135deg, rgba(248, 73, 96, 0.9), rgba(255, 107, 107, 0.9));
+            border-left-color: #F84960;
         }
 
         .toast.warning {
-            background: rgba(255, 193, 7, 0.9);
-            color: #000;
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.9), rgba(255, 235, 59, 0.9));
+            color: #1a1a1a;
+            border-left-color: #FFC107;
         }
 
-        @keyframes slideIn {
-            from { transform: translateY(100px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        @keyframes slideOut {
-            from { transform: translateY(0); opacity: 1; }
-            to { transform: translateY(100px); opacity: 0; }
+        @keyframes toastSlideIn {
+            from { 
+                transform: translateX(100px) scale(0.8); 
+                opacity: 0; 
+            }
+            to { 
+                transform: translateX(0) scale(1); 
+                opacity: 1; 
+            }
         }
 
         .theme-toggle {
-            padding: 8px 16px;
+            padding: 10px 18px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
+            font-weight: 600;
             transition: all 0.3s ease;
             user-select: none;
-        }
-
-        .light-theme .theme-toggle {
-            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
         }
 
         .theme-toggle:hover {
             background: rgba(255, 255, 255, 0.2);
             transform: scale(1.05);
         }
-
-        .light-theme .theme-toggle:hover {
-            background: rgba(0, 0, 0, 0.2);
-        }
-
+        
         input[type="text"] {
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #00D4AA;
-            background: #111;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 2px solid rgba(0, 212, 170, 0.3);
+            background: rgba(255, 255, 255, 0.05);
             color: #fff;
             font-size: 0.9rem;
-            width: 140px;
+            width: 160px;
             transition: all 0.3s ease;
             outline: none;
+            backdrop-filter: blur(10px);
         }
 
         .light-theme input[type="text"] {
-            background: #f5f5f5;
-            color: #1a1a2e;
+            background: rgba(255, 255, 255, 0.8);
+            color: #1e293b;
+            border-color: rgba(0, 212, 170, 0.4);
         }
 
         input[type="text"]:focus {
-            border-color: #00ff88;
-            box-shadow: 0 0 10px rgba(0, 212, 170, 0.3);
+            border-color: #00D4AA;
+            box-shadow: 0 0 20px rgba(0, 212, 170, 0.3);
             transform: scale(1.02);
+            background: rgba(255, 255, 255, 0.1);
         }
 
-        .settings-panel {
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 8px;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid rgba(0, 212, 170, 0.1);
+        input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.6);
         }
 
-        .light-theme .settings-panel {
-            background: rgba(0, 0, 0, 0.02);
+        .light-theme input[type="text"]::placeholder {
+            color: rgba(30, 41, 59, 0.6);
         }
 
-        .setting-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            font-size: 0.8rem;
-        }
-
-        .persistence-indicator {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 212, 170, 0.2);
-            border: 1px solid #00D4AA;
-            color: #00D4AA;
-            padding: 5px 10px;
-            border-radius: 15px;
+        /* Strategy Badge */
+        .strategy-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: linear-gradient(135deg, #4ECDC4, #45B7D1);
+            color: #fff;
+            border-radius: 12px;
             font-size: 0.7rem;
-            z-index: 1500;
-            animation: fadeInOut 3s ease-in-out;
+            font-weight: 600;
+            margin-left: 8px;
+            animation: badgePulse 2s infinite;
         }
 
-        @keyframes fadeInOut {
-            0%, 100% { opacity: 0; }
-            20%, 80% { opacity: 1; }
+        @keyframes badgePulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
         }
 
+        /* AI Learning Indicator */
+        .ai-learning-dot {
+            width: 8px;
+            height: 8px;
+            background: #00D4AA;
+            border-radius: 50%;
+            animation: aiDotPulse 1.5s infinite;
+            margin-left: 8px;
+        }
+
+        @keyframes aiDotPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.7; }
+        }
+        
         @media (max-width: 768px) {
             .header-main {
                 flex-direction: column;
                 align-items: stretch;
-                gap: 8px;
+                gap: 12px;
             }
 
             .header-left, .header-center, .header-right {
@@ -758,6 +636,39 @@
 
             .main-container {
                 grid-template-columns: 1fr;
+                padding: 15px;
+                gap: 15px;
+            }
+
+            .panel {
+                padding: 16px;
+            }
+
+            .btn, input[type="text"] {
+                font-size: 1rem;
+                padding: 14px;
+                width: 100%;
+                margin: 6px 0;
+            }
+
+            .current-price {
+                font-size: 1.5rem;
+            }
+
+            .app-title {
+                font-size: 1.1rem;
+            }
+
+            .toast {
+                bottom: 15px;
+                right: 15px;
+                left: 15px;
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-container {
                 padding: 10px;
                 gap: 10px;
             }
@@ -766,1636 +677,1812 @@
                 padding: 12px;
             }
 
-            .btn, input[type="text"] {
-                font-size: 1rem;
-                padding: 12px;
-                width: 100%;
-                margin: 5px 0;
-            }
-
-            .panel h3 {
-                font-size: 1rem;
-            }
-
             .current-price {
                 font-size: 1.3rem;
             }
-
-            .current-change {
-                font-size: 0.8rem;
-            }
-
-            .app-title {
-                font-size: 1rem;
-            }
-
-            .toast {
-                bottom: 10px;
-                right: 10px;
-                left: 10px;
-                max-width: none;
-            }
         }
 
-        @media (max-width: 480px) {
-            .ai-status {
-                font-size: 0.6rem;
-            }
-
-            .score-number {
-                font-size: 1.5rem;
-            }
-
-            .depth-visualization {
-                height: 40px;
-            }
-
-            .debug-panel {
-                max-height: 150px;
-                font-size: 0.7rem;
-            }
-        }
-
-        /* Dark mode ince ayarları */
-        @media (prefers-color-scheme: dark) {
-            body:not(.light-theme) {
-                background: linear-gradient(135deg, #0B0E11 0%, #1a1a2e 50%, #16213e 100%);
-            }
-        }
-
-        /* Animasyon performansı için GPU hızlandırması */
-        .panel, .btn, .signal-box, .tp-sl-item {
-            will-change: transform;
-        }
-
-        /* Smooth scrolling */
         html {
             scroll-behavior: smooth;
         }
+
+        /* Performance optimizations */
+        .panel, .btn, .signal-box {
+            will-change: transform;
+        }
     </style>
 </head>
+
 <body>
     <header class="header">
         <div class="header-main">
             <div class="header-left">
                 <div class="status-indicator disconnected" id="connectionStatus">🔴 Bağlantı Yok</div>
-                <span class="app-title">🤖 AI Kripto Sinyal Botu</span>
+                <span class="app-title">🤖 AI OrderBook Sinyal Botu v4.0</span>
                 <div class="ai-status" id="aiStatus">🧠 AI Bekliyor...</div>
+                <div class="ai-learning-dot"></div>
             </div>
             
             <div class="header-center">
-                <div class="current-price" id="headerPrice">$0.00</div>
+                <div class="current-price" id="headerPrice">$0.00000000</div>
                 <div class="current-change" id="headerChange">📊 +0.00%</div>
             </div>
             
             <div class="header-right">
-                <input id="manualSymbol" type="text" placeholder="Herhangi bir coin (BTC, PEPE, WIF...)">
+                <input id="manualSymbol" type="text" placeholder="Coin sembolü (BTC, PEPE...)">
                 <button class="btn" id="connectBtn" onclick="toggleConnection()">🔌 Bağlan</button>
                 <div class="theme-toggle" onclick="toggleTheme()">🌙 Tema</div>
             </div>
         </div>
     </header>
-
+    
     <div class="main-container">
         <!-- Debug Panel -->
         <div class="panel">
             <h3>🔧 Debug Panel</h3>
             <div class="debug-panel" id="debugPanel">
-                <div class="debug-log debug-info">🚀 AI Kripto Sinyal Botu başlatıldı</div>
+                <div class="debug-log debug-info">🚀 AI OrderBook Sinyal Botu v4.0 başlatıldı</div>
                 <div class="debug-log debug-info">💡 Coin sembolü girin ve Bağlan tuşuna basın</div>
+                <div class="debug-log debug-success">🧠 AI öğrenme sistemi aktif</div>
             </div>
-            <div style="margin-top: 8px; font-size: 0.8rem;">
+            <div style="margin-top: 12px; font-size: 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                 <div>📡 WebSocket: <span id="wsStatus">Kapalı</span></div>
-                <div>🔗 URL: <span id="wsUrl">-</span></div>
+                <div>🔗 Exchange: <span id="exchangeStatus">MEXC</span></div>
                 <div>📊 Veri: <span id="dataStatus">Bekliyor</span></div>
                 <div>⏱️ Son Update: <span id="lastUpdate">-</span></div>
+                <div>🧠 AI Durumu: <span id="aiLearningStatus">Hazır</span></div>
                 <div>💾 Hafıza: <span id="memoryStatus">Aktif</span></div>
             </div>
         </div>
 
-        <!-- AI Öğrenme ve Optimizasyon Paneli -->
+        <!-- AI Dashboard -->
         <div class="panel">
-            <h3>🧠 AI Öğrenme Sistemi <div class="ai-learning-indicator"></div></h3>
+            <h3>🧠 AI Kontrol Merkezi <div class="ai-learning-dot"></div></h3>
             
-            <div class="score-display">
-                <div class="score-number" id="aiScore">0</div>
-                <div class="score-label">AI Performans Skoru</div>
-            </div>
-
-            <div class="learning-progress">
-                <div style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">Öğrenme İlerlemesi</div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="learningProgress" style="width: 0%"></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0;">
+                <div style="text-align: center; padding: 12px; background: rgba(0,212,170,0.1); border-radius: 10px;">
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #00D4AA;" id="aiScore">0</div>
+                    <div style="font-size: 0.8rem; color: #888;">AI Performans</div>
                 </div>
-                <div style="font-size: 0.7rem; color: #888; margin-top: 5px;" id="learningStats">0 veri işlendi</div>
-            </div>
-
-            <div class="ai-optimization">
-                <div style="font-weight: 700; margin-bottom: 8px; color: #00D4AA;">⚙️ Otomatik Optimizasyonlar</div>
-                <div class="optimization-item">
-                    <span>Volume Eşiği</span>
-                    <span id="autoVolumeThreshold">1.5x <span class="auto-badge">AUTO</span></span>
-                </div>
-                <div class="optimization-item">
-                    <span>TP Hedefi</span>
-                    <span id="autoTpTarget">0.8% <span class="auto-badge">AUTO</span></span>
-                </div>
-                <div class="optimization-item">
-                    <span>SL Limiti</span>
-                    <span id="autoSlLimit">0.4% <span class="auto-badge">AUTO</span></span>
-                </div>
-                <div class="optimization-item">
-                    <span>Sinyal Sıklığı</span>
-                    <span id="autoSignalFreq">15s <span class="auto-badge">AUTO</span></span>
+                <div style="text-align: center; padding: 12px; background: rgba(76,205,196,0.1); border-radius: 10px;">
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #4ECDC4;" id="learningProgress">0%</div>
+                    <div style="font-size: 0.8rem; color: #888;">Öğrenme İlerlemesi</div>
                 </div>
             </div>
 
-            <div style="font-size: 0.75rem; color: #888; margin-top: 8px;">
-                <div>📊 Toplam Analiz: <span id="totalAnalysis">0</span></div>
-                <div>✅ Başarılı: <span id="successfulSignals">0</span></div>
-                <div>📈 Başarı Oranı: <span id="successRate">0%</span></div>
-                <div>🎯 Avg TP Süresi: <span id="avgTpTime">-</span></div>
+            <div style="margin: 12px 0;">
+                <div style="font-size: 0.8rem; color: #888; margin-bottom: 6px;">Aktif Stratejiler:</div>
+                <div id="activeStrategies" style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <span class="strategy-badge">Whale Movement</span>
+                    <span class="strategy-badge">OrderBook Imbalance</span>
+                    <span class="strategy-badge">Volume Spike</span>
+                    <span class="strategy-badge">Support/Resistance</span>
+                </div>
+            </div>
+
+            <div style="margin-top: 12px; font-size: 0.75rem; color: #888;">
+                <div>📊 İşlenen Veri: <span id="processedData">0</span></div>
+                <div>🎯 Öğrenme Hızı: <span id="learningRate">Orta</span></div>
+                <div>⚡ Model Versiyonu: <span id="modelVersion">v4.0</span></div>
             </div>
         </div>
-
-        <!-- Gerçek Zamanlı Sinyal Paneli -->
+        
+        <!-- Aktif Sinyal Paneli -->
         <div class="panel">
-            <h3>🎯 Aktif Sinyaller</h3>
+            <h3>🎯 Aktif Sinyal</h3>
             
             <div id="currentSignal" class="signal-box">
-                <div style="font-weight: 700; margin-bottom: 8px;">⏳ Veri Bekleniyor...</div>
-                <div style="font-size: 0.8rem; color: #888;">WebSocket bağlantısı kurun</div>
+                <div style="font-weight: 700; margin-bottom: 8px;">⏳ Sinyal Bekleniyor...</div>
+                <div style="font-size: 0.8rem; color: #888;">AI OrderBook analizi yapıyor</div>
             </div>
 
             <div class="confidence-meter">
                 <div class="confidence-fill" id="confidenceBar" style="width: 0%"></div>
             </div>
-            <div style="font-size: 0.75rem; color: #888; text-align: center;">Güven Seviyesi: <span id="confidencePercent">0%</span></div>
+            <div style="font-size: 0.75rem; color: #888; text-align: center; margin-bottom: 12px;">
+                Güven Seviyesi: <span id="confidencePercent">0%</span>
+            </div>
 
-            <div class="tp-sl-tracker">
-                <div class="tp-sl-item">
-                    <div>🎯 Take Profit</div>
-                    <div id="tpStatus">Bekliyor</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0;">
+                <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 0.7rem; color: #888;">Giriş Fiyatı</div>
+                    <div style="font-weight: 600; color: #fff;" id="entryPrice">-</div>
                 </div>
-                <div class="tp-sl-item">
-                    <div>🛑 Stop Loss</div>
-                    <div id="slStatus">Bekliyor</div>
+                <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 0.7rem; color: #888;">Strateji</div>
+                    <div style="font-weight: 600; color: #4ECDC4;" id="currentStrategy">-</div>
+                </div>
+                <div style="background: rgba(0,212,170,0.1); padding: 8px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 0.7rem; color: #888;">Take Profit</div>
+                    <div style="font-weight: 600; color: #00D4AA;" id="tpPrice">-</div>
+                </div>
+                <div style="background: rgba(248,73,96,0.1); padding: 8px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 0.7rem; color: #888;">Stop Loss</div>
+                    <div style="font-weight: 600; color: #F84960;" id="slPrice">-</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 12px; padding: 8px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                <div style="font-size: 0.75rem; color: #888;">Sinyal Detayları:</div>
+                <div style="font-size: 0.7rem; margin-top: 5px;">
+                    <div>Sinyal Süresi: <span id="signalDuration">-</span></div>
+                    <div>OrderBook Güçlüğü: <span id="orderbookStrength">-</span></div>
+                    <div>AI Öneri: <span id="aiRecommendation">Bekliyor</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- OrderBook Analiz Paneli -->
+        <div class="panel">
+            <h3>📋 OrderBook Analizi</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0;">
+                <div style="text-align: center; padding: 10px; background: rgba(0,212,170,0.1); border-radius: 8px;">
+                    <div style="font-size: 1.3rem; font-weight: 700; color: #00D4AA;" id="bidPressure">0%</div>
+                    <div style="font-size: 0.7rem; color: #888;">Alıcı Baskısı</div>
+                </div>
+                <div style="text-align: center; padding: 10px; background: rgba(248,73,96,0.1); border-radius: 8px;">
+                    <div style="font-size: 1.3rem; font-weight: 700; color: #F84960;" id="askPressure">0%</div>
+                    <div style="font-size: 0.7rem; color: #888;">Satıcı Baskısı</div>
+                </div>
+            </div>
+
+            <div style="margin: 12px 0;">
+                <div style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">Market Dengesizlik</div>
+                <div style="font-size: 1.2rem; font-weight: 700;" id="orderbookImbalance">0%</div>
+            </div>
+
+            <div style="margin: 12px 0;">
+                <div style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">Whale Activity</div>
+                <div id="whaleActivity" style="padding: 8px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                    <div style="font-size: 0.8rem; color: #FFC107;" id="whaleStatus">Normal Activity</div>
+                    <div style="font-size: 0.7rem; color: #888; margin-top: 3px;" id="whaleDetails">Büyük emir tespit edilmedi</div>
+                </div>
+            </div>
+
+            <div style="margin: 12px 0;">
+                <div style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">Support/Resistance Levels</div>
+                <div style="font-size: 0.7rem;">
+                    <div>Yakın Destek: <span id="nearSupport" style="color: #00D4AA;">-</span></div>
+                    <div>Yakın Direnç: <span id="nearResistance" style="color: #F84960;">-</span></div>
+                    <div>Break Probability: <span id="breakProbability" style="color: #4ECDC4;">-</span></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 12px; padding: 8px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                <div style="font-size: 0.75rem; color: #888;">OrderBook Quality:</div>
+                <div style="font-size: 0.7rem; margin-top: 5px;" id="orderbookQuality">
+                    Spread: <span id="currentSpread">-</span> | Depth: <span id="marketDepth">-</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Strateji Performans Paneli -->
+        <div class="panel">
+            <h3>📊 Strateji Performansları</h3>
+            
+            <div id="strategyStats" style="margin: 12px 0;">
+                <div style="margin-bottom: 10px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.8rem; font-weight: 600;">🐋 Whale Movement</span>
+                        <span id="whaleStrategy" style="color: #00D4AA; font-weight: 700;">0% (0/0)</span>
+                    </div>
+                    <div style="font-size: 0.7rem; color: #888; margin-top: 3px;">
+                        Avg Profit: <span id="whaleAvgProfit">0%</span> | Avg Time: <span id="whaleAvgTime">-</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 10px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.8rem; font-weight: 600;">⚖️ OrderBook Imbalance</span>
+                        <span id="imbalanceStrategy" style="color: #4ECDC4; font-weight: 700;">0% (0/0)</span>
+                    </div>
+                    <div style="font-size: 0.7rem; color: #888; margin-top: 3px;">
+                        Avg Profit: <span id="imbalanceAvgProfit">0%</span> | Avg Time: <span id="imbalanceAvgTime">-</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 10px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.8rem; font-weight: 600;">📈 Volume Spike</span>
+                        <span id="volumeStrategy" style="color: #FFC107; font-weight: 700;">0% (0/0)</span>
+                    </div>
+                    <div style="font-size: 0.7rem; color: #888; margin-top: 3px;">
+                        Avg Profit: <span id="volumeAvgProfit">0%</span> | Avg Time: <span id="volumeAvgTime">-</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 10px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.8rem; font-weight: 600;">🎯 Support/Resistance</span>
+                        <span id="srStrategy" style="color: #FF6B6B; font-weight: 700;">0% (0/0)</span>
+                    </div>
+                    <div style="font-size: 0.7rem; color: #888; margin-top: 3px;">
+                        Avg Profit: <span id="srAvgProfit">0%</span> | Avg Time: <span id="srAvgTime">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 12px; padding: 8px; background: rgba(0,212,170,0.1); border-radius: 8px;">
+                <div style="font-size: 0.8rem; font-weight: 600; color: #00D4AA; margin-bottom: 5px;">En İyi Strateji</div>
+                <div style="font-size: 0.9rem; font-weight: 700;" id="bestStrategy">Veri toplanıyor...</div>
+                <div style="font-size: 0.7rem; color: #888; margin-top: 3px;" id="bestStrategyDetails">-</div>
+            </div>
+        </div>
+        
+        <!-- Sinyal Geçmişi Paneli -->
+        <div class="panel">
+            <h3>📈 Sinyal Geçmişi & İstatistikler</h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0;">
+                <div style="text-align: center; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                    <div style="font-size: 1.2rem; font-weight: 700; color: #fff;" id="totalSignals">0</div>
+                    <div style="font-size: 0.7rem; color: #888;">Toplam</div>
+                </div>
+                <div style="text-align: center; padding: 8px; background: rgba(0,212,170,0.1); border-radius: 8px;">
+                    <div style="font-size: 1.2rem; font-weight: 700; color: #00D4AA;" id="successfulSignals">0</div>
+                    <div style="font-size: 0.7rem; color: #888;">Başarılı</div>
+                </div>
+                <div style="text-align: center; padding: 8px; background: rgba(76,205,196,0.1); border-radius: 8px;">
+                    <div style="font-size: 1.2rem; font-weight: 700; color: #4ECDC4;" id="successRate">0%</div>
+                    <div style="font-size: 0.7rem; color: #888;">Başarı</div>
+                </div>
+                <div style="text-align: center; padding: 8px; background: rgba(255,193,7,0.1); border-radius: 8px;">
+                    <div style="font-size: 1.2rem; font-weight: 700; color: #FFC107;" id="avgProfit">0%</div>
+                    <div style="font-size: 0.7rem; color: #888;">Avg Kar</div>
+                </div>
+            </div>
+
+            <div style="margin: 12px 0;">
+                <div style="font-size: 0.8rem; color: #888; margin-bottom: 6px;">Son 10 Sinyal:</div>
+                <div id="signalHistory" style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 8px;">
+                    <div style="text-align: center; color: #888; font-size: 0.8rem; padding: 20px;">
+                        Sinyal geçmişi burada görünecek
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin: 12px 0;">
+                <div style="font-size: 0.8rem; color: #888; margin-bottom: 6px;">Günlük İstatistikler:</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div style="padding: 6px; background: rgba(255,255,255,0.05); border-radius: 6px; font-size: 0.7rem;">
+                        Bugün: <span id="todaySignals" style="color: #00D4AA; font-weight: 600;">0</span>
+                    </div>
+                    <div style="padding: 6px; background: rgba(255,255,255,0.05); border-radius: 6px; font-size: 0.7rem;">
+                        Bu Saat: <span id="hourlySignals" style="color: #4ECDC4; font-weight: 600;">0</span>
+                    </div>
                 </div>
             </div>
 
             <div style="margin-top: 12px;">
-                <div style="font-size: 0.8rem; color: #888; margin-bottom: 6px;">Son 5 Sinyal Performansı:</div>
-                <div id="recentPerformance" style="display: flex; gap: 5px; flex-wrap: wrap;">
-                    <div style="color: #888; font-size: 0.8rem;">-</div>
-                </div>
+                <button class="btn" style="padding: 8px 16px; font-size: 0.8rem;" onclick="clearHistory()">🗑️ Geçmişi Temizle</button>
+                <button class="btn" style="padding: 8px 16px; font-size: 0.8rem; margin-left: 8px;" onclick="exportHistory()">📤 Dışa Aktar</button>
             </div>
         </div>
-
-        <!-- Volume Spike ve Momentum Takibi -->
+        
+        <!-- Bot Ayarları Paneli -->
         <div class="panel">
-            <h3>📊 Volume & Momentum</h3>
-            
-            <div class="volume-spike-indicator">
-                <span style="font-weight: 600;">Volume Spike:</span>
-                <div class="spike-meter">
-                    <div class="spike-fill" id="volumeSpikeFill" style="width: 0%"></div>
-                </div>
-                <span id="volumeSpikeValue">1.0x</span>
-            </div>
-
-            <div style="margin: 12px 0;">
-                <div style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">Price Momentum (1dk)</div>
-                <div style="font-size: 1.1rem; font-weight: 700;" id="priceMomentum">+0.00%</div>
-            </div>
-
-            <div style="margin: 12px 0;">
-                <div style="font-size: 0.8rem; color: #888; margin-bottom: 6px;">Volume Geçmişi (15s)</div>
-                <div id="volumeHistory" style="display: flex; height: 40px; gap: 2px; align-items: end;">
-                    <!-- Volume barları buraya -->
-                </div>
-            </div>
-
-            <div style="margin-top: 12px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
-                <div style="font-size: 0.75rem; color: #888;">Momentum Göstergeleri:</div>
-                <div style="font-size: 0.7rem; margin-top: 5px;">
-                    <div>RSI: <span id="rsiValue">50</span></div>
-                    <div>MACD: <span id="macdValue">0.00</span></div>
-                    <div>BB Position: <span id="bbPosition">Normal</span></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- OrderBook Derinlik Analizi -->
-        <div class="panel">
-            <h3>📋 OrderBook Analizi</h3>
-            
-            <div class="orderbook-depth">
-                <div style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">Bid/Ask Derinliği</div>
-                <div class="depth-visualization" id="depthVisualization">
-                    <!-- Derinlik gösterimi buraya -->
-                </div>
-            </div>
-
-            <div style="margin: 12px 0;">
-                <div style="font-size: 0.8rem; color: #888;">Market Dengesizlik</div>
-                <div style="font-size: 1rem; font-weight: 700;" id="marketImbalance">Bekliyor</div>
-            </div>
-
-            <div style="margin: 12px 0;">
-                <div style="font-size: 0.75rem; color: #888;">OrderBook Metrikleri:</div>
-                <div style="font-size: 0.7rem; margin-top: 5px;">
-                    <div>Spread: <span id="currentSpread">$0.00</span></div>
-                    <div>Bid Volume: <span id="bidVolume">0</span></div>
-                    <div>Ask Volume: <span id="askVolume">0</span></div>
-                    <div>Imbalance: <span id="imbalancePercent">0%</span></div>
-                </div>
-            </div>
-
-            <div id="whaleAlert" class="whale-status">
-                <div>
-                    <div style="font-weight: 700; color: #FFC107; font-size: 0.8rem;">🐋 Büyük Emir Durumu</div>
-                    <div style="font-size: 0.75rem; margin-top: 3px; color: #888;" id="whaleDetails">Normal seviyede - büyük emir yok</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sinyal Geçmişi ve İstatistikler -->
-        <div class="panel">
-            <h3>📈 Performans Analizi</h3>
+            <h3>⚙️ Bot Ayarları & AI Konfigürasyonu</h3>
             
             <div style="margin: 12px 0;">
-                <div style="font-size: 0.8rem; color: #888; margin-bottom: 6px;">Strateji Performansları:</div>
-                <div id="strategyPerformance">
-                    <div style="text-align: center; color: #888; font-size: 0.8rem; padding: 15px;">
-                        Henüz veri yok
-                    </div>
+                <div style="font-size: 0.8rem; color: #888; margin-bottom: 8px;">Sinyal Parametreleri:</div>
+                
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 0.75rem; color: #ccc;">Volume Eşiği: </label>
+                    <input type="range" id="volumeThreshold" min="1.2" max="5.0" step="0.1" value="2.0" style="width: 120px; margin: 0 8px;">
+                    <span id="volumeThresholdValue" style="color: #00D4AA; font-weight: 600;">2.0x</span>
                 </div>
-            </div>
+                
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 0.75rem; color: #ccc;">Take Profit: </label>
+                    <input type="range" id="takeProfitPercent" min="0.3" max="3.0" step="0.1" value="0.8" style="width: 120px; margin: 0 8px;">
+                    <span id="takeProfitValue" style="color: #00D4AA; font-weight: 600;">0.8%</span>
+                </div>
+                
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 0.75rem; color: #ccc;">Stop Loss: </label>
+                    <input type="range" id="stopLossPercent" min="0.2" max="2.0" step="0.1" value="0.5" style="width: 120px; margin: 0 8px;">
+                    <span id="stopLossValue" style="color: #F84960; font-weight: 600;">0.5%</span>
+                </div>
 
-            <div id="signalHistory" style="max-height: 180px; overflow-y: auto; margin: 12px 0;">
-                <div style="text-align: center; color: #888; font-size: 0.8rem; padding: 15px;">
-                    Sinyal geçmişi burada görünecek
-                </div>
-            </div>
-
-            <div class="settings-panel">
-                <div style="font-size: 0.75rem; color: #888;">AI Öğrenme Metrikleri:</div>
-                <div style="font-size: 0.7rem; margin-top: 5px;">
-                    <div class="setting-item">
-                        <span>Model Versiyonu:</span>
-                        <span id="modelVersion">v1.0</span>
-                    </div>
-                    <div class="setting-item">
-                        <span>Son Güncelleme:</span>
-                        <span id="lastModelUpdate">-</span>
-                    </div>
-                    <div class="setting-item">
-                        <span>Öğrenme Hızı:</span>
-                        <span id="learningRate">Orta</span>
-                    </div>
-                    <div class="setting-item">
-                        <span>Adaptasyon:</span>
-                        <span id="adaptationLevel">%0</span>
-                    </div>
-                    <div class="setting-item">
-                        <span>Hafıza Kullanımı:</span>
-                        <span id="memoryUsage">-</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sistem Durumu ve Ayarlar -->
-        <div class="panel">
-            <h3>⚙️ Sistem Durumu</h3>
-            
-            <div class="settings-panel">
-                <div style="font-size: 0.8rem; color: #888; margin-bottom: 8px;">Bağlantı Durumu:</div>
-                <div class="setting-item">
-                    <span>Otomatik Yeniden Bağlanma:</span>
-                    <span id="autoReconnect" style="color: #00D4AA;">✅ Aktif</span>
-                </div>
-                <div class="setting-item">
-                    <span>Ayar Kaydetme:</span>
-                    <span id="settingsPersistence" style="color: #00D4AA;">✅ Aktif</span>
-                </div>
-                <div class="setting-item">
-                    <span>AI Öğrenme Kaydetme:</span>
-                    <span id="learningPersistence" style="color: #00D4AA;">✅ Aktif</span>
-                </div>
-                <div class="setting-item">
-                    <span>Mobil Optimizasyon:</span>
-                    <span id="mobileOptimization" style="color: #00D4AA;">✅ Aktif</span>
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 0.75rem; color: #ccc;">Minimum Güven: </label>
+                    <input type="range" id="minConfidence" min="50" max="95" step="5" value="70" style="width: 120px; margin: 0 8px;">
+                    <span id="minConfidenceValue" style="color: #4ECDC4; font-weight: 600;">70%</span>
                 </div>
             </div>
 
             <div style="margin: 12px 0;">
-                <div style="font-size: 0.8rem; color: #888; margin-bottom: 6px;">Hızlı Ayarlar:</div>
+                <div style="font-size: 0.8rem; color: #888; margin-bottom: 8px;">AI Öğrenme Ayarları:</div>
+                
+                <div style="margin-bottom: 10px;">
+                    <label style="font-size: 0.75rem; color: #ccc;">Öğrenme Hızı: </label>
+                    <select id="learningSpeed" style="background: rgba(255,255,255,0.1); border: 1px solid #00D4AA; border-radius: 6px; padding: 4px 8px; color: #fff; margin-left: 8px;">
+                        <option value="slow">Yavaş</option>
+                        <option value="medium" selected>Orta</option>
+                        <option value="fast">Hızlı</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <label style="font-size: 0.75rem; color: #ccc;">
+                        <input type="checkbox" id="autoOptimization" checked style="margin-right: 6px;">
+                        Otomatik Optimizasyon
+                    </label>
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <label style="font-size: 0.75rem; color: #ccc;">
+                        <input type="checkbox" id="adaptiveThresholds" checked style="margin-right: 6px;">
+                        Adaptif Eşikler
+                    </label>
+                </div>
+            </div>
+
+            <div style="margin-top: 15px;">
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button class="btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="resetAILearning()">🔄 AI Sıfırla</button>
-                    <button class="btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="exportSettings()">📤 Ayarları Dışa Aktar</button>
-                    <button class="btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="importSettings()">📥 Ayarları İçe Aktar</button>
-                </div>
-            </div>
-
-            <div style="margin-top: 12px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
-                <div style="font-size: 0.75rem; color: #888;">Sistem Bilgileri:</div>
-                <div style="font-size: 0.7rem; margin-top: 5px;">
-                    <div>Tarayıcı: <span id="browserInfo">-</span></div>
-                    <div>Bağlantı Türü: <span id="connectionType">-</span></div>
-                    <div>Çalışma Süresi: <span id="uptime">-</span></div>
-                    <div>Veri Kullanımı: <span id="dataUsage">-</span></div>
+                    <button class="btn" style="padding: 8px 16px; font-size: 0.8rem;" onclick="saveSettings()">💾 Kaydet</button>
+                    <button class="btn" style="padding: 8px 16px; font-size: 0.8rem;" onclick="resetSettings()">🔄 Varsayılan</button>
+                    <button class="btn" style="padding: 8px 16px; font-size: 0.8rem;" onclick="resetAI()">🧠 AI Sıfırla</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="toast" class="toast"></div>
-    <div id="persistenceIndicator" class="persistence-indicator" style="display: none;">💾 Ayarlar kaydedildi</div>
-
+    
     <script>
         // Global değişkenler
-        let ws = null;
-        let isConnected = false;
-        let currentSymbol = 'BTC_USDT';
-        let currentExchange = 'mexc';
-        let lastPrice = 0;
-        let priceHistory = [];
-        let volumeHistory = [];
-        let realOrderBookData = { bids: [], asks: [] };
-        let debugPanel = null;
-        let pingInterval = null;
-        let reconnectAttempts = 0;
-        let maxReconnectAttempts = 5;
-        let startTime = Date.now();
-        let dataUsageBytes = 0;
+let ws = null;
+let isConnected = false;
+let currentSymbol = 'BTC_USDT';
+let lastPrice = 0;
+let priceHistory = [];
+let volumeHistory = [];
+let orderBookData = { bids: [], asks: [] };
+let activeSignal = null;
+let signalHistory = [];
+let reconnectAttempts = 0;
+let maxReconnectAttempts = 3;
+let pingInterval = null;
+let lastSignalTime = 0;
+
+// Bot ayarları
+let botSettings = {
+    volumeThreshold: 2.0,
+    takeProfitPercent: 0.8,
+    stopLossPercent: 0.5,
+    minConfidence: 70,
+    signalCooldown: 30000,
+    learningSpeed: 'medium',
+    autoOptimization: true,
+    adaptiveThresholds: true
+};
+
+// AI ve Strateji değişkenleri
+let aiLearningData = {
+    totalProcessed: 0,
+    learningProgress: 0,
+    performanceScore: 0,
+    strategies: {
+        whale: { total: 0, success: 0, profits: [], times: [] },
+        imbalance: { total: 0, success: 0, profits: [], times: [] },
+        volume: { total: 0, success: 0, profits: [], times: [] },
+        sr: { total: 0, success: 0, profits: [], times: [] }
+    }
+};
+
+let supportResistanceLevels = {
+    support: [],
+    resistance: [],
+    lastCalculated: 0
+};
+
+// DOM elementlerini güvenli şekilde güncelleme fonksiyonu
+function safeUpdateElement(id, value, property = 'textContent') {
+    const element = document.getElementById(id);
+    if (element) {
+        element[property] = value;
+        return true;
+    } else {
+        console.warn(`Element bulunamadı: ${id}`);
+        return false;
+    }
+}
+
+// Coin sembolü doğrulama - MEXC formatı
+function validateSymbol(symbol) {
+    const coin = symbol.trim().toUpperCase();
+    if (/^[A-Z]{2,10}$/.test(coin)) {
+        return { 
+            valid: true, 
+            coin: coin + '_USDT', 
+            message: `🔍 ${coin}_USDT MEXC analizi başlatılıyor...` 
+        };
+    }
+    return { 
+        valid: false, 
+        coin: null, 
+        message: `❌ Geçersiz format: 2-10 harf kullanın` 
+    };
+}
+
+// Debug log fonksiyonu
+function debugLog(message, type = 'info') {
+    const el = document.getElementById('debugPanel');
+    if (!el) return;
+    
+    const logEntry = document.createElement('div');
+    logEntry.className = `debug-log debug-${type}`;
+    logEntry.innerText = `[${new Date().toLocaleTimeString('tr-TR')}] ${message}`;
+    el.insertBefore(logEntry, el.firstChild);
+    if (el.children.length > 100) el.removeChild(el.lastChild);
+}
+
+// Toast bildirimi
+function showToast(message, type = 'info') {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    
+    toast.textContent = message;
+    toast.className = `toast show ${type}`;
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// Hassas fiyat formatı (düşük değerli coinler için)
+function formatPrice(price) {
+    if (price === 0) return '$0.00000000';
+    if (price >= 1) return `$${price.toFixed(4)}`;
+    if (price >= 0.01) return `$${price.toFixed(6)}`;
+    return `$${price.toFixed(8)}`;
+}
+
+// Fiyat gösterimi güncelle (DÜZELTİLMİŞ)
+function updatePriceDisplay(price, change = 0) {
+    safeUpdateElement('headerPrice', formatPrice(price));
+    
+    const changeIcon = change >= 0 ? '📈' : '📉';
+    const changeText = `${changeIcon} ${change >= 0 ? '+' : ''}${change.toFixed(3)}%`;
+    
+    const changeEl = document.getElementById('headerChange');
+    if (changeEl) {
+        changeEl.textContent = changeText;
+        changeEl.style.color = change >= 0 ? '#00D4AA' : '#F84960';
+        changeEl.style.background = change >= 0 ? 'rgba(0,212,170,0.1)' : 'rgba(248,73,96,0.1)';
+    }
+    
+    lastPrice = price;
+}
+
+// MEXC WebSocket bağlantısı
+function connect() {
+    try {
+        const coinInput = document.getElementById('manualSymbol').value.trim();
+        if (!coinInput) {
+            showToast('❌ Coin sembolü girin', 'error');
+            return;
+        }
+
+        const validation = validateSymbol(coinInput);
+        if (!validation.valid) {
+            showToast(validation.message, 'error');
+            return;
+        }
+
+        currentSymbol = validation.coin;
+        debugLog(`🔗 ${currentSymbol} için MEXC bağlantısı kuruluyor...`, 'info');
+
+        const wsUrl = 'wss://futures.mexc.com/edge';
         
-        // Coin sembolü doğrulama fonksiyonu - sadece format kontrolü
-        function validateSymbol(symbol) {
-            const coin = symbol.trim().toUpperCase();
-            
-            // Sadece geçerli format kontrolü (2-10 karakter, sadece harfler)
-            if (/^[A-Z]{2,10}$/.test(coin)) {
-                return { 
-                    valid: true, 
-                    coin: coin, 
-                    message: `🔍 ${coin}_USDT bağlantısı kuruluyor...` 
-                };
+        const connectBtn = document.getElementById('connectBtn');
+        if (connectBtn) {
+            connectBtn.innerHTML = '🔗 Bağlanıyor...';
+            connectBtn.disabled = true;
+        }
+        
+        const connectionStatus = document.getElementById('connectionStatus');
+        if (connectionStatus) {
+            connectionStatus.className = 'status-indicator connecting';
+            connectionStatus.innerHTML = '🟡 Bağlanıyor...';
+        }
+
+        ws = new WebSocket(wsUrl);
+
+        ws.onopen = () => {
+            isConnected = true;
+            reconnectAttempts = 0;
+            updateConnectionStatus(true);
+            debugLog('✅ MEXC WebSocket bağlandı', 'success');
+            showToast('✅ MEXC bağlantısı başarılı', 'success');
+            subscribeToPair(currentSymbol);
+            startPing();
+            startAILearning();
+        };
+
+        ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                handleMEXCData(data);
+            } catch (error) {
+                debugLog(`❌ Veri işleme hatası: ${error.message}`, 'error');
             }
+        };
+
+        ws.onclose = () => {
+            isConnected = false;
+            updateConnectionStatus(false);
+            debugLog('⚠️ WebSocket bağlantısı kapandı', 'warning');
+            stopPing();
+            attemptReconnect();
+        };
+
+        ws.onerror = (error) => {
+            debugLog(`❌ WebSocket hatası`, 'error');
+            showToast('❌ Bağlantı hatası', 'error');
+        };
+
+    } catch (error) {
+        debugLog(`❌ Bağlantı başlatma hatası: ${error.message}`, 'error');
+        resetConnectionUI();
+    }
+}
+
+function subscribeToPair(symbol) {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        const subscriptions = [
+            { method: 'sub.deal', param: { symbol }, id: 'deal_' + symbol },
+            { method: 'sub.depth', param: { symbol, depth: 20 }, id: 'depth_' + symbol },
+            { method: 'sub.ticker', param: { symbol }, id: 'ticker_' + symbol }
+        ];
+        subscriptions.forEach(sub => {
+            ws.send(JSON.stringify(sub));
+            debugLog(`📡 MEXC abonelik: ${sub.method}`, 'info');
+        });
+    }
+}
+
+function disconnect() {
+    try {
+        if (ws) {
+            ws.close();
+            ws = null;
+        }
+        isConnected = false;
+        updateConnectionStatus(false);
+        resetConnectionUI();
+        debugLog("🔴 Bağlantı kapatıldı", 'info');
+        stopPing();
+        reconnectAttempts = 0;
+    } catch (error) {
+        debugLog(`❌ Bağlantı kapatma hatası: ${error.message}`, 'error');
+    }
+}
+
+// Bağlantı durumu güncelleme (DÜZELTİLMİŞ)
+function updateConnectionStatus(connected) {
+    const status = document.getElementById('connectionStatus');
+    const connectBtn = document.getElementById('connectBtn');
+    
+    if (connected) {
+        if (status) {
+            status.className = 'status-indicator connected';
+            status.innerHTML = '🟢 MEXC Bağlı';
+        }
+        safeUpdateElement('aiStatus', '🧠 AI Analiz Yapıyor');
+        safeUpdateElement('wsStatus', 'Açık');
+        safeUpdateElement('dataStatus', 'Aktif');
+        
+        if (connectBtn) {
+            connectBtn.innerHTML = '🔌 Bağlantıyı Kes';
+            connectBtn.disabled = false;
+        }
+        
+        const aiLearningStatus = document.getElementById('aiLearningStatus');
+        if (aiLearningStatus) {
+            aiLearningStatus.textContent = 'Öğreniyor';
+            aiLearningStatus.style.color = '#00D4AA';
+        }
+    } else {
+        if (status) {
+            status.className = 'status-indicator disconnected';
+            status.innerHTML = '🔴 Bağlantı Yok';
+        }
+        safeUpdateElement('aiStatus', '🧠 AI Bekliyor...');
+        
+        if (connectBtn) {
+            connectBtn.innerHTML = '🔌 Bağlan';
+            connectBtn.disabled = false;
+        }
+        
+        const aiLearningStatus = document.getElementById('aiLearningStatus');
+        if (aiLearningStatus) {
+            aiLearningStatus.textContent = 'Hazır';
+            aiLearningStatus.style.color = '#888';
+        }
+    }
+}
+
+// UI sıfırlama (DÜZELTİLMİŞ)
+function resetConnectionUI() {
+    const connectBtn = document.getElementById('connectBtn');
+    if (connectBtn) {
+        connectBtn.innerHTML = '🔌 Bağlan';
+        connectBtn.disabled = false;
+    }
+    safeUpdateElement('wsStatus', 'Kapalı');
+    safeUpdateElement('dataStatus', 'Bekliyor');
+    safeUpdateElement('lastUpdate', '-');
+}
+
+function attemptReconnect() {
+    if (reconnectAttempts < maxReconnectAttempts) {
+        reconnectAttempts++;
+        debugLog(`🔄 Yeniden bağlanma ${reconnectAttempts}/${maxReconnectAttempts}`, 'warning');
+        setTimeout(connect, 5000 * reconnectAttempts);
+    } else {
+        debugLog('❌ Maksimum yeniden bağlanma aşıldı', 'error');
+        showToast('❌ Otomatik yeniden bağlanma durdu', 'error');
+    }
+}
+
+function toggleConnection() {
+    if (isConnected) {
+        disconnect();
+    } else {
+        connect();
+    }
+}
+
+function startPing() {
+    pingInterval = setInterval(() => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ method: 'ping' }));
+        }
+    }, 30000);
+}
+
+function stopPing() {
+    if (pingInterval) {
+        clearInterval(pingInterval);
+        pingInterval = null;
+    }
+}
+
+// MEXC veri işleme (DÜZELTİLMİŞ)
+function handleMEXCData(data) {
+    try {
+        if (!data.channel || !data.data) return;
+
+        if (data.channel === 'push.deal') {
+            const deal = data.data;
+            const price = parseFloat(deal.p);
+            const volume = parseFloat(deal.v);
             
-            return { 
-                valid: false, 
-                coin: null, 
-                message: `❌ Geçersiz format: Sadece harfler, 2-10 karakter` 
+            updatePriceDisplay(price, 0);
+            processPriceData(price, volume);
+            
+        } else if (data.channel === 'push.depth') {
+            orderBookData = {
+                bids: data.data.bids.map(([price, volume]) => [parseFloat(price), parseFloat(volume)]),
+                asks: data.data.asks.map(([price, volume]) => [parseFloat(price), parseFloat(volume)])
             };
-        }
-
-        // Enhanced AI sistem sınıfları
-        class AILearningSystem {
-            constructor() {
-                this.version = '2.0';
-                this.learningData = this.loadLearningData();
-                this.currentScore = 0;
-                this.totalSignals = 0;
-                this.successfulSignals = 0;
-                this.optimizationParams = this.loadOptimizationParams();
-                this.performanceMetrics = {
-                    avgTpTime: 0,
-                    strategyPerformance: {
-                        scalp: { success: 0, total: 0 },
-                        volume: { success: 0, total: 0 },
-                        orderbook: { success: 0, total: 0 }
-                    }
-                };
-                this.memoryUsage = this.calculateMemoryUsage();
-            }
-
-            loadLearningData() {
-                try {
-                    const data = JSON.parse(localStorage.getItem('aiLearningData_v2') || '{}');
-                    if (!data.signals) {
-                        // Eski versiyon varsa migrate et
-                        const oldData = JSON.parse(localStorage.getItem('aiLearningData') || '{}');
-                        if (oldData.signals) {
-                            this.migrateLearningData(oldData);
-                            return oldData;
-                        }
-                        return { signals: [], optimizations: [], version: '2.0' };
-                    }
-                    return data;
-                } catch (error) {
-                    debugLog(`❌ Öğrenme verisi yükleme hatası: ${error.message}`, 'error');
-                    return { signals: [], optimizations: [], version: '2.0' };
-                }
-            }
-
-            migrateLearningData(oldData) {
-                try {
-                    const newData = {
-                        ...oldData,
-                        version: '2.0',
-                        migrationDate: Date.now()
-                    };
-                    localStorage.setItem('aiLearningData_v2', JSON.stringify(newData));
-                    localStorage.removeItem('aiLearningData');
-                    showToast('📈 AI verisi yeni versiyona güncellendi', 'success');
-                } catch (error) {
-                    debugLog(`❌ Veri migrasyonu hatası: ${error.message}`, 'error');
-                }
-            }
-
-            loadOptimizationParams() {
-                try {
-                    const params = JSON.parse(localStorage.getItem('aiOptimizationParams_v2') || '{}');
-                    return {
-                        volumeThreshold: params.volumeThreshold || 1.5,
-                        tpTarget: params.tpTarget || 0.8,
-                        slLimit: params.slLimit || 0.4,
-                        signalFrequency: params.signalFrequency || 15000,
-                        riskLevel: params.riskLevel || 'medium',
-                        maxActiveSignals: params.maxActiveSignals || 3
-                    };
-                } catch (error) {
-                    debugLog(`❌ Optimizasyon parametreleri yükleme hatası: ${error.message}`, 'error');
-                    return {
-                        volumeThreshold: 1.5,
-                        tpTarget: 0.8,
-                        slLimit: 0.4,
-                        signalFrequency: 15000,
-                        riskLevel: 'medium',
-                        maxActiveSignals: 3
-                    };
-                }
-            }
-
-            calculateMemoryUsage() {
-                try {
-                    const learningDataSize = JSON.stringify(this.learningData).length;
-                    const optimizationSize = JSON.stringify(this.optimizationParams).length;
-                    return {
-                        learningData: (learningDataSize / 1024).toFixed(2) + ' KB',
-                        optimization: (optimizationSize / 1024).toFixed(2) + ' KB',
-                        total: ((learningDataSize + optimizationSize) / 1024).toFixed(2) + ' KB'
-                    };
-                } catch (error) {
-                    return { learningData: '0 KB', optimization: '0 KB', total: '0 KB' };
-                }
-            }
-
-            saveLearningData() {
-                try {
-                    const dataToSave = {
-                        ...this.learningData,
-                        version: this.version,
-                        lastSaved: Date.now(),
-                        totalSignals: this.totalSignals,
-                        successfulSignals: this.successfulSignals
-                    };
-                    localStorage.setItem('aiLearningData_v2', JSON.stringify(dataToSave));
-                    localStorage.setItem('aiOptimizationParams_v2', JSON.stringify(this.optimizationParams));
-                    
-                    this.memoryUsage = this.calculateMemoryUsage();
-                    document.getElementById('memoryUsage').textContent = this.memoryUsage.total;
-                    
-                    showPersistenceIndicator();
-                } catch (error) {
-                    debugLog(`❌ Veri kaydetme hatası: ${error.message}`, 'error');
-                    showToast('❌ Veri kaydedilemedi', 'error');
-                }
-            }
-
-            learn(signalData) {
-                this.learningData.signals.push({
-                    ...signalData,
-                    timestamp: Date.now(),
-                    symbol: currentSymbol
-                });
-
-                if (this.learningData.signals.length > 500) {
-                    this.learningData.signals = this.learningData.signals.slice(-200);
-                }
-
-                this.analyzeAndOptimize();
-                this.updatePerformanceScore();
-                this.saveLearningData();
-            }
-
-            analyzeAndOptimize() {
-                const recentSignals = this.learningData.signals.slice(-50);
-                if (recentSignals.length < 10) return;
-
-                const successfulSignals = recentSignals.filter(s => s.success);
-                const successRate = successfulSignals.length / recentSignals.length;
-
-                if (successRate < 0.5) {
-                    this.optimizationParams.volumeThreshold = Math.min(3.0, this.optimizationParams.volumeThreshold + 0.1);
-                    this.optimizationParams.tpTarget = Math.max(0.5, this.optimizationParams.tpTarget - 0.1);
-                    this.optimizationParams.signalFrequency = Math.min(30000, this.optimizationParams.signalFrequency + 2000);
-                } else if (successRate > 0.8) {
-                    this.optimizationParams.volumeThreshold = Math.max(1.2, this.optimizationParams.volumeThreshold - 0.05);
-                    this.optimizationParams.tpTarget = Math.min(1.5, this.optimizationParams.tpTarget + 0.05);
-                    this.optimizationParams.signalFrequency = Math.max(10000, this.optimizationParams.signalFrequency - 1000);
-                }
-
-                this.updateOptimizationUI();
-                this.saveLearningData();
-            }
-
-            updatePerformanceScore() {
-                try {
-                    const recentPerformance = this.learningData.signals.slice(-20);
-                    if (recentPerformance.length === 0) return;
-
-                    const successRate = recentPerformance.filter(s => s.success).length / recentPerformance.length;
-                    const avgProfit = recentPerformance.reduce((sum, s) => sum + (s.profit || 0), 0) / recentPerformance.length;
-
-                    this.currentScore = Math.round((successRate * 70) + (Math.abs(avgProfit) * 30));
-                    document.getElementById('aiScore').textContent = this.currentScore;
-                } catch (error) {
-                    debugLog(`❌ Performans skoru güncelleme hatası: ${error.message}`, 'error');
-                }
-            }
-
-            updateOptimizationUI() {
-                document.getElementById('autoVolumeThreshold').innerHTML = `${this.optimizationParams.volumeThreshold.toFixed(1)}x <span class="auto-badge">AUTO</span>`;
-                document.getElementById('autoTpTarget').innerHTML = `${this.optimizationParams.tpTarget.toFixed(1)}% <span class="auto-badge">AUTO</span>`;
-                document.getElementById('autoSlLimit').innerHTML = `${this.optimizationParams.slLimit.toFixed(1)}% <span class="auto-badge">AUTO</span>`;
-                document.getElementById('autoSignalFreq').innerHTML = `${(this.optimizationParams.signalFrequency / 1000).toFixed(1)}s <span class="auto-badge">AUTO</span>`;
-            }
-
-            generateOptimizedSignal(analysis) {
-                const { rsi, macd, bbPosition, volumeSpike, orderBookImbalance } = analysis;
-                let confidence = 0;
-                let direction = 'buy';
-                let strategy = 'volume';
-
-                if (rsi < 30 && macd.macd > macd.signal && bbPosition === 'Alt Bant' && volumeSpike > this.optimizationParams.volumeThreshold) {
-                    confidence = Math.min(95, 50 + (volumeSpike * 10) + Math.abs(orderBookImbalance));
-                    direction = 'buy';
-                    strategy = 'rsi_oversold';
-                } else if (rsi > 70 && macd.macd < macd.signal && bbPosition === 'Üst Bant' && volumeSpike > this.optimizationParams.volumeThreshold) {
-                    confidence = Math.min(95, 50 + (volumeSpike * 10) + Math.abs(orderBookImbalance));
-                    direction = 'sell';
-                    strategy = 'rsi_overbought';
-                } else if (volumeSpike > 2 && Math.abs(orderBookImbalance) > 20) {
-                    confidence = Math.min(90, 40 + (volumeSpike * 8) + Math.abs(orderBookImbalance));
-                    direction = orderBookImbalance > 0 ? 'buy' : 'sell';
-                    strategy = 'scalp';
-                }
-
-                if (confidence > 60) {
-                    const multiplier = direction === 'buy' ? 1 : -1;
-                    return {
-                        direction,
-                        entryPrice: lastPrice,
-                        takeProfit: lastPrice * (1 + (this.optimizationParams.tpTarget / 100) * multiplier),
-                        stopLoss: lastPrice * (1 - (this.optimizationParams.slLimit / 100) * multiplier),
-                        confidence,
-                        timestamp: Date.now(),
-                        strategy,
-                        symbol: currentSymbol
-                    };
-                }
-                return null;
-            }
-
-            reset() {
-                try {
-                    localStorage.removeItem('aiLearningData_v2');
-                    localStorage.removeItem('aiOptimizationParams_v2');
-                    localStorage.removeItem('totalProcessedData'); // Öğrenme ilerlemesini de sıfırla
-                    this.learningData = { signals: [], optimizations: [], version: '2.0' };
-                    this.optimizationParams = {
-                        volumeThreshold: 1.5,
-                        tpTarget: 0.8,
-                        slLimit: 0.4,
-                        signalFrequency: 15000,
-                        riskLevel: 'medium',
-                        maxActiveSignals: 3
-                    };
-                    this.currentScore = 0;
-                    this.totalSignals = 0;
-                    this.successfulSignals = 0;
-                    this.updateOptimizationUI();
-                    this.updatePerformanceScore();
-                    
-                    // Öğrenme ilerlemesini sıfırla
-                    document.getElementById('learningStats').textContent = '0 veri işlendi';
-                    document.getElementById('learningProgress').style.width = '0%';
-                    
-                    showToast('🔄 AI öğrenme verisi tamamen sıfırlandı', 'success');
-                } catch (error) {
-                    debugLog(`❌ AI sıfırlama hatası: ${error.message}`, 'error');
-                    showToast('❌ AI sıfırlama hatası', 'error');
-                }
-            }
-
-            exportData() {
-                try {
-                    const exportData = {
-                        learningData: this.learningData,
-                        optimizationParams: this.optimizationParams,
-                        currentScore: this.currentScore,
-                        totalSignals: this.totalSignals,
-                        successfulSignals: this.successfulSignals,
-                        exportDate: Date.now(),
-                        version: this.version
-                    };
-                    return JSON.stringify(exportData, null, 2);
-                } catch (error) {
-                    debugLog(`❌ Veri dışa aktarma hatası: ${error.message}`, 'error');
-                    return null;
-                }
-            }
-
-            importData(jsonData) {
-                try {
-                    const importedData = JSON.parse(jsonData);
-                    if (importedData.learningData && importedData.optimizationParams) {
-                        this.learningData = importedData.learningData;
-                        this.optimizationParams = importedData.optimizationParams;
-                        this.currentScore = importedData.currentScore || 0;
-                        this.totalSignals = importedData.totalSignals || 0;
-                        this.successfulSignals = importedData.successfulSignals || 0;
-                        this.saveLearningData();
-                        this.updateOptimizationUI();
-                        this.updatePerformanceScore();
-                        showToast('📥 AI verisi başarıyla içe aktarıldı', 'success');
-                        return true;
-                    }
-                    return false;
-                } catch (error) {
-                    debugLog(`❌ Veri içe aktarma hatası: ${error.message}`, 'error');
-                    return false;
-                }
-            }
-        }
-
-        class MarketAnalyzer {
-            constructor() {
-                this.rsiPeriod = 14;
-                this.macdFast = 12;
-                this.macdSlow = 26;
-                this.macdSignal = 9;
-                this.lastAnalysis = null;
-            }
-
-            analyzeMarket(price, volume, orderBook) {
-                try {
-                    const rsi = this.calculateRSI(priceHistory.slice(-this.rsiPeriod));
-                    const macd = this.calculateMACD(priceHistory);
-                    const bbPosition = this.calculateBollingerBands(priceHistory);
-                    
-                    const bidVolume = orderBook.bids.reduce((sum, [_, vol]) => sum + vol, 0);
-                    const askVolume = orderBook.asks.reduce((sum, [_, vol]) => sum + vol, 0);
-                    const imbalance = ((bidVolume - askVolume) / (bidVolume + askVolume) * 100) || 0;
-
-                    const avgVolume = volumeHistory.reduce((a, b) => a + b, 0) / Math.max(1, volumeHistory.length);
-                    const volumeSpike = volume / (avgVolume || 1);
-
-                    this.lastAnalysis = {
-                        rsi,
-                        macd,
-                        bbPosition,
-                        volumeSpike,
-                        orderBookImbalance: imbalance,
-                        timestamp: Date.now()
-                    };
-
-                    return this.lastAnalysis;
-                } catch (error) {
-                    debugLog(`❌ Market analizi hatası: ${error.message}`, 'error');
-                    return this.lastAnalysis || {
-                        rsi: 50,
-                        macd: { macd: 0, signal: 0 },
-                        bbPosition: 'Normal',
-                        volumeSpike: 1,
-                        orderBookImbalance: 0,
-                        timestamp: Date.now()
-                    };
-                }
-            }
-
-            calculateRSI(prices) {
-                if (prices.length < this.rsiPeriod) return 50;
-                let gains = 0, losses = 0;
-                for (let i = 1; i < prices.length; i++) {
-                    const diff = prices[i] - prices[i - 1];
-                    if (diff > 0) gains += diff;
-                    else losses -= diff;
-                }
-                const avgGain = gains / this.rsiPeriod;
-                const avgLoss = losses / this.rsiPeriod;
-                const rs = avgGain / (avgLoss || 1);
-                return 100 - (100 / (1 + rs));
-            }
-
-            calculateMACD(prices) {
-                if (prices.length < this.macdSlow) return { macd: 0, signal: 0 };
-                const ema = (period, data) => {
-                    const k = 2 / (period + 1);
-                    return data.reduce((ema, price, i) => i === 0 ? price : price * k + ema * (1 - k), data[0]);
-                };
-                const fastEMA = ema(this.macdFast, prices.slice(-this.macdFast));
-                const slowEMA = ema(this.macdSlow, prices.slice(-this.macdSlow));
-                const macd = fastEMA - slowEMA;
-                const signal = ema(this.macdSignal, prices.slice(-this.macdSignal));
-                return { macd, signal };
-            }
-
-            calculateBollingerBands(prices) {
-                if (prices.length < 20) return 'Normal';
-                const sma = prices.reduce((sum, p) => sum + p, 0) / prices.length;
-                const stdDev = Math.sqrt(prices.reduce((sum, p) => sum + Math.pow(p - sma, 2), 0) / prices.length);
-                const upper = sma + 2 * stdDev;
-                const lower = sma - 2 * stdDev;
-                const lastPrice = prices[prices.length - 1];
-                if (lastPrice > upper) return 'Üst Bant';
-                if (lastPrice < lower) return 'Alt Bant';
-                return 'Normal';
-            }
-        }
-
-        class SignalTracker {
-            constructor(aiSystem) {
-                this.aiSystem = aiSystem;
-                this.activeSignals = [];
-                this.completedSignals = this.loadCompletedSignals();
-            }
-
-            loadCompletedSignals() {
-                try {
-                    return JSON.parse(localStorage.getItem('completedSignals_v2') || '[]');
-                } catch (error) {
-                    return [];
-                }
-            }
-
-            saveCompletedSignals() {
-                try {
-                    localStorage.setItem('completedSignals_v2', JSON.stringify(this.completedSignals.slice(-100)));
-                } catch (error) {
-                    debugLog(`❌ Tamamlanan sinyalleri kaydetme hatası: ${error.message}`, 'error');
-                }
-            }
-
-            addSignal(signal) {
-                if (this.activeSignals.length >= this.aiSystem.optimizationParams.maxActiveSignals) {
-                    debugLog('⚠️ Maksimum aktif sinyal sayısına ulaşıldı', 'warning');
-                    return false;
-                }
-
-                this.activeSignals.push(signal);
-                this.aiSystem.totalSignals++;
-                this.updateUI();
-                showToast(`🎯 Yeni ${signal.direction.toUpperCase()} sinyali (${signal.strategy}) - %${signal.confidence.toFixed(0)} güven`, 'success');
-                return true;
-            }
-
-            updateSignals(currentPrice) {
-                this.activeSignals = this.activeSignals.filter(signal => {
-                    const profitTarget = signal.direction === 'buy' ? signal.takeProfit : signal.stopLoss;
-                    const lossTarget = signal.direction === 'buy' ? signal.stopLoss : signal.takeProfit;
-                    
-                    if ((signal.direction === 'buy' && currentPrice >= profitTarget) || 
-                        (signal.direction === 'sell' && currentPrice <= profitTarget)) {
-                        signal.success = true;
-                        signal.profit = ((profitTarget - signal.entryPrice) / signal.entryPrice * 100);
-                        signal.exitPrice = currentPrice;
-                        signal.exitTime = Date.now();
-                        this.completedSignals.push(signal);
-                        this.aiSystem.successfulSignals++;
-                        this.aiSystem.learn(signal);
-                        this.saveCompletedSignals();
-                        showToast(`✅ ${signal.direction.toUpperCase()} sinyali TP: %${signal.profit.toFixed(2)}`, 'success');
-                        return false;
-                    } else if ((signal.direction === 'buy' && currentPrice <= lossTarget) || 
-                               (signal.direction === 'sell' && currentPrice >= lossTarget)) {
-                        signal.success = false;
-                        signal.profit = ((lossTarget - signal.entryPrice) / signal.entryPrice * 100);
-                        signal.exitPrice = currentPrice;
-                        signal.exitTime = Date.now();
-                        this.completedSignals.push(signal);
-                        this.aiSystem.learn(signal);
-                        this.saveCompletedSignals();
-                        showToast(`🛑 ${signal.direction.toUpperCase()} sinyali SL: %${signal.profit.toFixed(2)}`, 'error');
-                        return false;
-                    }
-                    return true;
-                });
-                this.updateUI();
-            }
-
-            updateSignalHistory() {
-                const historyDiv = document.getElementById('signalHistory');
-                const recentSignals = this.completedSignals.slice(-10);
-                
-                if (recentSignals.length === 0) {
-                    historyDiv.innerHTML = '<div style="text-align: center; color: #888; font-size: 0.8rem; padding: 15px;">Sinyal geçmişi burada görünecek</div>';
-                    return;
-                }
-
-                historyDiv.innerHTML = recentSignals.map(s => `
-                    <div style="padding: 6px; font-size: 0.75rem; color: ${s.success ? '#00D4AA' : '#F84960'}; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span>[${new Date(s.timestamp).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}] ${s.direction.toUpperCase()}</span>
-                            <span style="font-weight: 600;">${s.success ? 'TP' : 'SL'}: ${s.profit.toFixed(2)}%</span>
-                        </div>
-                        <div style="font-size: 0.7rem; color: #888; margin-top: 2px;">
-                            ${s.strategy} | Giriş: $${s.entryPrice.toFixed(2)} | Çıkış: $${s.exitPrice?.toFixed(2) || 'N/A'}
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            updateUI() {
-                const signalBox = document.getElementById('currentSignal');
-                if (this.activeSignals.length > 0) {
-                    const signal = this.activeSignals[0];
-                    signalBox.className = `signal-box ${signal.strategy || signal.direction.toLowerCase()}`;
-                    signalBox.innerHTML = `
-                        <div style="font-weight: 700; margin-bottom: 8px; display: flex; justify-content: space-between;">
-                            <span>${signal.direction.toUpperCase()} Sinyali</span>
-                            <span style="font-size: 0.8rem;">(${signal.strategy})</span>
-                        </div>
-                        <div style="font-size: 0.8rem; margin: 3px 0;">Giriş: $${signal.entryPrice.toFixed(4)}</div>
-                        <div style="font-size: 0.8rem; margin: 3px 0;">TP: $${signal.takeProfit.toFixed(4)}</div>
-                        <div style="font-size: 0.8rem; margin: 3px 0;">SL: $${signal.stopLoss.toFixed(4)}</div>
-                        <div style="font-size: 0.7rem; color: #888; margin-top: 5px;">
-                            Aktif: ${this.activeSignals.length}/${this.aiSystem.optimizationParams.maxActiveSignals}
-                        </div>
-                    `;
-                    document.getElementById('confidenceBar').style.width = `${signal.confidence}%`;
-                    document.getElementById('confidencePercent').textContent = `${signal.confidence}%`;
-                    document.getElementById('tpStatus').textContent = `$${signal.takeProfit.toFixed(4)}`;
-                    document.getElementById('slStatus').textContent = `$${signal.stopLoss.toFixed(4)}`;
-                } else {
-                    signalBox.className = 'signal-box';
-                    signalBox.innerHTML = `
-                        <div style="font-weight: 700; margin-bottom: 8px;">⏳ Sinyal Bekleniyor...</div>
-                        <div style="font-size: 0.8rem; color: #888;">Piyasa analiz ediliyor</div>
-                    `;
-                    document.getElementById('confidenceBar').style.width = '0%';
-                    document.getElementById('confidencePercent').textContent = '0%';
-                    document.getElementById('tpStatus').textContent = 'Bekliyor';
-                    document.getElementById('slStatus').textContent = 'Bekliyor';
-                }
-
-                const recentPerformance = document.getElementById('recentPerformance');
-                const recentSignals = this.completedSignals.slice(-5);
-                if (recentSignals.length > 0) {
-                    recentPerformance.innerHTML = recentSignals.map(s => `
-                        <div style="color: ${s.success ? '#00D4AA' : '#F84960'}; font-size: 0.8rem; padding: 2px 6px; border-radius: 4px; background: rgba(${s.success ? '0,212,170' : '248,73,96'},0.1);">
-                            ${s.direction.toUpperCase()}: ${s.profit.toFixed(1)}%
-                        </div>
-                    `).join('');
-                } else {
-                    recentPerformance.innerHTML = '<div style="color: #888; font-size: 0.8rem;">Henüz sinyal yok</div>';
-                }
-
-                document.getElementById('totalAnalysis').textContent = this.aiSystem.totalSignals;
-                document.getElementById('successfulSignals').textContent = this.aiSystem.successfulSignals;
-                document.getElementById('successRate').textContent = this.aiSystem.totalSignals > 0 ? 
-                    ((this.aiSystem.successfulSignals / this.aiSystem.totalSignals) * 100).toFixed(1) + '%' : '0%';
-
-                if (this.completedSignals.length > 0) {
-                    const avgTime = this.completedSignals.reduce((sum, s) => {
-                        if (s.exitTime && s.timestamp) {
-                            return sum + (s.exitTime - s.timestamp);
-                        }
-                        return sum;
-                    }, 0) / this.completedSignals.length;
-                    document.getElementById('avgTpTime').textContent = `${(avgTime / 1000).toFixed(1)}s`;
-                } else {
-                    document.getElementById('avgTpTime').textContent = '-';
-                }
-
-                this.updateSignalHistory();
-            }
-        }
-
-        class UIManager {
-            updateTechnicalIndicators(analysis) {
-                try {
-                    document.getElementById('rsiValue').textContent = analysis.rsi.toFixed(2);
-                    document.getElementById('macdValue').textContent = analysis.macd.macd.toFixed(4);
-                    document.getElementById('bbPosition').textContent = analysis.bbPosition;
-                    document.getElementById('marketImbalance').textContent = `${analysis.orderBookImbalance.toFixed(1)}%`;
-                    
-                    const momentum = priceHistory.length >= 2 ? 
-                        ((priceHistory[priceHistory.length - 1] - priceHistory[priceHistory.length - 2]) / priceHistory[priceHistory.length - 2] * 100) : 0;
-                    document.getElementById('priceMomentum').textContent = `${momentum >= 0 ? '+' : ''}${momentum.toFixed(3)}%`;
-                    document.getElementById('priceMomentum').style.color = momentum >= 0 ? '#00D4AA' : '#F84960';
-                } catch (error) {
-                    debugLog(`❌ Teknik göstergeler güncelleme hatası: ${error.message}`, 'error');
-                }
-            }
-
-            updateVolumeSpike(volume, avgVolume) {
-                try {
-                    const spike = volume / (avgVolume || 1);
-                    document.getElementById('volumeSpikeValue').textContent = `${spike.toFixed(1)}x`;
-                    document.getElementById('volumeSpikeFill').style.width = `${Math.min(spike * 20, 100)}%`;
-
-                    volumeHistory.push(volume);
-                    if (volumeHistory.length > 15) volumeHistory.shift();
-
-                    const maxVolume = Math.max(...volumeHistory, 1);
-                    const volumeBars = volumeHistory.map((v, i) => `
-                        <div style="flex: 1; background: linear-gradient(to top, 
-                            rgba(0, 212, 170, ${0.3 + (i / volumeHistory.length) * 0.5}), 
-                            rgba(0, 212, 170, ${0.8 + (i / volumeHistory.length) * 0.2}));
-                            height: ${(v / maxVolume) * 40}px; border-radius: 2px; margin: 0 1px;
-                            transition: all 0.3s ease;">
-                        </div>
-                    `).join('');
-                    document.getElementById('volumeHistory').innerHTML = volumeBars;
-                } catch (error) {
-                    debugLog(`❌ Volume spike güncelleme hatası: ${error.message}`, 'error');
-                }
-            }
-
-            updateOrderBookDisplay(analysis) {
-                try {
-                    if (!realOrderBookData.bids.length || !realOrderBookData.asks.length) return;
-
-                    const maxVolume = Math.max(
-                        ...realOrderBookData.bids.slice(0, 5).map(b => b[1]),
-                        ...realOrderBookData.asks.slice(0, 5).map(b => b[1]),
-                        1
-                    );
-                    
-                    const depthBars = [
-                        ...realOrderBookData.bids.slice(0, 5).map(([price, vol]) => `
-                            <div class="depth-bar" style="height: ${(vol / maxVolume) * 60}px;" 
-                                 title="Bid: $${price} (${vol.toFixed(2)})"></div>
-                        `),
-                        ...realOrderBookData.asks.slice(0, 5).map(([price, vol]) => `
-                            <div class="depth-bar ask" style="height: ${(vol / maxVolume) * 60}px;" 
-                                 title="Ask: $${price} (${vol.toFixed(2)})"></div>
-                        `)
-                    ].join('');
-                    document.getElementById('depthVisualization').innerHTML = depthBars;
-
-                    const bidVolume = realOrderBookData.bids.reduce((sum, [_, vol]) => sum + vol, 0);
-                    const askVolume = realOrderBookData.asks.reduce((sum, [_, vol]) => sum + vol, 0);
-                    document.getElementById('bidVolume').textContent = bidVolume.toFixed(2);
-                    document.getElementById('askVolume').textContent = askVolume.toFixed(2);
-                    document.getElementById('imbalancePercent').textContent = `${analysis.orderBookImbalance.toFixed(1)}%`;
-
-                    if (realOrderBookData.bids.length > 0 && realOrderBookData.asks.length > 0) {
-                        const spread = realOrderBookData.asks[0][0] - realOrderBookData.bids[0][0];
-                        document.getElementById('currentSpread').textContent = `$${spread.toFixed(6)}`;
-                    }
-                } catch (error) {
-                    debugLog(`❌ OrderBook güncelleme hatası: ${error.message}`, 'error');
-                }
-            }
-
-            addAlert(title, message) {
-                debugLog(`🚨 ${title}: ${message}`, 'warning');
-                showToast(`${title}: ${message}`, 'warning');
-            }
-        }
-
-        // Utility functions
-        function debugLog(message, type = 'info') {
-            const el = document.getElementById('debugPanel');
-            const logEntry = document.createElement('div');
-            logEntry.className = `debug-log debug-${type}`;
-            logEntry.innerText = `[${new Date().toLocaleTimeString('tr-TR')}] ${message}`;
-            el.insertBefore(logEntry, el.firstChild);
-            if (el.children.length > 100) el.removeChild(el.lastChild);
-        }
-
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = `toast show ${type}`;
-            setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-
-        function showPersistenceIndicator() {
-            const indicator = document.getElementById('persistenceIndicator');
-            indicator.style.display = 'block';
-            setTimeout(() => indicator.style.display = 'none', 3000);
-        }
-
-        function updateSystemInfo() {
-            try {
-                const browserInfo = navigator.userAgent.split(' ').slice(-2).join(' ');
-                document.getElementById('browserInfo').textContent = browserInfo;
-                
-                const connectionType = navigator.connection ? navigator.connection.effectiveType : 'Bilinmiyor';
-                document.getElementById('connectionType').textContent = connectionType;
-                
-                const uptime = ((Date.now() - startTime) / 1000 / 60).toFixed(1);
-                document.getElementById('uptime').textContent = `${uptime} dakika`;
-                
-                const dataUsage = (dataUsageBytes / 1024).toFixed(2);
-                document.getElementById('dataUsage').textContent = `${dataUsage} KB`;
-            } catch (error) {
-                debugLog(`❌ Sistem bilgileri güncelleme hatası: ${error.message}`, 'error');
-            }
-        }
-
-        // WebSocket functions
-        function connect() {
-            try {
-                const coin = document.getElementById('manualSymbol').value.trim().toUpperCase() || 'BTC';
-                const validation = validateSymbol(coin);
-                
-                if (!validation.valid) {
-                    showToast(validation.message, 'error');
-                    return;
-                }
-                
-                currentSymbol = validation.coin + '_USDT';
-                localStorage.setItem('currentSymbol', validation.coin);
-                localStorage.setItem('autoConnect', 'true');
-                
-                const url = 'wss://futures.mexc.com/edge';
-                document.getElementById('wsUrl').textContent = url;
-                document.getElementById('connectBtn').innerHTML = '🔗 Bağlanıyor...';
-                document.getElementById('connectBtn').classList.add('btn-loading');
-                document.getElementById('connectBtn').disabled = true;
-                document.getElementById('connectionStatus').className = 'status-indicator connecting';
-                document.getElementById('connectionStatus').innerHTML = '🟡 Bağlanıyor...';
-
-                ws = new WebSocket(url);
-
-                ws.onopen = () => {
-                    isConnected = true;
-                    reconnectAttempts = 0;
-                    updateConnectionStatus(true);
-                    document.getElementById('wsStatus').textContent = 'Açık';
-                    document.getElementById('dataStatus').textContent = 'Bağlandı';
-                    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('tr-TR');
-                    document.getElementById('connectBtn').innerHTML = '🔌 Bağlantıyı Kes';
-                    document.getElementById('connectBtn').classList.remove('btn-loading');
-                    document.getElementById('connectBtn').disabled = false;
-                    debugLog('✅ WebSocket bağlantısı kuruldu', 'success');
-                    showToast('✅ WebSocket bağlandı', 'success');
-                    subscribeToPair(currentSymbol);
-                    startPing();
-                };
-
-                ws.onmessage = (event) => {
-                    try {
-                        dataUsageBytes += event.data.length;
-                        const data = JSON.parse(event.data);
-                        if (data.channel) {
-                            handleWebSocketData(data);
-                        }
-                    } catch (error) {
-                        debugLog(`❌ Mesaj işleme hatası: ${error.message}`, 'error');
-                    }
-                };
-
-                ws.onclose = () => {
-                    isConnected = false;
-                    updateConnectionStatus(false);
-                    document.getElementById('wsStatus').textContent = 'Kapalı';
-                    document.getElementById('dataStatus').textContent = 'Bekleniyor';
-                    document.getElementById('connectBtn').innerHTML = '🔌 Bağlan';
-                    document.getElementById('connectBtn').classList.remove('btn-loading');
-                    document.getElementById('connectBtn').disabled = false;
-                    debugLog('⚠️ WebSocket bağlantısı kapandı', 'warning');
-                    showToast('⚠️ Bağlantı kapandı', 'warning');
-                    stopPing();
-                    attemptReconnect();
-                };
-
-                ws.onerror = (err) => {
-                    debugLog(`❌ WebSocket hatası`, 'error');
-                    showToast('❌ Bağlantı hatası', 'error');
-                };
-            } catch (error) {
-                debugLog(`❌ Bağlantı başlatma hatası: ${error.message}`, 'error');
-                showToast('❌ Bağlantı başlatılamadı', 'error');
-                resetConnectionUI();
-            }
-        }
-
-        function disconnect() {
-            try {
-                if (ws) {
-                    ws.close();
-                    ws = null;
-                }
-                isConnected = false;
-                localStorage.setItem('autoConnect', 'false');
-                updateConnectionStatus(false);
-                resetConnectionUI();
-                debugLog("🔴 Bağlantı kapatıldı", 'info');
-                showToast('🔴 Bağlantı kapatıldı', 'info');
-                stopPing();
-                reconnectAttempts = 0;
-            } catch (error) {
-                debugLog(`❌ Bağlantı kapatma hatası: ${error.message}`, 'error');
-            }
-        }
-
-        function resetConnectionUI() {
-            document.getElementById('connectBtn').innerHTML = '🔌 Bağlan';
-            document.getElementById('connectBtn').classList.remove('btn-loading');
-            document.getElementById('connectBtn').disabled = false;
-            document.getElementById('wsStatus').textContent = 'Kapalı';
-            document.getElementById('dataStatus').textContent = 'Bekleniyor';
-            document.getElementById('wsUrl').textContent = '-';
-            document.getElementById('lastUpdate').textContent = '-';
-        }
-
-        function attemptReconnect() {
-            if (reconnectAttempts < maxReconnectAttempts && localStorage.getItem('autoConnect') === 'true') {
-                reconnectAttempts++;
-                debugLog(`🔄 Yeniden bağlanma ${reconnectAttempts}/${maxReconnectAttempts}`, 'warning');
-                showToast(`🔄 Yeniden bağlanma ${reconnectAttempts}/${maxReconnectAttempts}`, 'warning');
-                setTimeout(connect, 5000 * reconnectAttempts);
-            } else if (reconnectAttempts >= maxReconnectAttempts) {
-                debugLog('❌ Maksimum yeniden bağlanma denemesi aşıldı', 'error');
-                showToast('❌ Otomatik yeniden bağlanma durdu', 'error');
-                localStorage.setItem('autoConnect', 'false');
-            }
-        }
-
-        function toggleConnection() {
-            if (isConnected) {
-                disconnect();
-            } else {
-                connect();
-            }
-        }
-
-        function subscribeToPair(symbol) {
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                const subscriptions = [
-                    { method: 'sub.deal', param: { symbol }, id: 'deal_' + symbol },
-                    { method: 'sub.depth', param: { symbol, depth: 20 }, id: 'depth_' + symbol },
-                    { method: 'sub.ticker', param: { symbol }, id: 'ticker_' + symbol }
-                ];
-                subscriptions.forEach(sub => {
-                    ws.send(JSON.stringify(sub));
-                    debugLog(`📡 Abonelik: ${sub.method} - ${symbol}`, 'info');
-                });
-            }
-        }
-
-        function startPing() {
-            pingInterval = setInterval(() => {
-                if (ws && ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({ method: 'ping' }));
-                }
-            }, 30000);
-        }
-
-        function stopPing() {
-            if (pingInterval) {
-                clearInterval(pingInterval);
-                pingInterval = null;
-            }
-        }
-
-        function handleWebSocketData(data) {
-            if (!data.channel || !data.data) return;
-
-            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('tr-TR');
-
-            if (data.channel === 'push.deal') {
-                const deal = data.data;
-                const price = parseFloat(deal.p);
-                const volume = parseFloat(deal.v);
-                
-                priceHistory.push(price);
-                if (priceHistory.length > 100) priceHistory.shift();
-                
-                const change = lastPrice ? ((price - lastPrice) / lastPrice * 100) : 0;
-                lastPrice = price;
-                updatePriceDisplay(price, change);
-                triggerAIAnalysis(price, volume);
-                
-            } else if (data.channel === 'push.depth') {
-                realOrderBookData = {
-                    bids: data.data.bids.map(([price, volume]) => [parseFloat(price), parseFloat(volume)]),
-                    asks: data.data.asks.map(([price, volume]) => [parseFloat(price), parseFloat(volume)])
-                };
-                
-                const analysis = marketAnalyzer.analyzeMarket(lastPrice, volumeHistory[volumeHistory.length - 1] || 0, realOrderBookData);
-                uiManager.updateOrderBookDisplay(analysis);
-
-                const bidVolume = realOrderBookData.bids.reduce((sum, [_, vol]) => sum + vol, 0);
-                const askVolume = realOrderBookData.asks.reduce((sum, [_, vol]) => sum + vol, 0);
-                
-                // Büyük emir kontrolü - artık sabit panel
-                const whaleAlert = document.getElementById('whaleAlert');
-                const whaleDetails = document.getElementById('whaleDetails');
-                const whaleThreshold = 2.5; // Eşik değeri
-                
-                if (bidVolume > askVolume * whaleThreshold) {
-                    whaleAlert.className = 'whale-status bullish';
-                    whaleDetails.innerHTML = `📈 Güçlü alış baskısı: ${bidVolume.toFixed(2)} (${(bidVolume/askVolume).toFixed(1)}x)`;
-                    whaleDetails.style.color = '#00D4AA';
-                } else if (askVolume > bidVolume * whaleThreshold) {
-                    whaleAlert.className = 'whale-status bearish';
-                    whaleDetails.innerHTML = `📉 Güçlü satış baskısı: ${askVolume.toFixed(2)} (${(askVolume/bidVolume).toFixed(1)}x)`;
-                    whaleDetails.style.color = '#F84960';
-                } else {
-                    whaleAlert.className = 'whale-status';
-                    whaleDetails.innerHTML = `Normal seviyede - büyük emir yok (B:${bidVolume.toFixed(1)} / A:${askVolume.toFixed(1)})`;
-                    whaleDetails.style.color = '#888';
-                }
-                
-                // Sadece çok büyük emirler için toast göster (eşik 5x)
-                if (bidVolume > askVolume * 5 || askVolume > bidVolume * 5) {
-                    showToast(`🐋 Çok büyük ${bidVolume > askVolume ? 'alış' : 'satış'} emri: ${Math.max(bidVolume, askVolume).toFixed(2)}`, 'warning');
-                }
-                
-            } else if (data.channel === 'push.ticker') {
-                const ticker = data.data;
-                const price = parseFloat(ticker.lastPrice);
-                const change = parseFloat(ticker.priceChangePercent);
-                updatePriceDisplay(price, change);
-            }
-        }
-
-        function updateConnectionStatus(connected) {
-            const status = document.getElementById('connectionStatus');
-            if (connected) {
-                status.className = 'status-indicator connected';
-                status.innerHTML = '🟢 Bağlı';
-                document.getElementById('aiStatus').textContent = '🧠 AI Aktif';
-            } else {
-                status.className = 'status-indicator disconnected';
-                status.innerHTML = '🔴 Bağlantı Yok';
-                document.getElementById('aiStatus').textContent = '🧠 AI Bekliyor...';
-            }
-        }
-
-        function updatePriceDisplay(price, change = 0) {
-            document.getElementById('headerPrice').textContent = `$${price.toFixed(4)}`;
+            processOrderBookData();
             
-            const changeIcon = change >= 0 ? '📈' : '📉';
-            const changeClass = change >= 0 ? 'positive' : 'negative';
-            const changeText = `${changeIcon} ${change >= 0 ? '+' : ''}${change.toFixed(3)}%`;
-            
-            document.getElementById('headerChange').textContent = changeText;
-            document.getElementById('headerChange').style.color = change >= 0 ? '#00D4AA' : '#F84960';
-            
-            lastPrice = price;
+        } else if (data.channel === 'push.ticker') {
+            const ticker = data.data;
+            const price = parseFloat(ticker.lastPrice);
+            const change = parseFloat(ticker.priceChangePercent || 0);
+            updatePriceDisplay(price, change);
         }
+        
+        // Son güncelleme zamanını güvenli şekilde güncelle
+        safeUpdateElement('lastUpdate', new Date().toLocaleTimeString('tr-TR'));
+        
+    } catch (error) {
+        debugLog(`❌ MEXC veri işleme hatası: ${error.message}`, 'error');
+    }
+}
 
-        function triggerAIAnalysis(price, volume) {
-            if (!aiSystem || !marketAnalyzer || !signalTracker || !uiManager) return;
-            
-            try {
-                const analysis = marketAnalyzer.analyzeMarket(price, volume, realOrderBookData);
-                
-                uiManager.updateTechnicalIndicators(analysis);
-                uiManager.updateVolumeSpike(
-                    volume, 
-                    volumeHistory.reduce((a,b) => a+b, 0) / Math.max(1, volumeHistory.length)
-                );
-                
-                signalTracker.updateSignals(price);
-                
-                if (Date.now() - (window.lastSignalCheck || 0) > aiSystem.optimizationParams.signalFrequency) {
-                    window.lastSignalCheck = Date.now();
-                    
-                    if (signalTracker.activeSignals.length < aiSystem.optimizationParams.maxActiveSignals) {
-                        const signal = aiSystem.generateOptimizedSignal(analysis);
-                        if (signal) {
-                            signalTracker.addSignal(signal);
-                        }
-                    }
-                }
+function processPriceData(price, volume) {
+    // Fiyat ve volume geçmişi güncelle
+    priceHistory.push(price);
+    volumeHistory.push(volume);
+    
+    if (priceHistory.length > 200) priceHistory.shift();
+    if (volumeHistory.length > 50) volumeHistory.shift();
+    
+    // AI öğrenme verilerini güncelle
+    aiLearningData.totalProcessed++;
+    updateAIProgress();
+    
+    // Support/Resistance seviyelerini güncelle
+    if (Date.now() - supportResistanceLevels.lastCalculated > 60000) {
+        calculateSupportResistance();
+    }
+    
+    // Aktif sinyal kontrolü
+    if (activeSignal) {
+        checkActiveSignal(price);
+    }
+    
+    // Yeni sinyal kontrolü
+    if (Date.now() - lastSignalTime > botSettings.signalCooldown) {
+        analyzeForSignals(price, volume);
+    }
+}
 
-                // Öğrenme ilerlemesi - kalıcı veri kullan
-                const totalLearningData = aiSystem.learningData.signals.length + 
-                                        signalTracker.completedSignals.length + 
-                                        (priceHistory.length + volumeHistory.length);
-                
-                document.getElementById('learningStats').textContent = `${totalLearningData} toplam veri işlendi`;
-                document.getElementById('learningProgress').style.width = `${Math.min(totalLearningData / 1000 * 100, 100)}%`;
-                
-                // Toplam veriyi localStorage'a kaydet
-                localStorage.setItem('totalProcessedData', totalLearningData.toString());
-                
-            } catch (error) {
-                debugLog(`❌ AI analiz hatası: ${error.message}`, 'error');
+function processOrderBookData() {
+    if (!orderBookData.bids.length || !orderBookData.asks.length) return;
+    
+    // OrderBook analizi
+    const analysis = analyzeOrderBook();
+    updateOrderBookUI(analysis);
+    
+    // Whale activity kontrolü
+    detectWhaleActivity(analysis);
+}
+
+function analyzeOrderBook() {
+    const topBids = orderBookData.bids.slice(0, 10);
+    const topAsks = orderBookData.asks.slice(0, 10);
+    
+    const bidVolume = topBids.reduce((sum, [_, vol]) => sum + vol, 0);
+    const askVolume = topAsks.reduce((sum, [_, vol]) => sum + vol, 0);
+    const totalVolume = bidVolume + askVolume;
+    
+    const imbalance = totalVolume > 0 ? ((bidVolume - askVolume) / totalVolume * 100) : 0;
+    const bidPressure = totalVolume > 0 ? (bidVolume / totalVolume * 100) : 50;
+    const askPressure = 100 - bidPressure;
+    
+    // Spread hesapla
+    const spread = orderBookData.asks[0] ? orderBookData.asks[0][0] - orderBookData.bids[0][0] : 0;
+    const spreadPercent = lastPrice > 0 ? (spread / lastPrice * 100) : 0;
+    
+    return {
+        imbalance,
+        bidPressure,
+        askPressure,
+        bidVolume,
+        askVolume,
+        spread,
+        spreadPercent,
+        topBids,
+        topAsks
+    };
+}
+
+function updateOrderBookUI(analysis) {
+    // Bid/Ask baskısı
+    safeUpdateElement('bidPressure', `${analysis.bidPressure.toFixed(1)}%`);
+    safeUpdateElement('askPressure', `${analysis.askPressure.toFixed(1)}%`);
+    
+    // Market dengesizlik
+    const imbalanceEl = document.getElementById('orderbookImbalance');
+    if (imbalanceEl) {
+        imbalanceEl.textContent = `${analysis.imbalance.toFixed(1)}%`;
+        imbalanceEl.style.color = analysis.imbalance > 0 ? '#00D4AA' : '#F84960';
+    }
+    
+    // Spread bilgisi
+    safeUpdateElement('currentSpread', formatPrice(analysis.spread));
+    safeUpdateElement('marketDepth', `${(analysis.bidVolume + analysis.askVolume).toFixed(2)}`);
+    
+    // OrderBook kalitesi
+    let quality = 'İyi';
+    if (analysis.spreadPercent > 0.1) quality = 'Zayıf';
+    else if (analysis.spreadPercent > 0.05) quality = 'Orta';
+    
+    const qualityEl = document.getElementById('orderbookQuality');
+    if (qualityEl) {
+        qualityEl.innerHTML = 
+            `Spread: ${formatPrice(analysis.spread)} (${analysis.spreadPercent.toFixed(3)}%) | Depth: ${quality}`;
+    }
+}
+
+function detectWhaleActivity(analysis) {
+    const whaleThreshold = Math.max(analysis.bidVolume, analysis.askVolume) * 3;
+    let whaleDetected = false;
+    let whaleType = '';
+    let whaleSize = 0;
+    
+    // Büyük bid emirleri kontrol et
+    analysis.topBids.forEach(([price, volume]) => {
+        if (volume > whaleThreshold) {
+            whaleDetected = true;
+            whaleType = 'BUY';
+            whaleSize = Math.max(whaleSize, volume);
+        }
+    });
+    
+    // Büyük ask emirleri kontrol et
+    analysis.topAsks.forEach(([price, volume]) => {
+        if (volume > whaleThreshold) {
+            whaleDetected = true;
+            whaleType = whaleType ? 'MIXED' : 'SELL';
+            whaleSize = Math.max(whaleSize, volume);
+        }
+    });
+    
+    // Whale activity UI güncelle
+    const whaleStatus = document.getElementById('whaleStatus');
+    const whaleDetails = document.getElementById('whaleDetails');
+    
+    if (whaleDetected) {
+        safeUpdateElement('whaleStatus', `🐋 ${whaleType} Whale Detected`);
+        if (whaleStatus) {
+            whaleStatus.style.color = whaleType === 'BUY' ? '#00D4AA' : whaleType === 'SELL' ? '#F84960' : '#FFC107';
+        }
+        safeUpdateElement('whaleDetails', `Büyük emir: ${whaleSize.toFixed(2)} | ${formatPrice(lastPrice)}`);
+        
+        // Whale sinyali için not et
+        if (whaleSize > whaleThreshold * 2) {
+            debugLog(`🐋 Büyük ${whaleType} whale activity: ${whaleSize.toFixed(2)}`, 'warning');
+        }
+    } else {
+        safeUpdateElement('whaleStatus', 'Normal Activity');
+        if (whaleStatus) whaleStatus.style.color = '#888';
+        safeUpdateElement('whaleDetails', 'Büyük emir tespit edilmedi');
+    }
+    
+    return { detected: whaleDetected, type: whaleType, size: whaleSize };
+}
+
+function calculateSupportResistance() {
+    if (priceHistory.length < 50) return;
+    
+    const recent = priceHistory.slice(-100);
+    const peaks = [];
+    const valleys = [];
+    
+    // Basit peak/valley detection
+    for (let i = 2; i < recent.length - 2; i++) {
+        if (recent[i] > recent[i-1] && recent[i] > recent[i+1] && 
+            recent[i] > recent[i-2] && recent[i] > recent[i+2]) {
+            peaks.push(recent[i]);
+        }
+        if (recent[i] < recent[i-1] && recent[i] < recent[i+1] && 
+            recent[i] < recent[i-2] && recent[i] < recent[i+2]) {
+            valleys.push(recent[i]);
+        }
+    }
+    
+    // En yakın seviyeleri bul
+    const currentPrice = lastPrice;
+    const nearSupport = valleys.filter(v => v < currentPrice).sort((a, b) => b - a)[0];
+    const nearResistance = peaks.filter(p => p > currentPrice).sort((a, b) => a - b)[0];
+    
+    supportResistanceLevels.support = valleys.sort((a, b) => b - a);
+    supportResistanceLevels.resistance = peaks.sort((a, b) => a - b);
+    supportResistanceLevels.lastCalculated = Date.now();
+    
+    // UI güncelle
+    safeUpdateElement('nearSupport', nearSupport ? formatPrice(nearSupport) : '-');
+    safeUpdateElement('nearResistance', nearResistance ? formatPrice(nearResistance) : '-');
+    
+    // Break probability hesapla
+    let breakProb = 'Düşük';
+    if (nearResistance && (currentPrice / nearResistance) > 0.98) breakProb = 'Yüksek';
+    else if (nearSupport && (currentPrice / nearSupport) < 1.02) breakProb = 'Yüksek';
+    else if (nearResistance && (currentPrice / nearResistance) > 0.95) breakProb = 'Orta';
+    
+    safeUpdateElement('breakProbability', breakProb);
+}
+
+function startAILearning() {
+    debugLog('🧠 AI öğrenme sistemi başlatıldı', 'success');
+    loadAIData();
+    
+    // AI progress güncellemesini başlat
+    setInterval(updateAIProgress, 2000);
+}
+
+function updateAIProgress() {
+    const processed = aiLearningData.totalProcessed;
+    const progress = Math.min((processed / 1000) * 100, 100);
+    
+    aiLearningData.learningProgress = progress;
+    
+    // UI güncelle
+    safeUpdateElement('processedData', processed.toLocaleString());
+    safeUpdateElement('learningProgress', `${progress.toFixed(1)}%`);
+    
+    // AI score hesapla
+    const totalSignals = Object.values(aiLearningData.strategies).reduce((sum, s) => sum + s.total, 0);
+    const successfulSignals = Object.values(aiLearningData.strategies).reduce((sum, s) => sum + s.success, 0);
+    
+    if (totalSignals > 0) {
+        const successRate = successfulSignals / totalSignals;
+        const avgProfit = Object.values(aiLearningData.strategies)
+            .flatMap(s => s.profits)
+            .reduce((sum, p) => sum + p, 0) / Math.max(1, successfulSignals);
+        
+        aiLearningData.performanceScore = Math.round((successRate * 70) + Math.max(0, avgProfit * 30));
+    }
+    
+    safeUpdateElement('aiScore', aiLearningData.performanceScore);
+    
+    // Öğrenme hızını güncelle
+    const learningSpeed = botSettings.learningSpeed;
+    safeUpdateElement('learningRate', 
+        learningSpeed === 'fast' ? 'Hızlı' : learningSpeed === 'slow' ? 'Yavaş' : 'Orta');
+}
+
+function learnFromSignal(signal, result, profit) {
+    const strategy = aiLearningData.strategies[signal.strategy];
+    if (!strategy) return;
+    
+    strategy.total++;
+    if (result === 'TP') {
+        strategy.success++;
+        strategy.profits.push(profit);
+    } else {
+        strategy.profits.push(-Math.abs(profit));
+    }
+    
+    if (signal.duration) {
+        strategy.times.push(signal.duration);
+    }
+    
+    // Array boyutlarını sınırla
+    if (strategy.profits.length > 50) strategy.profits.shift();
+    if (strategy.times.length > 50) strategy.times.shift();
+    
+    // Adaptif eşik güncelleme
+    if (botSettings.adaptiveThresholds) {
+        adaptThresholds(signal.strategy, result, profit);
+    }
+    
+    // Verileri kaydet
+    saveAIData();
+    updateStrategyPerformanceUI();
+    
+    debugLog(`🧠 AI öğrendi: ${signal.strategy} ${result} (${profit.toFixed(2)}%)`, 'success');
+}
+
+function adaptThresholds(strategy, result, profit) {
+    const strategyData = aiLearningData.strategies[strategy];
+    const recentResults = strategyData.profits.slice(-10);
+    
+    if (recentResults.length < 5) return;
+    
+    const successCount = recentResults.filter(p => p > 0).length;
+    const successRate = successCount / recentResults.length;
+    
+    // Başarı oranına göre eşikleri ayarla
+    if (successRate < 0.4) {
+        // Başarısızsa eşikleri sıkılaştır
+        if (strategy === 'volume' && botSettings.volumeThreshold < 4.0) {
+            botSettings.volumeThreshold += 0.1;
+            debugLog(`🔧 Volume eşiği artırıldı: ${botSettings.volumeThreshold.toFixed(1)}x`, 'info');
+        }
+        if (botSettings.minConfidence < 90) {
+            botSettings.minConfidence += 2;
+            debugLog(`🔧 Güven eşiği artırıldı: ${botSettings.minConfidence}%`, 'info');
+        }
+    } else if (successRate > 0.7) {
+        // Başarılıysa eşikleri gevşet
+        if (strategy === 'volume' && botSettings.volumeThreshold > 1.5) {
+            botSettings.volumeThreshold -= 0.05;
+            debugLog(`🔧 Volume eşiği azaltıldı: ${botSettings.volumeThreshold.toFixed(1)}x`, 'info');
+        }
+        if (botSettings.minConfidence > 60) {
+            botSettings.minConfidence -= 1;
+            debugLog(`🔧 Güven eşiği azaltıldı: ${botSettings.minConfidence}%`, 'info');
+        }
+    }
+    
+    // UI'yi güncelle
+    updateSettingsUI();
+}
+
+function saveAIData() {
+    try {
+        localStorage.setItem('aiLearningData_v4', JSON.stringify(aiLearningData));
+        localStorage.setItem('supportResistanceLevels', JSON.stringify(supportResistanceLevels));
+    } catch (error) {
+        debugLog(`❌ AI veri kaydetme hatası: ${error.message}`, 'error');
+    }
+}
+
+function loadAIData() {
+    try {
+        const saved = localStorage.getItem('aiLearningData_v4');
+        if (saved) {
+            const loaded = JSON.parse(saved);
+            aiLearningData = { ...aiLearningData, ...loaded };
+            debugLog(`📊 AI verileri yüklendi: ${aiLearningData.totalProcessed} işlem`, 'success');
+        }
+        
+        const savedSR = localStorage.getItem('supportResistanceLevels');
+        if (savedSR) {
+            supportResistanceLevels = JSON.parse(savedSR);
+        }
+    } catch (error) {
+        debugLog(`❌ AI veri yükleme hatası: ${error.message}`, 'error');
+    }
+}
+
+function analyzeForSignals(price, volume) {
+    if (!orderBookData.bids.length || volumeHistory.length < 10) return;
+    
+    const analysis = analyzeOrderBook();
+    const avgVolume = volumeHistory.reduce((a, b) => a + b, 0) / volumeHistory.length;
+    const volumeSpike = volume / avgVolume;
+    
+    // Strateji analizi
+    const signals = [
+        analyzeWhaleStrategy(analysis, volumeSpike),
+        analyzeImbalanceStrategy(analysis, volumeSpike),
+        analyzeVolumeStrategy(analysis, volumeSpike),
+        analyzeSRStrategy(analysis, price)
+    ].filter(s => s && s.confidence >= botSettings.minConfidence);
+    
+    // En yüksek güvenli sinyali seç
+    if (signals.length > 0) {
+        const bestSignal = signals.sort((a, b) => b.confidence - a.confidence)[0];
+        generateSignal(bestSignal);
+    }
+}
+
+function analyzeWhaleStrategy(analysis, volumeSpike) {
+    const whaleData = detectWhaleActivity(analysis);
+    
+    if (!whaleData.detected || whaleData.size < analysis.bidVolume * 2) return null;
+    
+    const confidence = Math.min(95, 
+        50 + (whaleData.size / analysis.bidVolume * 10) + (volumeSpike * 5)
+    );
+    
+    return {
+        strategy: 'whale',
+        direction: whaleData.type === 'BUY' ? 'buy' : 'sell',
+        confidence,
+        reason: `Whale ${whaleData.type}: ${whaleData.size.toFixed(2)}`,
+        whaleSize: whaleData.size
+    };
+}
+
+function analyzeImbalanceStrategy(analysis, volumeSpike) {
+    if (Math.abs(analysis.imbalance) < 25) return null;
+    
+    const confidence = Math.min(90, 
+        45 + Math.abs(analysis.imbalance) + (volumeSpike * 8)
+    );
+    
+    return {
+        strategy: 'imbalance',
+        direction: analysis.imbalance > 0 ? 'buy' : 'sell',
+        confidence,
+        reason: `OrderBook imbalance: ${analysis.imbalance.toFixed(1)}%`,
+        imbalance: analysis.imbalance
+    };
+}
+
+function analyzeVolumeStrategy(analysis, volumeSpike) {
+    if (volumeSpike < botSettings.volumeThreshold) return null;
+    
+    const confidence = Math.min(85, 
+        40 + (volumeSpike * 12) + Math.abs(analysis.imbalance / 2)
+    );
+    
+    // Volume yönünü orderbook ile belirle
+    const direction = analysis.imbalance > 5 ? 'buy' : analysis.imbalance < -5 ? 'sell' : null;
+    if (!direction) return null;
+    
+    return {
+        strategy: 'volume',
+        direction,
+        confidence,
+        reason: `Volume spike: ${volumeSpike.toFixed(1)}x`,
+        volumeSpike
+    };
+}
+
+function analyzeSRStrategy(analysis, price) {
+    const nearSupport = supportResistanceLevels.support.find(s => s < price && (price - s) / price < 0.02);
+    const nearResistance = supportResistanceLevels.resistance.find(r => r > price && (r - price) / price < 0.02);
+    
+    let signal = null;
+    
+    // Support bounce
+    if (nearSupport && price <= nearSupport * 1.005 && analysis.bidPressure > 60) {
+        signal = {
+            strategy: 'sr',
+            direction: 'buy',
+            confidence: Math.min(80, 55 + analysis.bidPressure / 2),
+            reason: `Support bounce: ${formatPrice(nearSupport)}`,
+            level: nearSupport
+        };
+    }
+    
+    // Resistance break
+    if (nearResistance && price >= nearResistance * 0.995 && analysis.bidPressure > 55) {
+        signal = {
+            strategy: 'sr',
+            direction: 'buy',
+            confidence: Math.min(85, 50 + analysis.bidPressure / 2),
+            reason: `Resistance break: ${formatPrice(nearResistance)}`,
+            level: nearResistance
+        };
+    }
+    
+    return signal;
+}
+
+function generateSignal(signalData) {
+    const tpPercent = botSettings.takeProfitPercent / 100;
+    const slPercent = botSettings.stopLossPercent / 100;
+    
+    let takeProfit, stopLoss;
+    
+    if (signalData.direction === 'buy') {
+        takeProfit = lastPrice * (1 + tpPercent);
+        stopLoss = lastPrice * (1 - slPercent);
+    } else {
+        takeProfit = lastPrice * (1 - tpPercent);
+        stopLoss = lastPrice * (1 + slPercent);
+    }
+    
+    const signal = {
+        id: Date.now(),
+        strategy: signalData.strategy,
+        direction: signalData.direction,
+        entryPrice: lastPrice,
+        takeProfit,
+        stopLoss,
+        confidence: signalData.confidence,
+        timestamp: Date.now(),
+        reason: signalData.reason,
+        status: 'active',
+        ...signalData
+    };
+    
+    activeSignal = signal;
+    lastSignalTime = Date.now();
+    
+    updateSignalDisplay(signal);
+    
+    debugLog(`🎯 ${signalData.strategy.toUpperCase()} ${signalData.direction.toUpperCase()}: ${signalData.confidence.toFixed(0)}% - ${signalData.reason}`, 'success');
+    showToast(`🎯 ${signalData.direction.toUpperCase()} Sinyali (${signalData.strategy}): %${signalData.confidence.toFixed(0)}`, 'success');
+}
+
+function checkActiveSignal(currentPrice) {
+    if (!activeSignal || activeSignal.status !== 'active') return;
+    
+    const signal = activeSignal;
+    let signalCompleted = false;
+    let result = '';
+    
+    if (signal.direction === 'buy') {
+        if (currentPrice >= signal.takeProfit) {
+            result = 'TP';
+            signalCompleted = true;
+        } else if (currentPrice <= signal.stopLoss) {
+            result = 'SL';
+            signalCompleted = true;
+        }
+    } else {
+        if (currentPrice <= signal.takeProfit) {
+            result = 'TP';
+            signalCompleted = true;
+        } else if (currentPrice >= signal.stopLoss) {
+            result = 'SL';
+            signalCompleted = true;
+        }
+    }
+    
+    if (signalCompleted) {
+        completeSignal(signal, currentPrice, result);
+    }
+}
+
+function completeSignal(signal, exitPrice, result) {
+    signal.status = 'completed';
+    signal.exitPrice = exitPrice;
+    signal.exitTime = Date.now();
+    signal.result = result;
+    signal.duration = signal.exitTime - signal.timestamp;
+    
+    // Kar/zarar hesapla - DOĞRU HESAPLAMA
+    let profitPercent = 0;
+    if (signal.direction === 'buy') {
+        profitPercent = ((exitPrice - signal.entryPrice) / signal.entryPrice) * 100;
+    } else {
+        profitPercent = ((signal.entryPrice - exitPrice) / signal.entryPrice) * 100;
+    }
+    
+    // SL durumunda negatif yap
+    if (result === 'SL') {
+        profitPercent = -Math.abs(profitPercent);
+    }
+    
+    signal.profitPercent = profitPercent;
+    
+    // AI'ye öğret
+    learnFromSignal(signal, result, profitPercent);
+    
+    // Geçmişe ekle
+    signalHistory.unshift(signal);
+    if (signalHistory.length > 100) signalHistory.pop();
+    
+    // Kaydet
+    saveSignalHistory();
+    
+    // UI güncelle
+    clearSignalDisplay();
+    updateSignalHistory();
+    
+    const resultIcon = result === 'TP' ? '✅' : '🛑';
+    const resultText = result === 'TP' ? 'Take Profit' : 'Stop Loss';
+    
+    debugLog(`${resultIcon} ${signal.strategy.toUpperCase()} ${signal.direction.toUpperCase()} ${resultText}: ${profitPercent.toFixed(2)}%`, 
+        result === 'TP' ? 'success' : 'warning');
+    showToast(`${resultIcon} ${resultText}: ${profitPercent.toFixed(2)}% (${signal.strategy})`, 
+        result === 'TP' ? 'success' : 'warning');
+    
+    activeSignal = null;
+}
+
+function updateSignalDisplay(signal) {
+    const signalBox = document.getElementById('currentSignal');
+    if (!signalBox) return;
+    
+    const duration = Math.floor((Date.now() - signal.timestamp) / 1000);
+    
+    signalBox.className = `signal-box ${signal.direction}`;
+    signalBox.innerHTML = `
+        <div style="font-weight: 700; margin-bottom: 8px; display: flex; justify-content: space-between;">
+            <span>${signal.direction.toUpperCase()} Sinyali</span>
+            <span style="font-size: 0.8rem; color: #4ECDC4;">%${signal.confidence.toFixed(0)}</span>
+        </div>
+        <div style="font-size: 0.8rem; color: #ccc; margin-bottom: 6px;">
+            ${signal.reason}
+        </div>
+    `;
+    
+    const confidenceBar = document.getElementById('confidenceBar');
+    if (confidenceBar) confidenceBar.style.width = `${signal.confidence}%`;
+    
+    safeUpdateElement('confidencePercent', `${signal.confidence.toFixed(0)}%`);
+    safeUpdateElement('entryPrice', formatPrice(signal.entryPrice));
+    safeUpdateElement('currentStrategy', signal.strategy.toUpperCase());
+    safeUpdateElement('tpPrice', formatPrice(signal.takeProfit));
+    safeUpdateElement('slPrice', formatPrice(signal.stopLoss));
+    safeUpdateElement('signalDuration', `${duration}s`);
+    
+    // OrderBook gücü göster
+    const strength = signal.whaleSize ? 'Whale' : 
+                   signal.imbalance ? `${Math.abs(signal.imbalance).toFixed(0)}%` : 
+                   signal.volumeSpike ? `${signal.volumeSpike.toFixed(1)}x` : 'Normal';
+    safeUpdateElement('orderbookStrength', strength);
+    
+    // AI önerisi
+    let recommendation = 'İzle';
+    if (signal.confidence > 85) recommendation = 'Güçlü';
+    else if (signal.confidence > 75) recommendation = 'İyi';
+    else if (signal.confidence < 65) recommendation = 'Dikkatli';
+    
+    safeUpdateElement('aiRecommendation', recommendation);
+}
+
+function clearSignalDisplay() {
+    const signalBox = document.getElementById('currentSignal');
+    if (signalBox) {
+        signalBox.className = 'signal-box';
+        signalBox.innerHTML = `
+            <div style="font-weight: 700; margin-bottom: 8px;">⏳ Sinyal Bekleniyor...</div>
+            <div style="font-size: 0.8rem; color: #888;">AI OrderBook analizi yapıyor</div>
+        `;
+    }
+    
+    const confidenceBar = document.getElementById('confidenceBar');
+    if (confidenceBar) confidenceBar.style.width = '0%';
+    
+    safeUpdateElement('confidencePercent', '0%');
+    safeUpdateElement('entryPrice', '-');
+    safeUpdateElement('currentStrategy', '-');
+    safeUpdateElement('tpPrice', '-');
+    safeUpdateElement('slPrice', '-');
+    safeUpdateElement('signalDuration', '-');
+    safeUpdateElement('orderbookStrength', '-');
+    safeUpdateElement('aiRecommendation', 'Bekliyor');
+}
+
+function updateSignalHistory() {
+    const historyDiv = document.getElementById('signalHistory');
+    if (!historyDiv) return;
+    
+    if (signalHistory.length === 0) {
+        historyDiv.innerHTML = '<div style="text-align: center; color: #888; font-size: 0.8rem; padding: 20px;">Sinyal geçmişi burada görünecek</div>';
+        return;
+    }
+
+    historyDiv.innerHTML = signalHistory.slice(0, 15).map(s => {
+        const profit = s.profitPercent || 0;
+        const color = profit >= 0 ? '#00D4AA' : '#F84960';
+        const time = new Date(s.timestamp).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+        const duration = s.duration ? `${Math.floor(s.duration / 1000)}s` : '-';
+        
+        return `
+            <div style="padding: 8px; font-size: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.1); border-left: 3px solid ${color}; margin-bottom: 4px; border-radius: 4px; background: rgba(255,255,255,0.02);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 600;">[${time}] ${s.direction.toUpperCase()}</span>
+                    <span style="color: ${color}; font-weight: 700;">${s.result}: ${profit.toFixed(2)}%</span>
+                </div>
+                <div style="font-size: 0.7rem; color: #888; margin-top: 3px;">
+                    ${s.strategy.toUpperCase()} | ${formatPrice(s.entryPrice)} → ${formatPrice(s.exitPrice || 0)} | ${duration}
+                </div>
+                <div style="font-size: 0.65rem; color: #666; margin-top: 2px;">
+                    ${s.reason || 'Sinyal nedeni belirtilmemiş'}
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    updatePerformanceStats();
+    updateDailyStats();
+}
+
+function updatePerformanceStats() {
+    const completed = signalHistory.filter(s => s.status === 'completed');
+    const successful = completed.filter(s => s.result === 'TP');
+    
+    safeUpdateElement('totalSignals', completed.length);
+    safeUpdateElement('successfulSignals', successful.length);
+    
+    const successRate = completed.length > 0 ? (successful.length / completed.length * 100) : 0;
+    safeUpdateElement('successRate', `${successRate.toFixed(1)}%`);
+    
+    const avgProfit = completed.length > 0 ? 
+        completed.reduce((sum, s) => sum + (s.profitPercent || 0), 0) / completed.length : 0;
+    safeUpdateElement('avgProfit', `${avgProfit.toFixed(2)}%`);
+}
+
+function updateDailyStats() {
+    const today = new Date().toDateString();
+    const thisHour = new Date().getHours();
+    
+    const todaySignals = signalHistory.filter(s => 
+        new Date(s.timestamp).toDateString() === today
+    ).length;
+    
+    const hourlySignals = signalHistory.filter(s => {
+        const signalDate = new Date(s.timestamp);
+        return signalDate.toDateString() === today && signalDate.getHours() === thisHour;
+    }).length;
+    
+    safeUpdateElement('todaySignals', todaySignals);
+    safeUpdateElement('hourlySignals', hourlySignals);
+}
+
+function updateStrategyPerformanceUI() {
+    const strategies = ['whale', 'imbalance', 'volume', 'sr'];
+    
+    strategies.forEach(strategy => {
+        const data = aiLearningData.strategies[strategy];
+        const successRate = data.total > 0 ? (data.success / data.total * 100) : 0;
+        const avgProfit = data.profits.length > 0 ? 
+            data.profits.reduce((a, b) => a + b, 0) / data.profits.length : 0;
+        const avgTime = data.times.length > 0 ? 
+            data.times.reduce((a, b) => a + b, 0) / data.times.length : 0;
+        
+        // Element isimlerini güncelle
+        const strategyMap = {
+            whale: 'whale',
+            imbalance: 'imbalance', 
+            volume: 'volume',
+            sr: 'sr'
+        };
+        
+        const elemName = strategyMap[strategy];
+        if (elemName) {
+            safeUpdateElement(`${elemName}Strategy`, 
+                `${successRate.toFixed(1)}% (${data.success}/${data.total})`);
+            safeUpdateElement(`${elemName}AvgProfit`, 
+                `${avgProfit.toFixed(2)}%`);
+            safeUpdateElement(`${elemName}AvgTime`, 
+                avgTime > 0 ? `${Math.floor(avgTime / 1000)}s` : '-');
+        }
+    });
+    
+    // En iyi stratejiyi bul
+    const bestStrategy = strategies.reduce((best, current) => {
+        const currentData = aiLearningData.strategies[current];
+        const bestData = aiLearningData.strategies[best];
+        
+        if (currentData.total === 0) return best;
+        if (bestData.total === 0) return current;
+        
+        const currentRate = currentData.success / currentData.total;
+        const bestRate = bestData.success / bestData.total;
+        
+        return currentRate > bestRate ? current : best;
+    }, 'whale');
+    
+    const bestData = aiLearningData.strategies[bestStrategy];
+    if (bestData.total > 0) {
+        const successRate = (bestData.success / bestData.total * 100).toFixed(1);
+        const avgProfit = bestData.profits.length > 0 ? 
+            (bestData.profits.reduce((a, b) => a + b, 0) / bestData.profits.length).toFixed(2) : 0;
+        
+        safeUpdateElement('bestStrategy', 
+            `${bestStrategy.toUpperCase()} - %${successRate} başarı`);
+        safeUpdateElement('bestStrategyDetails', 
+            `${bestData.success}/${bestData.total} sinyal | Ortalama: %${avgProfit}`);
+    }
+}
+
+function saveSignalHistory() {
+    try {
+        localStorage.setItem('signalHistory_v4', JSON.stringify(signalHistory));
+    } catch (error) {
+        debugLog(`❌ Geçmiş kaydetme hatası: ${error.message}`, 'error');
+    }
+}
+
+function loadSignalHistory() {
+    try {
+        const saved = localStorage.getItem('signalHistory_v4');
+        if (saved) {
+            signalHistory = JSON.parse(saved);
+            updateSignalHistory();
+            debugLog(`📊 ${signalHistory.length} sinyal geçmişi yüklendi`, 'success');
+        }
+    } catch (error) {
+        debugLog(`❌ Geçmiş yükleme hatası: ${error.message}`, 'error');
+    }
+}
+
+// Ayarlar fonksiyonları
+function initializeSettings() {
+    // Slider event listeners
+    const volumeThreshold = document.getElementById('volumeThreshold');
+    if (volumeThreshold) {
+        volumeThreshold.addEventListener('input', (e) => {
+            botSettings.volumeThreshold = parseFloat(e.target.value);
+            safeUpdateElement('volumeThresholdValue', `${e.target.value}x`);
+        });
+    }
+    
+    const takeProfitPercent = document.getElementById('takeProfitPercent');
+    if (takeProfitPercent) {
+        takeProfitPercent.addEventListener('input', (e) => {
+            botSettings.takeProfitPercent = parseFloat(e.target.value);
+            safeUpdateElement('takeProfitValue', `${e.target.value}%`);
+        });
+    }
+    
+    const stopLossPercent = document.getElementById('stopLossPercent');
+    if (stopLossPercent) {
+        stopLossPercent.addEventListener('input', (e) => {
+            botSettings.stopLossPercent = parseFloat(e.target.value);
+            safeUpdateElement('stopLossValue', `${e.target.value}%`);
+        });
+    }
+    
+    const minConfidence = document.getElementById('minConfidence');
+    if (minConfidence) {
+        minConfidence.addEventListener('input', (e) => {
+            botSettings.minConfidence = parseInt(e.target.value);
+            safeUpdateElement('minConfidenceValue', `${e.target.value}%`);
+        });
+    }
+    
+    // Select ve checkbox listeners
+    const learningSpeed = document.getElementById('learningSpeed');
+    if (learningSpeed) {
+        learningSpeed.addEventListener('change', (e) => {
+            botSettings.learningSpeed = e.target.value;
+        });
+    }
+    
+    const autoOptimization = document.getElementById('autoOptimization');
+    if (autoOptimization) {
+        autoOptimization.addEventListener('change', (e) => {
+            botSettings.autoOptimization = e.target.checked;
+        });
+    }
+    
+    const adaptiveThresholds = document.getElementById('adaptiveThresholds');
+    if (adaptiveThresholds) {
+        adaptiveThresholds.addEventListener('change', (e) => {
+            botSettings.adaptiveThresholds = e.target.checked;
+        });
+    }
+}
+
+function updateSettingsUI() {
+    const volumeThreshold = document.getElementById('volumeThreshold');
+    if (volumeThreshold) {
+        volumeThreshold.value = botSettings.volumeThreshold;
+        safeUpdateElement('volumeThresholdValue', `${botSettings.volumeThreshold}x`);
+    }
+    
+    const takeProfitPercent = document.getElementById('takeProfitPercent');
+    if (takeProfitPercent) {
+        takeProfitPercent.value = botSettings.takeProfitPercent;
+        safeUpdateElement('takeProfitValue', `${botSettings.takeProfitPercent}%`);
+    }
+    
+    const stopLossPercent = document.getElementById('stopLossPercent');
+    if (stopLossPercent) {
+        stopLossPercent.value = botSettings.stopLossPercent;
+        safeUpdateElement('stopLossValue', `${botSettings.stopLossPercent}%`);
+    }
+    
+    const minConfidence = document.getElementById('minConfidence');
+    if (minConfidence) {
+        minConfidence.value = botSettings.minConfidence;
+        safeUpdateElement('minConfidenceValue', `${botSettings.minConfidence}%`);
+    }
+    
+    const learningSpeed = document.getElementById('learningSpeed');
+    if (learningSpeed) learningSpeed.value = botSettings.learningSpeed;
+    
+    const autoOptimization = document.getElementById('autoOptimization');
+    if (autoOptimization) autoOptimization.checked = botSettings.autoOptimization;
+    
+    const adaptiveThresholds = document.getElementById('adaptiveThresholds');
+    if (adaptiveThresholds) adaptiveThresholds.checked = botSettings.adaptiveThresholds;
+}
+
+function saveSettings() {
+    try {
+        localStorage.setItem('botSettings_v4', JSON.stringify(botSettings));
+        showToast('💾 Ayarlar kaydedildi', 'success');
+        debugLog('💾 Bot ayarları kaydedildi', 'success');
+    } catch (error) {
+        debugLog(`❌ Ayar kaydetme hatası: ${error.message}`, 'error');
+        showToast('❌ Ayarlar kaydedilemedi', 'error');
+    }
+}
+
+function loadSettings() {
+    try {
+        const saved = localStorage.getItem('botSettings_v4');
+        if (saved) {
+            botSettings = { ...botSettings, ...JSON.parse(saved) };
+            updateSettingsUI();
+            debugLog('⚙️ Bot ayarları yüklendi', 'success');
+        }
+    } catch (error) {
+        debugLog(`❌ Ayar yükleme hatası: ${error.message}`, 'error');
+    }
+}
+
+function resetSettings() {
+    if (confirm('Tüm ayarları varsayılana döndürmek istediğinizden emin misiniz?')) {
+        botSettings = {
+            volumeThreshold: 2.0,
+            takeProfitPercent: 0.8,
+            stopLossPercent: 0.5,
+            minConfidence: 70,
+            signalCooldown: 30000,
+            learningSpeed: 'medium',
+            autoOptimization: true,
+            adaptiveThresholds: true
+        };
+        updateSettingsUI();
+        saveSettings();
+        showToast('🔄 Ayarlar varsayılana döndürüldü', 'success');
+        debugLog('🔄 Ayarlar sıfırlandı', 'info');
+    }
+}
+
+function resetAI() {
+    if (confirm('AI öğrenme verilerini tamamen sıfırlamak istediğinizden emin misiniz? Bu işlem geri alınamaz!')) {
+        // AI verilerini sıfırla
+        aiLearningData = {
+            totalProcessed: 0,
+            learningProgress: 0,
+            performanceScore: 0,
+            strategies: {
+                whale: { total: 0, success: 0, profits: [], times: [] },
+                imbalance: { total: 0, success: 0, profits: [], times: [] },
+                volume: { total: 0, success: 0, profits: [], times: [] },
+                sr: { total: 0, success: 0, profits: [], times: [] }
+            }
+        };
+        
+        // Sinyal geçmişini sıfırla
+        signalHistory = [];
+        
+        // Support/Resistance verilerini sıfırla
+        supportResistanceLevels = {
+            support: [],
+            resistance: [],
+            lastCalculated: 0
+        };
+        
+        // LocalStorage'dan sil
+        localStorage.removeItem('aiLearningData_v4');
+        localStorage.removeItem('signalHistory_v4');
+        localStorage.removeItem('supportResistanceLevels');
+        
+        // UI'yi güncelle
+        updateSignalHistory();
+        updateStrategyPerformanceUI();
+        updateAIProgress();
+        
+        showToast('🧠 AI verileri sıfırlandı', 'success');
+        debugLog('🧠 AI öğrenme verileri tamamen sıfırlandı', 'warning');
+    }
+}
+
+// Tema fonksiyonu
+function toggleTheme() {
+    const body = document.body;
+    const isLightTheme = body.classList.toggle('light-theme');
+    localStorage.setItem('theme_v4', isLightTheme ? 'light' : 'dark');
+    
+    const themeToggle = document.querySelector('.theme-toggle');
+    if (themeToggle) {
+        themeToggle.textContent = isLightTheme ? '🌞 Tema' : '🌙 Tema';
+    }
+    
+    showToast(`${isLightTheme ? '🌞 Açık' : '🌙 Koyu'} tema aktif`, 'success');
+}
+
+function loadTheme() {
+    const savedTheme = localStorage.getItem('theme_v4');
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        const themeToggle = document.querySelector('.theme-toggle');
+        if (themeToggle) themeToggle.textContent = '🌞 Tema';
+    }
+}
+
+// Yardımcı fonksiyonlar
+function clearHistory() {
+    if (confirm('Sinyal geçmişini temizlemek istediğinizden emin misiniz?')) {
+        signalHistory = [];
+        localStorage.removeItem('signalHistory_v4');
+        updateSignalHistory();
+        showToast('🗑️ Geçmiş temizlendi', 'success');
+        debugLog('🗑️ Sinyal geçmişi temizlendi', 'info');
+    }
+}
+
+function exportHistory() {
+    try {
+        const exportData = {
+            signals: signalHistory,
+            aiData: aiLearningData,
+            settings: botSettings,
+            exportDate: new Date().toISOString(),
+            version: '4.0'
+        };
+        
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `ai_orderbook_bot_data_${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        showToast('📤 Veriler dışa aktarıldı', 'success');
+        debugLog('📤 Veriler JSON olarak dışa aktarıldı', 'success');
+    } catch (error) {
+        debugLog(`❌ Dışa aktarma hatası: ${error.message}`, 'error');
+        showToast('❌ Dışa aktarma hatası', 'error');
+    }
+}
+
+// Ana başlatma fonksiyonu
+function initializeBot() {
+    try {
+        debugLog("🚀 AI OrderBook Sinyal Botu v4.0 başlatılıyor...", 'info');
+        
+        // Verileri yükle
+        loadSettings();
+        loadSignalHistory();
+        loadTheme();
+        loadAIData();
+        initializeSettings();
+        
+        // Kaydedilmiş coin varsa yükle
+        const savedSymbol = localStorage.getItem('currentSymbol_v4');
+        if (savedSymbol) {
+            const manualSymbol = document.getElementById('manualSymbol');
+            if (manualSymbol) {
+                manualSymbol.value = savedSymbol.replace('_USDT', '');
             }
         }
-
-        function toggleTheme() {
-            const body = document.body;
-            const isLightTheme = body.classList.toggle('light-theme');
-            localStorage.setItem('theme', isLightTheme ? 'light' : 'dark');
-            document.querySelector('.theme-toggle').textContent = isLightTheme ? '🌞 Tema' : '🌙 Tema';
-            showToast(`${isLightTheme ? '🌞 Açık' : '🌙 Koyu'} tema aktif`, 'success');
+        
+        // Otomatik bağlanma
+        if (localStorage.getItem('autoConnect_v4') === 'true' && savedSymbol) {
+            setTimeout(connect, 2000);
         }
-
-        function resetAILearning() {
-            if (confirm('AI öğrenme verilerini sıfırlamak istediğinizden emin misiniz?')) {
-                aiSystem.reset();
-                if (signalTracker) {
-                    signalTracker.completedSignals = [];
-                    signalTracker.saveCompletedSignals();
-                    signalTracker.updateUI();
-                }
-                debugLog('🔄 AI öğrenme verileri sıfırlandı', 'success');
+        
+        // Aktif sinyal güncelleme
+        setInterval(() => {
+            if (activeSignal && activeSignal.status === 'active') {
+                updateSignalDisplay(activeSignal);
             }
-        }
+        }, 1000);
+        
+        // AI progress güncelleme
+        setInterval(updateAIProgress, 3000);
+        
+        // Strateji performans güncelleme
+        setInterval(updateStrategyPerformanceUI, 5000);
+        
+        // Otomatik kaydetme
+        setInterval(() => {
+            saveSettings();
+            saveAIData();
+            saveSignalHistory();
+        }, 60000);
+        
+        debugLog("✅ Bot başarıyla başlatıldı", 'success');
+        showToast("🚀 AI OrderBook Bot hazır!", 'success');
+        
+    } catch (error) {
+        debugLog(`❌ Bot başlatma hatası: ${error.message}`, 'error');
+        showToast('❌ Başlatma hatası', 'error');
+    }
+}
 
-        function exportSettings() {
-            try {
-                const exportData = {
-                    aiData: aiSystem.exportData(),
-                    currentSymbol: localStorage.getItem('currentSymbol'),
-                    theme: localStorage.getItem('theme'),
-                    autoConnect: localStorage.getItem('autoConnect'),
-                    completedSignals: signalTracker.completedSignals,
-                    exportDate: new Date().toISOString(),
-                    version: '2.0'
-                };
-                
-                const dataStr = JSON.stringify(exportData, null, 2);
-                const dataBlob = new Blob([dataStr], {type: 'application/json'});
-                const url = URL.createObjectURL(dataBlob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `ai_crypto_bot_settings_${new Date().toISOString().split('T')[0]}.json`;
-                link.click();
-                URL.revokeObjectURL(url);
-                
-                showToast('📤 Ayarlar dışa aktarıldı', 'success');
-            } catch (error) {
-                debugLog(`❌ Ayar dışa aktarma hatası: ${error.message}`, 'error');
-                showToast('❌ Dışa aktarma hatası', 'error');
-            }
-        }
-
-        function importSettings() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        try {
-                            const importData = JSON.parse(e.target.result);
-                            
-                            if (importData.aiData) {
-                                aiSystem.importData(importData.aiData);
-                            }
-                            
-                            if (importData.currentSymbol) {
-                                localStorage.setItem('currentSymbol', importData.currentSymbol);
-                                document.getElementById('manualSymbol').value = importData.currentSymbol;
-                            }
-                            
-                            if (importData.theme) {
-                                localStorage.setItem('theme', importData.theme);
-                                if (importData.theme === 'light') {
-                                    document.body.classList.add('light-theme');
-                                    document.querySelector('.theme-toggle').textContent = '🌞 Tema';
-                                }
-                            }
-                            
-                            if (importData.completedSignals && signalTracker) {
-                                signalTracker.completedSignals = importData.completedSignals;
-                                signalTracker.saveCompletedSignals();
-                                signalTracker.updateUI();
-                            }
-                            
-                            showToast('📥 Ayarlar başarıyla içe aktarıldı', 'success');
-                        } catch (error) {
-                            debugLog(`❌ Ayar içe aktarma hatası: ${error.message}`, 'error');
-                            showToast('❌ İçe aktarma hatası', 'error');
-                        }
-                    };
-                    reader.readAsText(file);
-                }
-            };
-            input.click();
-        }
-
-        // System initialization
-        let aiSystem, marketAnalyzer, signalTracker, uiManager;
-
-        function initializeBot() {
-            try {
-                debugLog("🤖 AI sistemleri başlatılıyor...", 'info');
-                
-                aiSystem = new AILearningSystem();
-                marketAnalyzer = new MarketAnalyzer();
-                signalTracker = new SignalTracker(aiSystem);
-                uiManager = new UIManager();
-                
-                const savedSymbol = localStorage.getItem('currentSymbol');
-                if (savedSymbol) {
-                    const validation = validateSymbol(savedSymbol);
-                    if (validation.valid) {
-                        document.getElementById('manualSymbol').value = savedSymbol;
-                        currentSymbol = savedSymbol + '_USDT';
-                    }
-                }
-
-                const savedTheme = localStorage.getItem('theme');
-                if (savedTheme === 'light') {
-                    document.body.classList.add('light-theme');
-                    document.querySelector('.theme-toggle').textContent = '🌞 Tema';
-                }
-
-                if (localStorage.getItem('autoConnect') === 'true' && savedSymbol) {
-                    setTimeout(connect, 1000);
-                }
-
-                // Öğrenme ilerlemesini yükle
-                const totalProcessedData = parseInt(localStorage.getItem('totalProcessedData') || '0');
-                if (totalProcessedData > 0) {
-                    document.getElementById('learningStats').textContent = `${totalProcessedData} toplam veri işlendi`;
-                    document.getElementById('learningProgress').style.width = `${Math.min(totalProcessedData / 1000 * 100, 100)}%`;
-                    debugLog(`📊 ${totalProcessedData} önceki veri yüklendi`, 'success');
-                }
-
-                document.getElementById('modelVersion').textContent = `v${aiSystem.version}`;
-                document.getElementById('lastModelUpdate').textContent = new Date().toLocaleTimeString('tr-TR');
-                document.getElementById('memoryUsage').textContent = aiSystem.memoryUsage.total;
-                aiSystem.updateOptimizationUI();
-                signalTracker.updateUI();
-
-                document.getElementById('manualSymbol').addEventListener('input', () => {
-                    const coin = document.getElementById('manualSymbol').value.trim().toUpperCase();
-                    if (coin) {
-                        const validation = validateSymbol(coin);
-                        if (validation.valid) {
-                            localStorage.setItem('currentSymbol', coin);
-                            if (isConnected) {
-                                disconnect();
-                                setTimeout(connect, 1000);
-                            }
-                        }
-                    }
-                });
-
-                updateSystemInfo();
-                setInterval(updateSystemInfo, 60000);
-
-                debugLog("✅ AI sistemleri başarıyla başlatıldı", 'success');
-                showToast("✅ Sistem hazır!", 'success');
-                
-                setTimeout(() => {
-                    debugLog("🚀 Herhangi bir coin sembolü girin ve bağlanın", 'info');
-                    debugLog(`💡 Örnek: BTC, ETH, PEPE, WIF, BONK, FLOKI, NOT vb.`, 'info');
-                    debugLog(`🌐 MEXC Futures'de olan tüm coinler destekleniyor`, 'info');
-                }, 1000);
-                
-            } catch (error) {
-                debugLog(`❌ Sistem başlatma hatası: ${error.message}`, 'error');
-                showToast('❌ Sistem başlatma hatası', 'error');
-            }
-        }
-
-        function updateStrategyPerformance() {
-            if (!aiSystem || !signalTracker) return;
-            
-            const container = document.getElementById('strategyPerformance');
-            const strategies = aiSystem.performanceMetrics.strategyPerformance;
-            
-            const hasData = Object.values(strategies).some(s => s.total > 0);
-            if (!hasData) {
-                container.innerHTML = '<div style="text-align: center; color: #888; font-size: 0.8rem; padding: 15px;">Henüz strateji verisi yok</div>';
-                return;
-            }
-
-            container.innerHTML = Object.keys(strategies).map(strategy => {
-                const perf = strategies[strategy];
-                const rate = perf.total > 0 ? (perf.success / perf.total * 100).toFixed(1) : 0;
-                const color = rate > 70 ? '#00D4AA' : rate > 50 ? '#FFC107' : '#F84960';
-                
-                return `
-                    <div style="display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                        <span style="text-transform: capitalize;">${strategy}</span>
-                        <span style="color: ${color}; font-weight: 600;">
-                            ${rate}% (${perf.success}/${perf.total})
-                        </span>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function monitorPerformance() {
-            setInterval(() => {
-                if (!signalTracker || !aiSystem) return;
-                
-                updateStrategyPerformance();
-                
-                if (signalTracker.completedSignals.length > 0) {
-                    const recentSuccess = signalTracker.completedSignals.slice(-10);
-                    if (recentSuccess.length > 0) {
-                        const successRate = recentSuccess.filter(s => s.success).length / recentSuccess.length;
-                        
-                        let learningRate = 'Düşük';
-                        if (successRate > 0.8) learningRate = 'Yüksek';
-                        else if (successRate > 0.6) learningRate = 'Orta';
-                        
-                        document.getElementById('learningRate').textContent = learningRate;
-                        
-                        const adaptationLevel = Math.min(100, signalTracker.completedSignals.length * 2);
-                        document.getElementById('adaptationLevel').textContent = `%${adaptationLevel}`;
-                    }
-                }
-            }, 30000);
-        }
-
-        function checkRiskLimits() {
-            if (!signalTracker || !aiSystem) return;
-            
-            const activeSignals = signalTracker.activeSignals.length;
-            const recentFailures = signalTracker.completedSignals
-                .slice(-5)
-                .filter(s => !s.success).length;
-            
-            if (activeSignals >= aiSystem.optimizationParams.maxActiveSignals) {
-                debugLog("⚠️ Maksimum aktif sinyal sayısına ulaşıldı", 'warning');
-            }
-            
-            if (recentFailures >= 4) {
-                debugLog("🛑 Çok fazla başarısız sinyal", 'warning');
-                showToast("🛑 Risk seviyesi yüksek - parametreler ayarlanıyor", 'warning');
-                
-                aiSystem.optimizationParams.volumeThreshold += 0.3;
-                aiSystem.optimizationParams.signalFrequency += 5000;
-                aiSystem.optimizationParams.maxActiveSignals = Math.max(1, aiSystem.optimizationParams.maxActiveSignals - 1);
-                aiSystem.updateOptimizationUI();
-                aiSystem.saveLearningData();
-            }
-        }
-
-        // Event listeners and initialization
-        document.addEventListener('DOMContentLoaded', function() {
-            try {
-                initializeBot();
-                monitorPerformance();
-                
-                setInterval(checkRiskLimits, 120000);
-                
-                // Auto-save every 2 minutes
-                setInterval(() => {
-                    if (aiSystem) {
-                        aiSystem.saveLearningData();
-                    }
-                }, 120000);
-                
-                // Keyboard shortcuts
-                document.addEventListener('keydown', function(event) {
-                    if (event.ctrlKey || event.metaKey) {
-                        switch(event.key) {
-                            case 'Enter':
-                                event.preventDefault();
-                                toggleConnection();
-                                break;
-                            case 'r':
-                                event.preventDefault();
-                                if (confirm('AI ayarlarını varsayılana sıfırla?')) {
-                                    resetAILearning();
-                                }
-                                break;
-                            case 'e':
-                                event.preventDefault();
-                                exportSettings();
-                                break;
-                            case 'i':
-                                event.preventDefault();
-                                importSettings();
-                                break;
-                        }
-                    }
-                });
-
-                // Before unload save
-                window.addEventListener('beforeunload', () => {
-                    if (aiSystem) {
-                        aiSystem.saveLearningData();
-                    }
-                    if (signalTracker) {
-                        signalTracker.saveCompletedSignals();
-                    }
-                });
-
-                setTimeout(() => {
-                    debugLog("🎉 AI Kripto Sinyal Botu hazır!", 'success');
-                    debugLog("💾 Tüm ayarlar otomatik kaydediliyor", 'info');
-                    debugLog("📱 Mobil uyumlu arayüz aktif", 'info');
-                    debugLog("🔄 Ctrl+Enter: Bağlan/Kes | Ctrl+R: Reset | Ctrl+E: Export | Ctrl+I: Import", 'info');
-                }, 2000);
-                
-            } catch (error) {
-                debugLog(`❌ Uygulama başlatma hatası: ${error.message}`, 'error');
-                showToast('❌ Kritik hata', 'error');
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    initializeBot();
+    
+    // Coin input event
+    const manualSymbol = document.getElementById('manualSymbol');
+    if (manualSymbol) {
+        manualSymbol.addEventListener('input', (e) => {
+            const coin = e.target.value.trim().toUpperCase();
+            if (coin) {
+                localStorage.setItem('currentSymbol_v4', coin + '_USDT');
+                localStorage.setItem('autoConnect_v4', 'true');
             }
         });
+    }
+    
+    // Sayfa kapatılırken kaydet
+    window.addEventListener('beforeunload', () => {
+        saveSettings();
+        saveAIData();
+        saveSignalHistory();
+    });
+    
+    // Klavye kısayolları
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+            switch(e.key) {
+                case 'Enter':
+                    e.preventDefault();
+                    toggleConnection();
+                    break;
+                case 's':
+                    e.preventDefault();
+                    saveSettings();
+                    break;
+                case 'r':
+                    e.preventDefault();
+                    if (e.shiftKey) resetAI();
+                    break;
+                case 'e':
+                    e.preventDefault();
+                    exportHistory();
+                    break;
+            }
+        }
+    });
+});
+
+// Başlatma mesajları
+setTimeout(() => {
+    debugLog("🎉 AI OrderBook Sinyal Botu v4.0 hazır!", 'success');
+    debugLog("🧠 Gelişmiş AI öğrenme sistemi aktif", 'info');
+    debugLog("📊 4 strateji: Whale, Imbalance, Volume, Support/Resistance", 'info');
+    debugLog("⚡ Ctrl+Enter: Bağlan | Ctrl+S: Kaydet | Ctrl+Shift+R: AI Sıfırla", 'info');
+    debugLog("🔧 MEXC Futures WebSocket ile hassas fiyat desteği", 'info');
+    debugLog("💾 Kalıcı hafıza: Tüm veriler otomatik kaydediliyor", 'success');
+}, 1500);
+</script>
     </script>
 </body>
 </html>
