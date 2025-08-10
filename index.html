@@ -1,3 +1,5 @@
+--- START OF FILE osi_voice3.html ---
+
 <!DOCTYPE html>
 <html lang="tr" data-theme="dark">
 <head>
@@ -133,10 +135,10 @@
             flex-grow: 1; 
             margin: 5px; 
             overflow: hidden; 
-            height: calc(100% - var(--header-min-height) - 10px); /* Kapanan header ve marjlar */
+            /* height: calc(100% - var(--header-min-height) - 10px); */ /* BU SATIR SİLİNDİ */
         }
         body.header-collapsed .main-grid {
-            height: calc(100% - var(--header-min-height) - 10px); /* Kapanan header için */
+            /* height: calc(100% - var(--header-min-height) - 10px); */ /* BU SATIR SİLİNDİ */
             margin-top: 0; /* Boşluğu kaldır */
         }
         
@@ -162,7 +164,12 @@
         .center-panel { display: grid; grid-template-rows: auto 1fr; gap: 5px; padding: 0 !important; } 
         .data-container { display: grid; grid-template-rows: 1fr auto; overflow: hidden; } 
         .data-grid { position: relative; overflow: hidden; } #live-chart { width: 100%; height: 100%; } 
-        .heatmap-container { display: grid; grid-template-rows: auto 1fr; border-top: 1px solid var(--border-color); }
+        .heatmap-container { 
+            display: grid; 
+            grid-template-rows: auto 1fr; 
+            border-top: 1px solid var(--border-color); 
+            min-height: 200px; /* PC görünümü için minimum yükseklik ekler */
+        }
         #orderbook-heatmap { width: 100%; height: 100%; display: block; }
         .data-table-container { width: 100%; height: 100%; overflow: auto; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 11px; }
@@ -1243,4 +1250,4 @@
 
 </script>
 </body>
-  </html>
+    </html>
