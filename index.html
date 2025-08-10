@@ -254,6 +254,49 @@
             .settings-modal-body { grid-template-columns: 1fr; gap: 15px; }
         }
     </style>
+    <style>
+/* Masaüstü görünüm için yükseklik düzeltmeleri */
+.main-grid {
+    height: calc(100vh - var(--header-min-height) - var(--ticker-height) - 10px);
+}
+
+.center-panel {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    min-height: 500px;
+}
+
+.data-grid {
+    height: calc(100% - 150px); /* Alt ısı haritasına yer bırak */
+}
+
+#live-chart {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.heatmap-container {
+    height: 150px;
+}
+
+#orderbook-heatmap {
+    width: 100% !important;
+    height: 100% !important;
+}
+</style>
+
+<script>
+// ChartManager'da _initChart içine ekleme:
+const originalInitChart = ChartManager.prototype._initChart;
+ChartManager.prototype._initChart = function() {
+    originalInitChart.apply(this, arguments);
+    setTimeout(() => {
+        if (this.chart && this.chartContainer.clientWidth > 0) {
+            this.chart.resize(this.chartContainer.clientWidth, this.chartContainer.clientHeight);
+        }
+    }, 200);
+};
+</script>
 </head>
 <body class="header-collapsed"> 
     <div id="super-top-ticker">
