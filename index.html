@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="tr" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ULTIMATE TRADING KOMUTA MERKEZİ</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@3.8.0/dist/lightweight-charts.standalone.production.js"></script>
@@ -20,50 +19,47 @@
         [data-theme="war"] { --background: var(--war-mode-bg); --panel-bg: var(--war-mode-panel-bg); --text-main: var(--war-mode-text); --text-secondary: #ffaaaa; --border-color: var(--war-mode-border); --input-bg: rgba(255, 255, 255, 0.05); --hover-bg: rgba(255, 255, 255, 0.1); --primary: var(--war-mode-primary); }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Roboto Mono', monospace; font-size: 12px; background: var(--background); color: var(--text-main); transition: background 0.5s, color 0.5s; height: 100vh; overflow: hidden; }
+        body { font-family: 'Roboto Mono', monospace; font-size: 12px; background: var(--background); color: var(--text-main); overflow: hidden; transition: background 0.5s, color 0.5s; }
         .container { display: flex; flex-direction: column; height: 100vh; padding: 5px; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; flex-shrink: 0; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-        .logo { font-weight: 700; font-size: 14px; color: var(--primary); }
-        .controls { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
-        .form-control { background: var(--input-bg); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 4px; padding: 4px 6px; font-family: 'Roboto Mono', monospace; font-size: 11px; }
-        .status { display: flex; align-items: center; gap: 3px; font-size: 10px; padding: 3px 6px; border: 1px solid var(--border-color); border-radius: 4px; }
-        .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--negative); transition: background-color 0.5s; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 5px 15px; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; flex-shrink: 0; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .logo { font-weight: 700; font-size: 16px; color: var(--primary); }
+        .controls { display: flex; gap: 8px; align-items: center; }
+        .form-control { background: var(--input-bg); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 4px; padding: 4px 8px; font-family: 'Roboto Mono', monospace; }
+        .status { display: flex; align-items: center; gap: 5px; font-size: 11px; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 4px; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--negative); transition: background-color 0.5s; }
         .status-dot.online { background: var(--positive); animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 #28a745b3; } 70% { box-shadow: 0 0 0 4px #28a74500; } 100% { box-shadow: 0 0 0 0 #28a74500; } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 #28a745b3; } 70% { box-shadow: 0 0 0 6px #28a74500; } 100% { box-shadow: 0 0 0 0 #28a74500; } }
         [data-theme="war"] .status-dot.online { background: var(--war-mode-primary); animation: war-pulse 1s infinite; }
-        @keyframes war-pulse { 0% { box-shadow: 0 0 0 0 #ffc107b3; } 70% { box-shadow: 0 0 0 4px #ffc10700; } 100% { box-shadow: 0 0 0 0 #ffc10700; } }
-        .btn { padding: 4px 8px; border: 1px solid var(--border-color); background: var(--panel-bg); color: var(--text-main); border-radius: 4px; cursor: pointer; transition: all 0.2s; font-size: 11px; }
+        @keyframes war-pulse { 0% { box-shadow: 0 0 0 0 #ffc107b3; } 70% { box-shadow: 0 0 0 6px #ffc10700; } 100% { box-shadow: 0 0 0 0 #ffc10700; } }
+        .btn { padding: 4px 12px; border: 1px solid var(--border-color); background: var(--panel-bg); color: var(--text-main); border-radius: 4px; cursor: pointer; transition: all 0.2s; }
         .btn:hover { background: var(--hover-bg); border-color: var(--primary); }
         .btn-success { background: var(--positive); color: white; border-color: var(--positive); } .btn-danger { background: var(--negative); color: white; border-color: var(--negative); }
-        .main-grid { display: flex; flex-direction: column; flex-grow: 1; margin-top: 5px; overflow: hidden; }
-        .panel { display: flex; flex-direction: column; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; margin-bottom: 5px; }
-        .panel-title { font-weight: 700; font-size: 12px; color: var(--primary); padding: 6px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
-        .panel-content { padding: 8px; overflow-y: auto; flex-grow: 1; }
-        .settings-group { margin-bottom: 10px; } .form-group { margin-bottom: 6px; } .form-label { display: block; font-size: 10px; color: var(--text-secondary); margin-bottom: 3px; }
-        .checkbox-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 11px; padding: 3px 0;}
-        .center-panel { display: flex; flex-direction: column; padding: 0 !important; height: 60vh; }
-        .price-display { display: grid; grid-template-columns: repeat(4, 1fr); padding: 6px; text-align: center; font-size: 11px; }
-        .price-item .price-label { color: var(--text-secondary); font-size: 10px; } .price-item .price-value { font-size: 14px; font-weight: 700; }
-        .data-container { display: flex; flex-direction: column; overflow: hidden; height: 100%; } .data-grid { position: relative; overflow: hidden; height: 70%; } #live-chart { width: 100%; height: 100%; }
-        .heatmap-container { display: flex; flex-direction: column; border-top: 1px solid var(--border-color); height: 30%; }
+        .main-grid { display: grid; grid-template-columns: 280px 1fr 320px; gap: 5px; flex-grow: 1; margin-top: 5px; overflow: hidden; }
+        .panel { display: flex; flex-direction: column; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; }
+        .panel-title { font-weight: 700; font-size: 13px; color: var(--primary); padding: 8px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .panel-content { padding: 10px; overflow-y: auto; flex-grow: 1; }
+        .settings-group { margin-bottom: 15px; } .form-group { margin-bottom: 8px; } .form-label { display: block; font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+        .checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; padding: 4px 0;}
+        .center-panel { display: grid; grid-template-rows: auto 1fr; gap: 5px; padding: 0 !important; }
+        .price-display { display: grid; grid-template-columns: repeat(4, 1fr); padding: 8px; text-align: center; }
+        .price-item .price-label { color: var(--text-secondary); } .price-item .price-value { font-size: 18px; font-weight: 700; }
+        .data-container { display: grid; grid-template-rows: 1fr auto; overflow: hidden; } .data-grid { position: relative; overflow: hidden; } #live-chart { width: 100%; height: 100%; }
+        .heatmap-container { display: grid; grid-template-rows: auto 1fr; border-top: 1px solid var(--border-color); }
         #orderbook-heatmap { width: 100%; height: 100%; display: block; }
         .data-table-container { width: 100%; height: 100%; overflow: auto; }
-        .data-table { width: 100%; border-collapse: collapse; font-size: 10px; }
-        .data-table th, .data-table td { padding: 4px 6px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap;}
-        .data-table th { font-weight: 700; position: sticky; top: 0; background: var(--panel-bg); z-index: 10; font-size: 10px;}
+        .data-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .data-table th, .data-table td { padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap;}
+        .data-table th { font-weight: 700; position: sticky; top: 0; background: var(--panel-bg); z-index: 10;}
         .data-table tr:hover { background: var(--hover-bg); }
         .signal-buy { background-color: #28a74514; } .signal-sell { background-color: #dc354514; }
         .signal-tp { background-color: #28a74533; } .signal-sl { background-color: #dc354533; }
-        .stat-item { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid var(--border-color); font-size: 11px; }
+        .stat-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--border-color); font-size: 12px; }
         .stat-item:last-child { border-bottom: none; } .stat-label { color: var(--text-secondary); } .stat-value { font-weight: 700; }
-        .btn-sm { padding: 1px 3px; font-size: 9px; margin-left: 3px; border-radius: 2px; cursor: pointer;}
-        ::-webkit-scrollbar { width: 4px; height: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--text-secondary); border-radius: 2px; }
-        .notifications { position: fixed; bottom: 10px; right: 10px; z-index: 2000; width: 90%; max-width: 300px; }
-        .notification { background: var(--panel-bg); border: 1px solid var(--border-color); border-left-width: 4px; border-radius: 4px; padding: 8px; font-size: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); margin-top: 8px; }
+        .btn-sm { padding: 1px 4px; font-size: 9px; margin-left: 4px; border-radius: 3px; cursor: pointer;}
+        ::-webkit-scrollbar { width: 6px; height: 6px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--text-secondary); border-radius: 3px; }
+        .notifications { position: fixed; bottom: 15px; right: 15px; z-index: 2000; width: 320px; }
+        .notification { background: var(--panel-bg); border: 1px solid var(--border-color); border-left-width: 5px; border-radius: 4px; padding: 12px; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); margin-top: 10px; }
         .notification.success { border-left-color: var(--positive); } .notification.danger { border-left-color: var(--negative); } .notification.warning { border-left-color: var(--neutral); }
-        .mobile-controls { display: flex; gap: 5px; margin-top: 5px; }
-        .panel-row { display: flex; gap: 5px; flex: 1; min-height: 0; }
-        .panel-col { flex: 1; display: flex; flex-direction: column; min-height: 0; }
     </style>
 </head>
 <body>
@@ -80,17 +76,27 @@
                     <span id="connection-text">BAĞLANTI YOK</span>
                 </div>
                 <button id="theme-toggle-btn" class="btn">Tema</button>
+                <button id="start-btn" class="btn btn-success">SİSTEMİ BAŞLAT</button>
+                <button id="stop-btn" class="btn btn-danger" disabled>DURDUR</button>
             </div>
         </header>
 
-        <div class="mobile-controls">
-            <button id="start-btn" class="btn btn-success" style="flex:1;">BAŞLAT</button>
-            <button id="stop-btn" class="btn btn-danger" style="flex:1;" disabled>DURDUR</button>
-            <button id="clear-signals-btn" class="btn" style="flex:1;">SİNYALLERİ TEMİZLE</button>
-        </div>
-
         <main class="main-grid">
-            <div class="center-panel panel">
+            <aside id="settings-panel" class="panel">
+                <div class="panel-title">AYARLAR & STRATEJİLER</div>
+                <div class="panel-content">
+                    <div class="settings-group">
+                        <div class="form-group"><label class="form-label">Min. Uyum Skoru (1-10)</label><input type="range" id="confluence-threshold" class="form-control" min="1" max="10" value="3" step="1"></div>
+                        <div class="form-group"><label class="form-label">RSI Periyodu</label><input type="number" id="param-rsi-period" class="form-control" value="14"></div>
+                        <div class="form-group"><label class="form-label">ATR Periyodu</label><input type="number" id="param-atr-period" class="form-control" value="14"></div>
+                        <div class="form-group"><label class="form-label">Duvar Tespiti (BTC)</label><input type="number" id="param-wall-btc" class="form-control" value="20"></div>
+                        <div class="form-group"><label class="form-label">Risk/Ödül Oranı (R/R)</label><input type="number" id="param-rr-ratio" class="form-control" value="1.5" step="0.1"></div>
+                    </div>
+                    <div id="strategy-toggles" class="settings-group"></div>
+                </div>
+            </aside>
+
+            <section class="center-panel panel">
                 <div class="price-display">
                      <div class="price-item"><div class="price-label">FİYAT</div><div class="price-value" id="current-price">-</div></div>
                     <div class="price-item"><div class="price-label">24s DEĞİŞİM</div><div class="price-value" id="price-change-24h">-</div></div>
@@ -104,39 +110,23 @@
                         <canvas id="orderbook-heatmap"></canvas>
                     </div>
                 </div>
-            </div>
+            </section>
             
-            <div class="panel-row">
-                <aside id="settings-panel" class="panel panel-col">
-                    <div class="panel-title">AYARLAR & STRATEJİLER</div>
-                    <div class="panel-content">
-                        <div class="settings-group">
-                            <div class="form-group"><label class="form-label">Min. Uyum Skoru (1-10)</label><input type="range" id="confluence-threshold" class="form-control" min="1" max="10" value="3" step="1"></div>
-                            <div class="form-group"><label class="form-label">RSI Periyodu</label><input type="number" id="param-rsi-period" class="form-control" value="14"></div>
-                            <div class="form-group"><label class="form-label">ATR Periyodu</label><input type="number" id="param-atr-period" class="form-control" value="14"></div>
-                            <div class="form-group"><label class="form-label">Duvar Tespiti (BTC)</label><input type="number" id="param-wall-btc" class="form-control" value="20"></div>
-                            <div class="form-group"><label class="form-label">Risk/Ödül Oranı (R/R)</label><input type="number" id="param-rr-ratio" class="form-control" value="1.5" step="0.1"></div>
-                        </div>
-                        <div id="strategy-toggles" class="settings-group"></div>
+            <aside id="analytics-panel" class="panel">
+                <div class="panel-title">SİNYALLER & ANALİZ</div>
+                <div class="panel-content" style="padding:0; display: flex; flex-direction: column;">
+                    <div class="data-table-container" style="flex: 3;">
+                        <table class="data-table">
+                            <thead><tr><th>Zaman</th><th>Tip</th><th>Fiyat</th><th>TP</th><th>SL</th><th>Skor</th><th>İşlem</th></tr></thead>
+                            <tbody id="signals-body"></tbody>
+                        </table>
                     </div>
-                </aside>
-
-                <aside id="analytics-panel" class="panel panel-col">
-                    <div class="panel-title">SİNYALLER & ANALİZ</div>
-                    <div class="panel-content" style="padding:0; display: flex; flex-direction: column;">
-                        <div class="data-table-container" style="flex: 3;">
-                            <table class="data-table">
-                                <thead><tr><th>Zaman</th><th>Tip</th><th>Fiyat</th><th>TP</th><th>SL</th><th>Skor</th><th>İşlem</th></tr></thead>
-                                <tbody id="signals-body"></tbody>
-                            </table>
-                        </div>
-                        <div class="analytics-container" style="flex: 1; padding: 8px; border-top: 2px solid var(--border-color);">
-                            <div class="panel-title" style="padding:0 0 6px 0; border:none;">GENEL ANALİZ</div>
-                            <div id="stats-container"></div>
-                        </div>
+                    <div class="analytics-container" style="flex: 1; padding: 10px; border-top: 2px solid var(--border-color);">
+                        <div class="panel-title" style="padding:0 0 8px 0; border:none;">GENEL ANALİZ</div>
+                        <div id="stats-container"></div>
                     </div>
-                </aside>
-            </div>
+                </div>
+            </aside>
         </main>
     </div>
     
@@ -249,8 +239,8 @@
                 const barWidth = this.canvas.width * intensity;
                 this.ctx.fillRect(0, y, barWidth, heightPerLevel);
                 this.ctx.fillStyle = intensity > 0.5 ? '#FFFFFF' : styles.getPropertyValue('--text-secondary').trim();
-                this.ctx.font = '8px "Roboto Mono"'; this.ctx.textAlign = 'left';
-                this.ctx.fillText(`${(qty).toFixed(2)} @ ${price.toFixed(priceDecimals)}`, 5, y + heightPerLevel - 3);
+                this.ctx.font = '10px "Roboto Mono"'; this.ctx.textAlign = 'left';
+                this.ctx.fillText(`${(qty).toFixed(2)} @ ${price.toFixed(priceDecimals)}`, 10, y + heightPerLevel - 3);
             });
         }
         _getDecimalPlaces(price) { if (!price) return 2; if (price > 1000) return 2; if (price > 1) return 3; if (price > 0.01) return 4; return 6; }
@@ -416,7 +406,7 @@
         }
 
         setupUI() {
-            const commonSymbols = ['FUNUSDT', 'ORDIUSDT', 'BNBUSDT', 'SOLUSDT', 'ENAUSDT', 'ADAUSDT', 'DOGEUSDT', 'LTCUSDT', 'AVAXUSDT'];
+            const commonSymbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'XRPUSDT', 'ADAUSDT', 'DOGEUSDT', 'LTCUSDT', 'AVAXUSDT'];
             document.getElementById('symbol-select').innerHTML = commonSymbols.map(s => `<option value="${s}">${s.replace('USDT', '/USDT')}</option>`).join('');
             document.getElementById('symbol-select').value = this.currentSymbol;
             document.getElementById('timeframe-select').value = this.currentTimeframe;
@@ -445,7 +435,6 @@
             document.getElementById('theme-toggle-btn').addEventListener('click', () => this.toggleTheme());
             document.getElementById('symbol-select').addEventListener('change', (e) => this.changeSymbol(e.target.value));
             document.getElementById('timeframe-select').addEventListener('change', (e) => this.changeTimeframe(e.target.value));
-            document.getElementById('clear-signals-btn').addEventListener('click', () => this.clearAllSignals());
             
             document.getElementById('confluence-threshold').addEventListener('input', (e) => this.updateSetting('confluenceThreshold', parseInt(e.target.value)));
             document.getElementById('param-rsi-period').addEventListener('change', (e) => this.updateSetting('params.rsiPeriod', parseInt(e.target.value)));
@@ -469,17 +458,6 @@
                     this.updateSignalResult(signalId, result);
                 }
             });
-        }
-
-        clearAllSignals() {
-            this.signals = [];
-            this.stats = { total: 0, tp: 0, sl: 0 };
-            this.saveData('utc_signals', this.signals);
-            this.saveData('utc_stats', this.stats);
-            this.chartManager.clearMarkers();
-            this.renderSignals();
-            this.renderStats();
-            this.showNotification('Tüm sinyaller temizlendi.', 'info');
         }
 
         updateSetting(key, value) {
@@ -752,3 +730,5 @@
 </script>
 </body>
 </html>
+
+
