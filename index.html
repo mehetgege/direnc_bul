@@ -23,61 +23,20 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Roboto Mono', monospace; font-size: 12px; background: var(--background); color: var(--text-main); overflow: hidden; transition: background 0.5s, color 0.5s; }
         
-        /* Super top ticker */
-        #super-top-ticker {
-            display: flex; 
-            position: fixed; 
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: var(--panel-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 2px 10px; 
-            z-index: 1100;
-            align-items: center;
-            justify-content: space-between; 
-            font-size: 11px;
-            font-weight: 700;
-            height: var(--ticker-height);
-        }
+        #super-top-ticker { display: flex; position: fixed; top: 0; left: 0; width: 100%; background: var(--panel-bg); border-bottom: 1px solid var(--border-color); padding: 2px 10px; z-index: 1100; align-items: center; justify-content: space-between; font-size: 11px; font-weight: 700; height: var(--ticker-height); }
         .super-top-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0;}
         #ticker-bar-symbol { color: var(--primary); }
         #ticker-bar-price { color: var(--text-main); font-size: 12px; }
         .super-top-right-buttons { display: flex; gap: 5px; }
 
-        .container { 
-            display: flex; flex-direction: column; height: 100vh; padding-top: var(--ticker-height);
-        }
+        .container { display: flex; flex-direction: column; height: 100vh; padding-top: var(--ticker-height); }
 
-        .header { 
-            background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; flex-shrink: 0; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2); margin: 5px; position: relative;
-        }
-        
-        .header-top-bar { 
-            display: flex; align-items: center; width: 100%; padding: 5px 15px; 
-            min-height: var(--header-min-height); justify-content: space-between; 
-            cursor: pointer;
-            font-weight: 700; font-size: 16px; color: var(--primary);
-        }
+        .header { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; flex-shrink: 0; box-shadow: 0 2px 10px rgba(0,0,0,0.2); margin: 5px; position: relative; }
+        .header-top-bar { display: flex; align-items: center; width: 100%; padding: 5px 15px; min-height: var(--header-min-height); justify-content: space-between; cursor: pointer; font-weight: 700; font-size: 16px; color: var(--primary); }
+        .header-collapsible-content { transition: max-height 0.35s ease-in-out, opacity 0.3s ease, padding 0.35s ease, visibility 0.35s; max-height: 300px; opacity: 1; overflow: hidden; visibility: visible; padding: 0 15px 8px 15px; }
+        body.header-collapsed .header-collapsible-content { max-height: 0; opacity: 0; visibility: hidden; padding-top: 0; padding-bottom: 0; }
 
-        .header-collapsible-content {
-            transition: max-height 0.35s ease-in-out, opacity 0.3s ease, padding 0.35s ease, visibility 0.35s;
-            max-height: 300px; 
-            opacity: 1; overflow: hidden; visibility: visible; padding: 0 15px 8px 15px;
-        }
-        body.header-collapsed .header-collapsible-content { 
-            max-height: 0; 
-            opacity: 0; 
-            visibility: hidden; 
-            padding-top: 0; 
-            padding-bottom: 0; 
-        }
-
-        .main-controls {
-            display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-bottom: 8px;
-        }
-
+        .main-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-bottom: 8px; }
         .form-control { background: var(--input-bg); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 4px; padding: 4px 8px; font-family: 'Roboto Mono', monospace; }
         
         .status { display: flex; align-items: center; gap: 5px; font-size: 11px; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 4px; }
@@ -89,18 +48,9 @@
         .btn { padding: 4px 12px; border: 1px solid var(--border-color); background: var(--panel-bg); color: var(--text-main); border-radius: 4px; cursor: pointer; transition: all 0.2s; }
         .btn:hover { background: var(--hover-bg); border-color: var(--primary); }
         .btn-success { background: var(--positive); color: white; border-color: var(--positive); } .btn-danger { background: var(--negative); color: white; border-color: var(--negative); }
-        .btn-tiny { 
-            padding: 2px 6px;
-            font-size: 10px;
-            line-height: 1;
-            min-width: 0;
-            white-space: nowrap;
-        }
+        .btn-tiny { padding: 2px 6px; font-size: 10px; line-height: 1; min-width: 0; white-space: nowrap; }
         
-        .main-grid { 
-            display: grid; grid-template-columns: 1fr; gap: 5px; flex-grow: 1; margin: 5px; 
-            overflow: hidden; height: calc(100% - var(--header-min-height) - 10px - var(--ticker-height)); 
-        }
+        .main-grid { display: grid; grid-template-columns: 1fr; gap: 5px; flex-grow: 1; margin: 5px; overflow: hidden; height: calc(100% - var(--header-min-height) - 10px - var(--ticker-height)); }
         body.header-collapsed .main-grid { height: calc(100vh - var(--ticker-height) - 10px); margin-top: 0; } 
         
         .panel { display: flex; flex-direction: column; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; }
@@ -109,11 +59,7 @@
         .settings-group { margin-bottom: 15px; } .form-group { margin-bottom: 8px; } .form-label { display: block; font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
         .checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; padding: 4px 0;}
         
-        .price-display { 
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; width: 100%;
-            border: 1px solid var(--border-color); border-radius: 4px; padding: 8px; font-size: 10px;
-            margin-top: 8px; 
-        } 
+        .price-display { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; width: 100%; border: 1px solid var(--border-color); border-radius: 4px; padding: 8px; font-size: 10px; margin-top: 8px; } 
         .price-item .price-label { color: var(--text-secondary); } 
         .price-item .price-value { font-size: 18px; font-weight: 700; }
         
@@ -125,18 +71,8 @@
         .heatmap-container { display: grid; grid-template-rows: auto 1fr; border-top: 1px solid var(--border-color); }
         #orderbook-heatmap { width: 100%; height: 100%; display: block; }
 
-        .chart-zoom-controls {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            display: flex;
-            gap: 5px;
-            z-index: 100; 
-        }
-        .chart-zoom-controls .btn-tiny {
-            background: rgba(1, 4, 9, 0.7);
-            backdrop-filter: blur(2px);
-        }
+        .chart-zoom-controls { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; z-index: 100; }
+        .chart-zoom-controls .btn-tiny { background: rgba(1, 4, 9, 0.7); backdrop-filter: blur(2px); }
 
         .data-table-container { width: 100%; height: 100%; overflow: auto; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 11px; }
@@ -154,121 +90,38 @@
         .notification.success { border-left-color: var(--positive); } .notification.danger { border-left-color: var(--negative); } .notification.warning { border-left-color: var(--neutral); }
         
         aside#settings-panel, aside#analytics-panel { display: none !important; }
-
         .hidden-view { display: none !important; } 
 
-        /* Ayarlar Modalı */
-        #settings-modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center;
-            z-index: 2500; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
+        #settings-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 2500; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
         #settings-modal-overlay.visible { opacity: 1; visibility: visible; }
-        .settings-modal-content {
-            background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px;
-            width: 90%; max-width: 860px; max-height: 90%; display: flex; flex-direction: column;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.4); transform: translateY(20px); transition: transform 0.3s ease;
-        }
+        .settings-modal-content { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; width: 90%; max-width: 860px; max-height: 90%; display: flex; flex-direction: column; box-shadow: 0 8px 30px rgba(0,0,0,0.4); transform: translateY(20px); transition: transform 0.3s ease; }
         #settings-modal-overlay.visible .settings-modal-content { transform: translateY(0); }
-        .settings-modal-header {
-            padding: 12px 15px; border-bottom: 1px solid var(--border-color);
-            display: flex; justify-content: space-between; align-items: center;
-            font-weight: 700; font-size: 15px; color: var(--primary);
-        }
-        .settings-modal-header .close-btn {
-            background: none; border: none; font-size: 20px; color: var(--text-secondary);
-            cursor: pointer; padding: 0 5px; line-height: 1;
-        }
+        .settings-modal-header { padding: 12px 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 15px; color: var(--primary); }
+        .settings-modal-header .close-btn { background: none; border: none; font-size: 20px; color: var(--text-secondary); cursor: pointer; padding: 0 5px; line-height: 1; }
         .settings-modal-header .close-btn:hover { color: var(--negative); }
-        .settings-modal-body {
-            padding: 15px; overflow-y: auto; flex-grow: 1;
-            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
-        }
-        .settings-modal-footer {
-            padding: 12px 15px; border-top: 1px solid var(--border-color);
-            display: flex; justify-content: flex-end; gap: 10px;
-        }
+        .settings-modal-body { padding: 15px; overflow-y: auto; flex-grow: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .settings-modal-footer { padding: 12px 15px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px; }
 
         @media screen and (max-width: 768px) {
             .container { padding-top: var(--ticker-height); }
-            .header { 
-                order: 2; 
-                position: sticky; 
-                bottom: 0; 
-                top: auto; 
-                width: 100%; 
-                z-index: 1000; 
-                margin: 0; 
-                border-radius: 0; 
-                border: none; 
-                border-top: 1px solid var(--border-color); 
-            }
-            .header-top-bar { 
-                flex-direction: column; 
-                align-items: center; 
-                gap: 10px; 
-                padding: 10px 15px; 
-            }
-            
+            .header { order: 2; position: sticky; bottom: 0; top: auto; width: 100%; z-index: 1000; margin: 0; border-radius: 0; border: none; border-top: 1px solid var(--border-color); }
+            .header-top-bar { flex-direction: column; align-items: center; gap: 10px; padding: 10px 15px; }
             .header-collapsible-content { padding: 0; }
-            .header-collapsible-content .main-controls { 
-                flex-direction: column; 
-                align-items: center; 
-                padding: 0; 
-                width: 100%; 
-            }
-            .form-control, .btn, .status { 
-                width: 100%; 
-                text-align: center; 
-                padding: 8px 10px; 
-                font-size: 11px; 
-            }
+            .header-collapsible-content .main-controls { flex-direction: column; align-items: center; padding: 0; width: 100%; }
+            .form-control, .btn, .status { width: 100%; text-align: center; padding: 8px 10px; font-size: 11px; }
             .status { justify-content: center; }
-
-            .price-display { 
-                grid-template-columns: repeat(2, 1fr); 
-                margin-top: 10px; 
-            }
+            .price-display { grid-template-columns: repeat(2, 1fr); margin-top: 10px; }
             .price-item .price-value { font-size: 14px; } 
-
-            .main-grid { 
-                order: 1; 
-                flex-direction: column; 
-                margin: 5px; 
-                overflow: visible; 
-                padding-bottom: 5px; 
-                height: auto; 
-            }
-            .center-panel { 
-                order: 1; 
-                flex-grow: 0; 
-                height: auto; 
-                border: 1px solid var(--border-color); 
-                border-radius: 6px; 
-                background: var(--panel-bg); 
-                box-shadow: 0 2px 10px rgba(0,0,0,0.2); 
-                margin: 0; 
-            }
+            .main-grid { order: 1; flex-direction: column; margin: 5px; overflow: visible; padding-bottom: 5px; height: auto; }
+            .center-panel { order: 1; flex-grow: 0; height: auto; border: 1px solid var(--border-color); border-radius: 6px; background: var(--panel-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.2); margin: 0; }
             .center-panel > .panel-title { display: none; }
-            .data-container { 
-                flex-direction: column; 
-                height: auto; 
-                padding: 10px; 
-            }
+            .data-container { flex-direction: column; height: auto; padding: 10px; }
             .data-grid { height: 50vh; flex-shrink: 0; }
             #live-chart { height: 100%; width: 100%; } 
-            .heatmap-container { 
-                height: 150px; 
-                flex-shrink: 0; 
-                margin-top: 10px; 
-                border-top: 1px solid var(--border-color); 
-                padding-top: 10px; 
-            }
+            .heatmap-container { height: 150px; flex-shrink: 0; margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 10px; }
             .heatmap-container .panel-title { border-bottom: none; margin-bottom: 5px; }
-
             .settings-modal-content { width: 95%; margin: 10px; }
             .settings-modal-body { grid-template-columns: 1fr; gap: 15px; }
-
             .super-top-right-buttons { display: none; }
         }
     </style>
@@ -333,39 +186,6 @@
                     </div>
                 </div>
             </section>
-            
-            <aside id="settings-panel" class="panel hidden-view">
-                <div class="panel-title">AYARLAR & STRATEJİLER</div>
-                <div class="panel-content">
-                    <div class="settings-group">
-                        <div class="form-group"><label class="form-label">Min. Uyum Skoru (1-10)</label><input type="range" id="confluence-threshold" class="form-control" min="1" max="10" value="3" step="1"></div>
-                        <div class="form-group"><label class="form-label">RSI Periyodu</label><input type="number" id="param-rsi-period" class="form-control" value="14"></div>
-                        <div class="form-group"><label class="form-label">ATR Periyodu</label><input type="number" id="param-atr-period" class="form-control" value="14"></div>
-                        <div class="form-group"><label class="form-label">Duvar Tespiti (BTC)</label><input type="number" id="param-wall-btc" class="form-control" value="20"></div>
-                        <div class="form-group"><label class="form-label">Risk/Ödül Oranı (R/R)</label><input type="number" id="param-rr-ratio" class="form-control" value="1.5" step="0.1"></div>
-                    </div>
-                    <div id="strategy-toggles" class="settings-group"></div>
-                </div>
-            </aside>
-
-            <aside id="analytics-panel" class="panel hidden-view">
-                <div class="panel-title">
-                    <span>SİNYALLER & ANALİZ</span>
-                    <button id="clear-signals-btn" class="btn btn-danger btn-sm">Tüm Sinyalleri Sil</button>
-                </div>
-                <div class="panel-content" style="padding:0; display: flex; flex-direction: column;">
-                    <div class="data-table-container" style="flex: 3;">
-                        <table class="data-table">
-                            <thead><tr><th>Zaman</th><th>Tip</th><th>Fiyat</th><th>TP</th><th>SL</th><th>Skor</th><th>Durum</th></tr></thead>
-                            <tbody id="signals-body"></tbody>
-                        </table>
-                    </div>
-                    <div class="analytics-container" style="flex: 1; padding: 10px; border-top: 2px solid var(--border-color);">
-                        <div class="panel-title" style="padding:0 0 8px 0; border:none;">GENEL ANALİZ</div>
-                        <div id="stats-container"></div>
-                    </div>
-                </div>
-            </aside>
         </main>
     </div>
     
@@ -393,7 +213,7 @@
                     <div class="form-group"><label class="form-label">Aynı Yön Sinyal Cooldown (ms)</label><input type="number" id="modal-same-direction-cooldown-ms" class="form-control" value="30000" min="0" step="100"></div>
                     <div class="form-group"><label class="form-label">Ters Yön Cooldown (ms)</label><input type="number" id="modal-opposite-direction-cooldown-ms" class="form-control" value="20000" min="0" step="100"></div>
                     <div class="form-group"><label class="form-label">Ters Yön Histerezis (+Puan)</label><input type="number" id="modal-reverse-hysteresis-points" class="form-control" value="2" min="0" step="1"></div>
-                    <div class="form-group"><label class="form-label">Teklif Zaman Penceresi - Proposal Timeout (ms)</label><input type="number" id="modal-proposal-timeout-ms" class="form-control" value="3000" min="500" step="100"></div>
+                    <div class="form-group"><label class="form-label">Proposal Timeout (ms)</label><input type="number" id="modal-proposal-timeout-ms" class="form-control" value="3000" min="500" step="100"></div>
                     <div class="form-group"><label class="form-label">Strateji Teklifi Cooldown (ms)</label><input type="number" id="modal-strategy-proposal-cooldown-ms" class="form-control" value="10000" min="0" step="100"></div>
                 </div>
                 <div class="settings-group">
@@ -404,7 +224,11 @@
                     <div class="panel-title" style="margin-bottom: 10px;">Sinyal Geçmişi ve Analiz</div>
                     <div class="data-table-container" style="max-height: 300px;">
                         <table class="data-table">
-                            <thead><tr><th>Zaman</th><th>Tip</th><th>Fiyat</th><th>TP</th><th>SL</th><th>Skor</th><th>Durum</th></tr></thead>
+                            <thead>
+                                <tr>
+                                    <th>Zaman</th><th>Tip</th><th>Fiyat</th><th>TP</th><th>SL</th><th>Skor</th><th>Katkı</th><th>Durum</th>
+                                </tr>
+                            </thead>
                             <tbody id="modal-signals-body"></tbody>
                         </table>
                     </div>
@@ -503,21 +327,14 @@
             this.series.candles.setMarkers(this.signalMarkers);
         }
         clearMarkers() { if (!this.series.candles) return; this.signalMarkers = []; this.series.candles.setMarkers([]); }
-        
-        // Yeni zoom metotları
         zoom(factor) {
             if (!this.chart) return;
             const timeScale = this.chart.timeScale();
             const currentLogicalRange = timeScale.getVisibleLogicalRange();
             if (!currentLogicalRange) return;
-
-            const newLogicalRange = {
-                from: currentLogicalRange.from * factor,
-                to: currentLogicalRange.to * factor
-            };
+            const newLogicalRange = { from: currentLogicalRange.from * factor, to: currentLogicalRange.to * factor };
             timeScale.setVisibleLogicalRange(newLogicalRange);
         }
-
         zoomIn() { this.zoom(0.9); }
         zoomOut() { this.zoom(1.1); }
         resetZoom() { if (this.chart) this.chart.timeScale().fitContent(); }
@@ -561,7 +378,6 @@
             this._drawSection(asks, 'asks', maxQty, symbolPrice); this._drawSection(bids, 'bids', maxQty, symbolPrice);
         }
         updateTheme() { this._resizeCanvas(); }
-        
         _drawSection(levels, type, maxQty, symbolPrice) {
             const styles = getComputedStyle(document.body);
             const baseColor = type === 'asks' ? styles.getPropertyValue('--negative').trim() : styles.getPropertyValue('--positive').trim();
@@ -569,7 +385,6 @@
             const heightPerLevel = (this.canvas.height / 2) / levels.length;
             const priceDecimals = this._getDecimalPlaces(symbolPrice);
             const labelSkipInterval = heightPerLevel < 12 ? Math.ceil(12 / heightPerLevel) : 1;
-
             levels.forEach((level, index) => {
                 const [price, qty] = level;
                 const intensity = Math.min(Math.sqrt(qty / maxQty), 1.0);
@@ -577,7 +392,6 @@
                 const y = type === 'asks' ? index * heightPerLevel : (this.canvas.height / 2) + (index * heightPerLevel);
                 const barWidth = this.canvas.width * intensity;
                 this.ctx.fillRect(0, y, barWidth, heightPerLevel);
-
                 if (index % labelSkipInterval === 0) {
                     this.ctx.fillStyle = intensity > 0.5 ? '#FFFFFF' : styles.getPropertyValue('--text-secondary').trim();
                     this.ctx.font = '10px "Roboto Mono"'; this.ctx.textAlign = 'left';
@@ -600,7 +414,7 @@
     }
 
     /* =========================
-       STRATEJİ MOTORLARI
+       STRATEJİLER
        ========================= */
     class Strategy {
         constructor(bot, name) { 
@@ -705,7 +519,6 @@
             }
         }
     }
-
     class BreakoutPatternStrategy extends Strategy {
         constructor(bot) { super(bot, 'breakoutPattern'); this.LOOKBACK = 30; this.VOL_SPIKE = 1.4; this.BREAK_PCT = 0.03/100; }
         periodicAnalyze() {
@@ -779,12 +592,8 @@
         periodicAnalyze() {
             const c = this.bot.candles; if (c.length < 3) return;
             const a = c[c.length-3], b = c[c.length-2], d = c[c.length-1];
-            if ((d.low - a.high)/Math.max(1e-8, d.low) > this.GAP_MIN_PCT) {
-                this.propose(this.bot.currentSymbol, 'buy', 'Bullish FVG', 4);
-            }
-            if ((a.low - d.high)/Math.max(1e-8, d.high) > this.GAP_MIN_PCT) {
-                this.propose(this.bot.currentSymbol, 'sell', 'Bearish FVG', 4);
-            }
+            if ((d.low - a.high)/Math.max(1e-8, d.low) > this.GAP_MIN_PCT) this.propose(this.bot.currentSymbol, 'buy', 'Bullish FVG', 4);
+            if ((a.low - d.high)/Math.max(1e-8, d.high) > this.GAP_MIN_PCT) this.propose(this.bot.currentSymbol, 'sell', 'Bearish FVG', 4);
         }
     }
     class DivergenceDetectionStrategy extends Strategy {
@@ -855,7 +664,6 @@
             }
         }
     }
-
     class VWAPReversionStrategy extends Strategy {
         constructor(bot) { super(bot, 'vwapReversion'); this.MULT = 1.0; }
         periodicAnalyze() {
@@ -880,6 +688,9 @@
         }
     }
 
+    /* =========================
+       UYUM MOTORU (CONFLUENCE)
+       ========================= */
     class ConfluenceEngine {
         constructor(bot) { 
             this.bot = bot; 
@@ -890,17 +701,34 @@
         }
         propose(strategy, direction, reason, score) {
             const now = Date.now();
-            // Eski aynı strat teklifini sil
             this.proposals = this.proposals.filter(p => !(p.strategy === strategy));
             this.proposals.push({ strategy, direction, reason, score, timestamp: now });
-            // Strateji proposal sayacı
+            // proposal sayacı
             const s = this.bot.strategyStats[strategy] || { alpha:3, beta:2, proposals:0, contrib:0, wins:0, losses:0, lastUpdate: now };
-            s.proposals += 1;
-            s.lastUpdate = now;
-            this.bot.strategyStats[strategy] = s;
-            this.bot.saveStrategyStats();
+            s.proposals += 1; s.lastUpdate = now; this.bot.strategyStats[strategy] = s; this.bot.saveStrategyStats();
             this.checkConfluence();
         }
+
+        _computeDirectional(direction) {
+            const now = Date.now();
+            const decaySec = this.bot.settings.optimization.timeDecaySec || 3;
+            const groupSums = { trending: 0, meanReversion: 0, neutral: 0 };
+            const used = [];
+
+            const arr = this.proposals.filter(p => p.direction === direction);
+            for (const p of arr) {
+                const w = this.bot.getStrategyWeight(p.strategy);
+                const ageSec = (now - p.timestamp)/1000;
+                const decay = Math.exp(-ageSec / decaySec);
+                const eff = p.score * w * decay;
+                const grp = this.bot.getStrategyGroup(p.strategy);
+                groupSums[grp] = (groupSums[grp] || 0) + eff;
+                used.push({ strategy: p.strategy, baseScore: p.score, weight: w, decay, effScore: eff });
+            }
+            const score = Math.sqrt(Math.max(0, groupSums.trending)**2 + Math.max(0, groupSums.meanReversion)**2 + Math.max(0, groupSums.neutral)**2);
+            return { score, contributors: used, groupSums };
+        }
+
         checkConfluence() {
             const now = Date.now();
             const cd = this.bot.settings?.cooldowns || {};
@@ -909,51 +737,46 @@
             const sameDirCooldown = cd.sameDirectionMs ?? 30000;
             const oppCooldown = cd.oppositeDirectionMs ?? 20000;
             const reverseHys = cd.reverseHysteresisPoints ?? 2;
-            const minThreshold = this.bot.settings.confluenceThreshold;
+            const dirMargin = this.bot.settings.optimization.dirMargin ?? 0.5;
+            const minThreshold = this.bot.getEffectiveThreshold();
 
             if (now - this.lastSignalTime < signalCooldown) return;
-
-            // Zaman aşımı
             this.proposals = this.proposals.filter(p => now - p.timestamp < proposalTimeout);
 
-            const buyProposals = this.proposals.filter(p => p.direction === 'buy');
-            const sellProposals = this.proposals.filter(p => p.direction === 'sell');
+            const buy = this._computeDirectional('buy');
+            const sell = this._computeDirectional('sell');
 
-            // Ağırlıklı skorlar
-            const weighted = (arr) => arr.reduce((sum, p) => sum + p.score * this.bot.getStrategyWeight(p.strategy), 0);
-            const buyScore = weighted(buyProposals);
-            const sellScore = weighted(sellProposals);
+            const buyPenalty = this.bot.marketGatingPenalty('buy');
+            const sellPenalty = this.bot.marketGatingPenalty('sell');
 
-            if (buyScore >= minThreshold && buyScore > sellScore) {
-                if (now - this.lastSignalTimeByDirection.buy < sameDirCooldown) return; 
+            if (buy.score >= (minThreshold + buyPenalty) && (buy.score > sell.score + dirMargin)) {
+                if (now - this.lastSignalTimeByDirection.buy < sameDirCooldown) return;
                 if (this.lastDirection === 'sell' && (now - this.lastSignalTime) < oppCooldown) {
-                    if (buyScore < (minThreshold + reverseHys)) return;
+                    if (buy.score < (minThreshold + buyPenalty + reverseHys)) return;
                 }
-                this.generateFinalSignal('buy', buyProposals);
-            } else if (sellScore >= minThreshold && sellScore > buyScore) {
+                this.generateFinalSignal('buy', buy.contributors);
+            } else if (sell.score >= (minThreshold + sellPenalty) && (sell.score > buy.score + dirMargin)) {
                 if (now - this.lastSignalTimeByDirection.sell < sameDirCooldown) return;
                 if (this.lastDirection === 'buy' && (now - this.lastSignalTime) < oppCooldown) {
-                    if (sellScore < (minThreshold + reverseHys)) return;
+                    if (sell.score < (minThreshold + sellPenalty + reverseHys)) return;
                 }
-                this.generateFinalSignal('sell', sellProposals);
+                this.generateFinalSignal('sell', sell.contributors);
             }
         }
-        generateFinalSignal(direction, proposals) {
-            const contributingStrats = proposals.map(p => this.bot.strategies[p.strategy].displayName).join(', ');
-            const contributors = proposals.map(p => ({
-                strategy: p.strategy,
-                baseScore: p.score,
-                weight: this.bot.getStrategyWeight(p.strategy)
-            }));
-            const weightedScore = proposals.reduce((s,p)=> s + p.score * this.bot.getStrategyWeight(p.strategy), 0);
+
+        generateFinalSignal(direction, contributors) {
+            const contributingStrats = contributors.map(c => this.bot.strategies[c.strategy]?.displayName || c.strategy).join(', ');
+            const weightedScore = contributors.reduce((s,c)=> s + c.effScore, 0);
 
             const signal = { 
                 id: `sig_${Date.now()}`, timestamp: Date.now(), symbol: this.bot.currentSymbol, 
                 direction, price: this.bot.marketData.price, score: weightedScore, 
-                reason: contributingStrats, contributors, status: 'active', note: '' 
+                reason: contributingStrats, contributors, status: 'active', note: '',
+                mfeR: 0, beDone: false, trailingStage: 0
             };
             this.bot.calculateDynamicTpSl(signal);
             this.bot.addFinalSignal(signal);
+
             this.proposals = [];
             const now = Date.now();
             this.lastSignalTime = now;
@@ -1010,9 +833,14 @@
             this.chartManager = new ChartManager('live-chart');
             this.heatmapManager = new HeatmapManager('orderbook-heatmap');
             this.confluenceEngine = new ConfluenceEngine(this);
+
             this.renderInterval = null; 
             this.analysisInterval = null;
             this.cooldownTuneInterval = null;
+            this.thresholdTuneInterval = null;
+            this.lastAutoToggleTs = 0;
+            this.runtimeThresholdOffset = 0;
+            this.riskState = 'neutral';
 
             this.init();
         }
@@ -1033,9 +861,20 @@
         }
         getGroupBoost(key) {
             const grp = this.getStrategyGroup(key);
-            if (this.marketRegime === 'trend' && grp === 'trending') return 1.15;
-            if (this.marketRegime === 'range' && grp === 'meanReversion') return 1.15;
-            return 1.0;
+            let boost = 1.0;
+            // Rejim boost
+            if (this.marketRegime === 'trend' && grp === 'trending') boost *= 1.15;
+            if (this.marketRegime === 'range' && grp === 'meanReversion') boost *= 1.15;
+            // ATR göre adaptif boost
+            const atrPct = (this.indicators.atr && this.marketData.price) ? (this.indicators.atr / this.marketData.price) : 0;
+            if (atrPct < 0.005) { // düşük vol
+                if (grp === 'trending') boost *= 0.9;
+                if (grp === 'meanReversion') boost *= 1.05;
+            } else if (atrPct > 0.02) { // yüksek vol
+                if (grp === 'trending') boost *= 1.05;
+                if (grp === 'meanReversion') boost *= 0.95;
+            }
+            return boost;
         }
         getStrategyWeight(name) {
             const s = this.strategyStats[name] || { alpha: 3, beta: 2 };
@@ -1052,15 +891,11 @@
             this.initStrategies(); 
             this.setupUI(); 
             this.setupEventListeners();
-            this.renderSignals(); 
-            this.renderStats(); 
+            this.renderSignals(true); // ensure modal table headers align
+            this.renderStats(true);
             this.logToJournal('Sistem hazır. "SİSTEMİ BAŞLAT" butonuna tıklayın.');
             
-            if (this.headerCollapsed) {
-                document.body.classList.add('header-collapsed');
-            } else {
-                document.body.classList.remove('header-collapsed');
-            }
+            if (this.headerCollapsed) document.body.classList.add('header-collapsed'); else document.body.classList.remove('header-collapsed');
             this.switchMainView(this.currentMainView);
         }
 
@@ -1069,14 +904,9 @@
             this.updateActiveStrategies(); 
         }
         updateActiveStrategies() { 
-            for (const key in this.strategies) { 
-                // baseline: global setting
-                this.strategies[key].DEFAULT_PROPOSAL_COOLDOWN_MS = this.settings.cooldowns.strategyProposalMs; 
-            } 
+            for (const key in this.strategies) { this.strategies[key].DEFAULT_PROPOSAL_COOLDOWN_MS = this.settings.cooldowns.strategyProposalMs; } 
             this.activeStrategies = {}; 
-            for (const key in this.strategies) { 
-                if (this.settings.activeStrategies[key]) { this.activeStrategies[key] = this.strategies[key]; } 
-            } 
+            for (const key in this.strategies) { if (this.settings.activeStrategies[key]) this.activeStrategies[key] = this.strategies[key]; } 
         }
 
         setupUI() {
@@ -1090,10 +920,7 @@
             this.heatmapManager.updateTheme();
             this.updateSuperTopTicker();
         }
-
-        updateSuperTopTicker() {
-            document.getElementById('ticker-bar-symbol').textContent = this.currentSymbol.replace('USDT', '/USDT');
-        }
+        updateSuperTopTicker() { document.getElementById('ticker-bar-symbol').textContent = this.currentSymbol.replace('USDT', '/USDT'); }
 
         updateSettingsModalUI() {
             document.getElementById('modal-confluence-threshold').value = this.settings.confluenceThreshold;
@@ -1101,7 +928,6 @@
             document.getElementById('modal-param-atr-period').value = this.settings.params.atrPeriod;
             document.getElementById('modal-param-wall-btc').value = this.settings.params.wallBtc;
             document.getElementById('modal-param-rr-ratio').value = this.settings.params.rrRatio;
-
             document.getElementById('modal-signal-cooldown-ms').value = this.settings.cooldowns.signalMs;
             document.getElementById('modal-same-direction-cooldown-ms').value = this.settings.cooldowns.sameDirectionMs;
             document.getElementById('modal-opposite-direction-cooldown-ms').value = this.settings.cooldowns.oppositeDirectionMs;
@@ -1125,47 +951,31 @@
             document.getElementById('start-btn').addEventListener('click', () => this.start());
             document.getElementById('stop-btn').addEventListener('click', () => this.stop());
             document.getElementById('theme-toggle-btn').addEventListener('click', () => this.toggleTheme());
-            
             document.getElementById('symbol-input').addEventListener('change', (e) => {
                 let newSymbol = e.target.value.toUpperCase();
-                if (!newSymbol.endsWith('USDT')) {
-                    newSymbol += 'USDT';
-                }
+                if (!newSymbol.endsWith('USDT')) newSymbol += 'USDT';
                 this.changeSymbol(newSymbol);
                 this.saveData('utc_current_symbol', newSymbol);
             });
-
             document.getElementById('timeframe-select').addEventListener('change', (e) => {
                 this.changeTimeframe(e.target.value);
                 this.saveData('utc_current_timeframe', e.target.value);
             });
-            
             document.getElementById('header-main-bar').addEventListener('dblclick', () => {
                 this.toggleControlsPanel();
                 this.saveData('utc_header_collapsed', this.headerCollapsed.toString());
             });
-
             document.getElementById('main-controls-btn').addEventListener('click', () => {
                 this.toggleControlsPanel();
                 this.saveData('utc_header_collapsed', this.headerCollapsed.toString());
             });
-
-            document.getElementById('chart-view-btn').addEventListener('click', () => {
-                this.switchMainView('chart');
-                this.saveData('utc_current_view', 'chart'); 
-            });
-            document.getElementById('heatmap-view-btn').addEventListener('click', () => {
-                this.switchMainView('heatmap');
-                this.saveData('utc_current_view', 'heatmap'); 
-            });
+            document.getElementById('chart-view-btn').addEventListener('click', () => { this.switchMainView('chart'); this.saveData('utc_current_view', 'chart'); });
+            document.getElementById('heatmap-view-btn').addEventListener('click', () => { this.switchMainView('heatmap'); this.saveData('utc_current_view', 'heatmap'); });
             document.getElementById('open-settings-modal-btn').addEventListener('click', () => this.openSettingsModal());
-            
             document.getElementById('clear-markers-btn').addEventListener('click', () => this.clearChartMarkers()); 
-
             document.getElementById('chart-zoom-in').addEventListener('click', () => this.chartManager.zoomIn());
             document.getElementById('chart-zoom-out').addEventListener('click', () => this.chartManager.zoomOut());
             document.getElementById('chart-zoom-reset').addEventListener('click', () => this.chartManager.resetZoom());
-
             document.getElementById('close-settings-modal-btn').addEventListener('click', () => this.closeSettingsModal());
             document.getElementById('settings-modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'settings-modal-overlay') this.closeSettingsModal(); });
 
@@ -1174,7 +984,6 @@
             document.getElementById('modal-param-atr-period').addEventListener('change', (e) => this.settings.params.atrPeriod = parseInt(e.target.value));
             document.getElementById('modal-param-wall-btc').addEventListener('change', (e) => this.settings.params.wallBtc = parseInt(e.target.value));
             document.getElementById('modal-param-rr-ratio').addEventListener('change', (e) => this.settings.params.rrRatio = parseFloat(e.target.value));
-            
             document.getElementById('modal-signal-cooldown-ms').addEventListener('change', (e) => this.settings.cooldowns.signalMs = parseInt(e.target.value) || 0);
             document.getElementById('modal-same-direction-cooldown-ms').addEventListener('change', (e) => this.settings.cooldowns.sameDirectionMs = parseInt(e.target.value) || 0);
             document.getElementById('modal-opposite-direction-cooldown-ms').addEventListener('change', (e) => this.settings.cooldowns.oppositeDirectionMs = parseInt(e.target.value) || 0);
@@ -1188,14 +997,13 @@
                     this.settings.activeStrategies[key] = e.target.checked;
                     this.updateActiveStrategies(); 
                     this.showNotification(`${this.strategies[key].displayName} ${e.target.checked ? 'aktif' : 'pasif'}.`, 'info');
+                    this.saveSettings();
                 }
             });
 
             document.getElementById('modal-clear-signals-btn').addEventListener('click', () => this.clearAllSignals());
             document.getElementById('reset-all-settings-btn').addEventListener('click', () => this.resetAllSettings());
-            document.getElementById('save-settings-btn').addEventListener('click', () => {
-                this.saveSettings(); this.showNotification('Ayarlar kaydedildi!', 'success'); this.closeSettingsModal();
-            });
+            document.getElementById('save-settings-btn').addEventListener('click', () => { this.saveSettings(); this.showNotification('Ayarlar kaydedildi!', 'success'); this.closeSettingsModal(); });
         }
 
         toggleControlsPanel() {
@@ -1203,25 +1011,16 @@
             this.headerCollapsed = document.body.classList.contains('header-collapsed'); 
             setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 360);
         }
-
         switchMainView(viewName) {
             this.currentMainView = viewName;
             const chartView = document.getElementById('chart-container-view');
             const heatmapView = document.getElementById('heatmap-container-view');
-
             if (viewName === 'chart') {
-                chartView.classList.remove('hidden-view');
-                heatmapView.classList.add('hidden-view');
-                setTimeout(() => {
-                    this.chartManager.chart.resize(chartView.clientWidth, chartView.clientHeight);
-                    this.chartManager.chart.timeScale().fitContent();
-                }, 0); 
-            } else if (viewName === 'heatmap') {
-                chartView.classList.add('hidden-view');
-                heatmapView.classList.remove('hidden-view');
-                setTimeout(() => {
-                    this.heatmapManager._resizeCanvas();
-                }, 0); 
+                chartView.classList.remove('hidden-view'); heatmapView.classList.add('hidden-view');
+                setTimeout(() => { this.chartManager.chart.resize(chartView.clientWidth, chartView.clientHeight); this.chartManager.chart.timeScale().fitContent(); }, 0); 
+            } else {
+                chartView.classList.add('hidden-view'); heatmapView.classList.remove('hidden-view');
+                setTimeout(() => { this.heatmapManager._resizeCanvas(); }, 0); 
             }
         }
 
@@ -1250,8 +1049,8 @@
 
                 this.initStrategies(); 
                 this.updateSettingsModalUI(); 
-                this.renderSignals(); 
-                this.renderStats();   
+                this.renderSignals(true); 
+                this.renderStats(true);   
                 this.chartManager.clearMarkers(); 
                 this.showNotification('Tüm ayarlar ve veriler sıfırlandı!', 'info');
                 this.stop(); 
@@ -1272,6 +1071,7 @@
             this.renderInterval = setInterval(() => this.render(), 250);
             this.analysisInterval = setInterval(() => this.runPeriodicAnalysis(), 5000);
             this.cooldownTuneInterval = setInterval(() => this.autoTuneCooldowns(), 60000);
+            this.thresholdTuneInterval = setInterval(() => this.autoTuneThresholds(), 60000);
         }
 
         stop() {
@@ -1283,6 +1083,7 @@
             if (this.renderInterval) clearInterval(this.renderInterval); 
             if (this.analysisInterval) clearInterval(this.analysisInterval);
             if (this.cooldownTuneInterval) clearInterval(this.cooldownTuneInterval);
+            if (this.thresholdTuneInterval) clearInterval(this.thresholdTuneInterval);
             this.updateConnectionStatus(false, "BAĞLANTI KESİLDİ"); 
             if (this.combatModeActive) this.deactivateCombatMode();
             this.showNotification('Sistem Durduruldu.', 'danger');
@@ -1296,14 +1097,12 @@
             this.updateSuperTopTicker(); 
             if (this.isRunning) { this.stop(); await this.start(); }
         }
-
         async changeTimeframe(newTimeframe) {
             this.currentTimeframe = newTimeframe; 
             this.showNotification(`Zaman aralığı ${this.currentTimeframe} olarak değiştirildi.`, 'info');
             this.resetDataForNewSymbol();
             if (this.isRunning) { this.stop(); await this.start(); }
         }
-
         resetDataForNewSymbol() {
             this.candles = []; this.aggTrades = []; this.marketData = {}; this.orderBook = { bids: [], asks: [], lastUpdateId: null };
             this.indicators = { rsi: [], atr: null, sma20: null, sma50: null, volSma20: null, vwap: null, adx: null };
@@ -1330,11 +1129,7 @@
             const ws = new WebSocket(`wss://fstream.binance.com/stream?streams=${streams.join('/')}`); 
             this.sockets['main'] = ws;
             
-            ws.onopen = () => {
-                this.updateConnectionStatus(true);
-                this.reconnectAttempts = 0;
-                this.logToJournal("WebSocket bağlantısı başarıyla kuruldu.");
-            };
+            ws.onopen = () => { this.updateConnectionStatus(true); this.reconnectAttempts = 0; this.logToJournal("WebSocket bağlantısı başarıyla kuruldu."); };
             ws.onmessage = (event) => { const message = JSON.parse(event.data); this.handleMarketData(message.stream, message.data); };
             ws.onerror = (error) => console.error('WebSocket Hatası:', error);
             ws.onclose = () => { 
@@ -1348,19 +1143,15 @@
                 } 
             };
         }
-
-        disconnectWebSockets() { 
-            if (this.sockets['main']) { 
-                this.sockets['main'].onclose = null;
-                this.sockets['main'].close(1000, "İstemci tarafından kapatıldı"); 
-            } 
-        }
+        disconnectWebSockets() { if (this.sockets['main']) { this.sockets['main'].onclose = null; this.sockets['main'].close(1000, "İstemci tarafından kapatıldı"); } }
 
         handleMarketData(stream, data) {
             const streamType = stream.split('@')[1];
             if (streamType === 'ticker') {
                 this.marketData = { price: parseFloat(data.c), change24h: parseFloat(data.P), volume24h: parseFloat(data.q), symbol: data.s }; 
                 if (data.s === 'BTCUSDT') this.marketData.btcPrice = parseFloat(data.c);
+                // Pozisyon yönetimi + TP/SL kontrol
+                this.manageOpenPositions();
                 this.checkAutoCloseSignals();
             } 
             else if (streamType.startsWith('depth')) {
@@ -1376,11 +1167,13 @@
                         if (lastCandle.time === kline.t) this.candles[this.candles.length - 1] = newCandle; else this.candles.push(newCandle);
                         if (this.candles.length > 500) this.candles.shift(); this.calculateAllIndicators();
                     }
+                    // Kline kapanışlarında da pozisyon yönetimini kontrol edelim
+                    this.manageOpenPositions();
                     this.checkAutoCloseSignals();
                 }
             } else if (streamType === 'aggTrade') {
                 const trade = { price: parseFloat(data.p), quantity: parseFloat(data.q), isBuyerMaker: data.m, timestamp: data.T };
-                for (const key in this.activeStrategies) { if (typeof this.activeStrategies[key].processTrade === 'function') { this.activeStrategies[key].processTrade(trade); } }
+                for (const key in this.activeStrategies) { if (typeof this.activeStrategies[key].processTrade === 'function') this.activeStrategies[key].processTrade(trade); }
             }
         }
         
@@ -1423,7 +1216,7 @@
             for (const k of this.candles) { const tp = (k.high + k.low + k.close)/3; cumPV += tp * k.volume; cumV += k.volume; }
             this.indicators.vwap = cumV ? (cumPV / cumV) : null;
 
-            // Basit ADX/DX (rejim)
+            // Basit DX (rejim)
             this.indicators.adx = this.calcADX(this.candles, this.settings.params.atrPeriod);
             this.marketRegime = (this.indicators.adx && this.indicators.adx > 22) ? 'trend' : 'range';
         }
@@ -1443,10 +1236,7 @@
             const smooth = (arr) => {
                 let s = arr.slice(0, period).reduce((a,b)=>a+b,0);
                 const out = [s];
-                for (let i = period; i < arr.length; i++) {
-                    s = s - (s/period) + arr[i];
-                    out.push(s);
-                }
+                for (let i = period; i < arr.length; i++) { s = s - (s/period) + arr[i]; out.push(s); }
                 return out;
             };
             const trS = smooth(tr), pS = smooth(plusDM), mS = smooth(minusDM);
@@ -1459,20 +1249,82 @@
             return dx;
         }
 
+        getOrderBookSnapshotInfo() {
+            const ob = this.orderBook;
+            if (!ob || !ob.bids || !ob.asks || ob.bids.length === 0 || ob.asks.length === 0) return null;
+            const bestBid = ob.bids[0][0], bestAsk = ob.asks[0][0];
+            const mid = (bestAsk + bestBid)/2;
+            const spreadPct = (bestAsk - bestBid) / mid;
+            const topN = this.settings.optimization.gating.topN || 5;
+            const price = this.marketData.price || mid || 1;
+            const sumUsd = (levels) => levels.slice(0, topN).reduce((s,[p,q])=> s + (p*q), 0);
+            const topBidUsd = sumUsd(ob.bids);
+            const topAskUsd = sumUsd(ob.asks);
+            const minTopUsd = Math.min(topBidUsd, topAskUsd);
+            return { bestBid, bestAsk, spreadPct, topBidUsd, topAskUsd, minTopUsd, mid, price };
+        }
+        marketGatingPenalty(direction) {
+            const info = this.getOrderBookSnapshotInfo();
+            if (!info) return 0;
+            const g = this.settings.optimization.gating;
+            let penalty = 0;
+            if (info.spreadPct > g.spreadMaxPct) penalty += 1;
+            if (info.minTopUsd < g.minDepthUsd) penalty += 1;
+            return penalty;
+        }
+
+        getEffectiveThreshold() { return (this.settings.confluenceThreshold || 3) + (this.runtimeThresholdOffset || 0); }
+
         calculateDynamicTpSl(signal) {
             const atr = this.indicators.atr;
-            if (!atr || atr === 0) {
-                signal.tp = signal.direction === 'buy' ? signal.price * 1.01 : signal.price * 0.99;
-                signal.sl = signal.direction === 'buy' ? signal.price * 0.995 : signal.price * 1.005;
-                return;
-            }
-            const rrRatio = this.settings.params.rrRatio;
-            const atrMultiplier = 1.5 - (signal.score / 20); 
-            const slDistance = atr * atrMultiplier;
-            const tpDistance = slDistance * rrRatio;
+            let rrRatioBase = this.settings.params.rrRatio;
+            // risk state adaptasyonu
+            if (this.riskState === 'conservative') rrRatioBase = Math.max(1.2, rrRatioBase * 0.9);
+            if (this.riskState === 'aggressive') rrRatioBase = Math.min(2.5, rrRatioBase * 1.1);
 
-            if (signal.direction === 'buy') { signal.sl = signal.price - slDistance; signal.tp = signal.price + tpDistance; }
-            else { signal.sl = signal.price + slDistance; signal.tp = signal.price - tpDistance; }
+            if (!atr || atr === 0) {
+                signal.tp = signal.direction === 'buy' ? signal.price * (1 + 0.01*rrRatioBase/1.5) : signal.price * (1 - 0.01*rrRatioBase/1.5);
+                signal.sl = signal.direction === 'buy' ? signal.price * 0.995 : signal.price * 1.005;
+            } else {
+                const atrMultiplier = 1.5 - (Math.min(10, Math.max(0, signal.score)) / 20); 
+                const slDistance = atr * atrMultiplier;
+                const tpDistance = slDistance * rrRatioBase;
+                if (signal.direction === 'buy') { signal.sl = signal.price - slDistance; signal.tp = signal.price + tpDistance; }
+                else { signal.sl = signal.price + slDistance; signal.tp = signal.price - tpDistance; }
+                signal.entrySlDistance = slDistance;
+                signal.entryTpDistance = tpDistance;
+            }
+        }
+
+        manageOpenPositions() {
+            const price = this.marketData.price;
+            if (!price || this.signals.length === 0) return;
+            const settings = this.settings.optimization.breakeven || {};
+            if (!settings.enabled) return;
+            let changed = false;
+
+            const activeSignals = this.signals.filter(s => s.status === 'active' && s.symbol === this.currentSymbol);
+            for (const s of activeSignals) {
+                if (!s.entrySlDistance || s.entrySlDistance <= 0) continue;
+                const rNow = s.direction === 'buy' ? (price - s.price) / s.entrySlDistance : (s.price - price) / s.entrySlDistance;
+                s.mfeR = Math.max(s.mfeR || 0, rNow);
+                // Breakeven
+                if (!s.beDone && s.mfeR >= (settings.beAtR || 0.8)) {
+                    s.sl = s.price; s.beDone = true;
+                    s.note = (s.note || '') + ' | SL->BE';
+                    changed = true;
+                }
+                // Trailing
+                if (s.mfeR >= (settings.trailAfterR || 1.5) && (s.trailingStage || 0) < 1) {
+                    const addR = (settings.trailToR || 0.5) * s.entrySlDistance;
+                    if (s.direction === 'buy') s.sl = Math.min(s.tp, s.price + addR);
+                    else s.sl = Math.max(s.tp, s.price - addR);
+                    s.trailingStage = 1;
+                    s.note = (s.note || '') + ' | Trail1';
+                    changed = true;
+                }
+            }
+            if (changed) this.saveData('utc_signals', this.signals);
         }
 
         checkAutoCloseSignals() {
@@ -1504,26 +1356,21 @@
 
                 if (!isNaN(oldPrice) && oldPrice !== 0) { 
                     const color = this.marketData.price > oldPrice ? 'var(--positive)' : (this.marketData.price < oldPrice ? 'var(--negative)' : '');
-                    if(color) {
-                       if (priceEl) priceEl.style.color = color; 
-                       if(tickerPriceEl) tickerPriceEl.style.color = color;
-                    }
+                    if(color) { if (priceEl) priceEl.style.color = color; if(tickerPriceEl) tickerPriceEl.style.color = color; }
                 }
             }
             const change = this.marketData.change24h || 0;
             const changeEl = document.getElementById('price-change-24h');
             if (changeEl) { changeEl.textContent = `${change.toFixed(2)}%`; changeEl.style.color = change >= 0 ? 'var(--positive)' : 'var(--negative)'; }
-            const volumeEl = document.getElementById('volume-24h');
-            if(volumeEl) volumeEl.textContent = this.formatVolume(this.marketData.volume24h);
-            const atrEl = document.getElementById('atr-value');
-            if(atrEl) atrEl.textContent = this.indicators.atr ? this.indicators.atr.toFixed(this.getDecimalPlaces(this.indicators.atr)) : '-';
+            const volumeEl = document.getElementById('volume-24h'); if(volumeEl) volumeEl.textContent = this.formatVolume(this.marketData.volume24h);
+            const atrEl = document.getElementById('atr-value'); if(atrEl) atrEl.textContent = this.indicators.atr ? this.indicators.atr.toFixed(this.getDecimalPlaces(this.indicators.atr)) : '-';
         }
-        
+
         addFinalSignal(signal) {
-            this.signals.unshift(signal); if (this.signals.length > 100) this.signals.pop();
+            this.signals.unshift(signal); if (this.signals.length > 200) this.signals.pop();
             this.saveData('utc_signals', this.signals);
-            this.renderSignals(); 
-            this.renderStats(); 
+            this.renderSignals(true); 
+            this.renderStats(true); 
             this.chartManager.addSignalMarker(signal);
             this.showNotification(`YENİ SİNYAL: ${signal.direction.toUpperCase()} ${signal.symbol.replace('USDT', '/USDT')} | Skor: ${typeof signal.score==='number'?signal.score.toFixed(1):signal.score}`, signal.direction === 'buy' ? 'success' : 'danger');
             playSignal(signal.direction); 
@@ -1541,8 +1388,8 @@
 
                 this.saveData('utc_signals', this.signals);
                 this.saveData('utc_stats', this.stats);
-                this.renderSignals(); 
-                this.renderStats();   
+                this.renderSignals(true); 
+                this.renderStats(true);   
                 this.showNotification(`Sinyal ${result.toUpperCase()} olarak işaretlendi.`, 'info');
             }
         }
@@ -1550,13 +1397,13 @@
         updateStrategyStats(signal) {
             const isWin = signal.status === 'tp';
             const contributors = signal.contributors || [];
-            const totalWeighted = contributors.reduce((s, c) => s + (c.baseScore * (c.weight || 1)), 0) || 1;
+            const totalEff = contributors.reduce((s, c) => s + (c.effScore || (c.baseScore * (c.weight||1))), 0) || 1;
             const decay = 0.995;
 
             for (const c of contributors) {
                 const stat = this.strategyStats[c.strategy] || { alpha:3, beta:2, proposals:0, contrib:0, wins:0, losses:0, lastUpdate: Date.now() };
                 stat.alpha *= decay; stat.beta *= decay;
-                const credit = (c.baseScore * (c.weight || 1)) / totalWeighted;
+                const credit = (c.effScore || (c.baseScore * (c.weight || 1))) / totalEff;
                 stat.contrib += 1;
                 if (isWin) { stat.wins += credit; stat.alpha += credit; }
                 else { stat.losses += credit; stat.beta += credit; }
@@ -1576,6 +1423,30 @@
             this.saveStrategyStats();
         }
 
+        autoToggleStrategies() {
+            if (!this.settings.optimization.autoToggle) return;
+            const now = Date.now();
+            if (now - this.lastAutoToggleTs < 15*60*1000) return; // 15 dk'da bir
+            this.lastAutoToggleTs = now;
+            const minW = this.settings.optimization.minWeightToStay || 0.6;
+            const minContrib = this.settings.optimization.minContribForToggle || 30;
+
+            for (const key of this.allStrategyKeys) {
+                const w = this.getStrategyWeight(key);
+                const stat = this.strategyStats[key] || {};
+                const active = !!this.settings.activeStrategies[key];
+                if (active && w < minW && (stat.contrib || 0) >= minContrib) {
+                    this.settings.activeStrategies[key] = false;
+                    this.showNotification(`Oto-optimizasyon: ${this.strategies[key].displayName} pasif edildi (w=${w.toFixed(2)}).`, 'warning');
+                } else if (!active && w >= 1.2) {
+                    this.settings.activeStrategies[key] = true;
+                    this.showNotification(`Oto-optimizasyon: ${this.strategies[key].displayName} yeniden aktif (w=${w.toFixed(2)}).`, 'success');
+                }
+            }
+            this.updateActiveStrategies();
+            this.saveSettings();
+        }
+
         autoTuneCooldowns() {
             if (!this.isRunning) return;
             const now = Date.now();
@@ -1586,9 +1457,7 @@
             for (let i = 1; i < recent.length; i++) {
                 totalPairs++;
                 const dt = recent[i].timestamp - recent[i-1].timestamp;
-                if (recent[i-1].direction !== recent[i].direction && dt <= 15000) {
-                    quickFlips++;
-                }
+                if (recent[i-1].direction !== recent[i].direction && dt <= 15000) quickFlips++;
             }
             const flipRatio = totalPairs ? (quickFlips / totalPairs) : 0;
             const volPct = (this.indicators.atr && this.marketData.price) ? (this.indicators.atr / this.marketData.price) : 0.001;
@@ -1615,23 +1484,89 @@
                 this.settings.cooldowns.signalMs = newSignal;
                 this.settings.cooldowns.proposalTimeoutMs = newProposalTimeout;
                 this.saveSettings();
-                this.showNotification(`Cooldown otomatik optimize edildi (flip: ${(flipRatio*100).toFixed(0)}%, vol: ${(volPct*100).toFixed(2)}%).`, 'warning');
+                this.showNotification(`Cooldown optimize (flip: ${(flipRatio*100).toFixed(0)}%, vol: ${(volPct*100).toFixed(2)}%).`, 'warning');
+            }
+
+            // Strateji auto-toggle
+            this.autoToggleStrategies();
+        }
+
+        autoTuneThresholds() {
+            if (!this.isRunning) return;
+            const now = Date.now();
+            const windowSignals = this.signals.filter(s => s.symbol === this.currentSymbol).slice(0, 40);
+            const recent = windowSignals.slice(0, 20);
+            const tp = recent.filter(s => s.status === 'tp').length;
+            const sl = recent.filter(s => s.status === 'sl').length;
+            const winRate = (tp + sl) > 0 ? tp / (tp + sl) : 0.5;
+
+            // hızlı flip oranını tekrar hesapla
+            let quickFlips = 0, pairs = 0;
+            const ordered = recent.slice().sort((a,b)=> a.timestamp - b.timestamp);
+            for (let i = 1; i < ordered.length; i++) {
+                pairs++;
+                if (ordered[i-1].direction !== ordered[i].direction && (ordered[i].timestamp - ordered[i-1].timestamp) <= 15000) quickFlips++;
+            }
+            const flipRatio = pairs ? quickFlips / pairs : 0;
+
+            let targetOffset = 0;
+            if (winRate <= 0.4 || flipRatio > 0.25) targetOffset = 1;
+            if (winRate <= 0.3) targetOffset = 2;
+            if (winRate >= 0.6 && flipRatio < 0.1) targetOffset = 0;
+
+            // Risk state
+            if (winRate <= 0.35) this.riskState = 'conservative';
+            else if (winRate >= 0.65) this.riskState = 'aggressive';
+            else this.riskState = 'neutral';
+
+            // Yumuşak geçiş
+            this.runtimeThresholdOffset = 0.7 * (this.runtimeThresholdOffset||0) + 0.3 * targetOffset;
+        }
+
+        // Contributors formatlayıcı
+        formatContributors(signal, detailed = false) {
+            const cons = signal?.contributors || [];
+            if (!cons.length) return '-';
+            const parts = cons.map(c => {
+                const name = this.strategies[c.strategy]?.displayName || c.strategy;
+                const raw = c.effScore || ((c.baseScore || 0) * (c.weight || 1));
+                return { name, raw, weight: c.weight || 1, baseScore: c.baseScore || 0 };
+            });
+            const total = parts.reduce((s, x) => s + x.raw, 0) || 1;
+            parts.forEach(p => p.pct = Math.round((p.raw / total) * 100));
+            parts.sort((a,b)=> b.pct - a.pct);
+
+            if (!detailed) {
+                const top = parts.slice(0, 3).map(p => `${p.name} ${p.pct}%`);
+                const more = parts.length > 3 ? ` +${parts.length - 3}` : '';
+                return top.join(' | ') + more;
+            } else {
+                return parts.map(p => `${p.name}: ${p.pct}% • w=${p.weight.toFixed(2)} • s=${p.baseScore}`).join(' | ');
             }
         }
 
         renderSignals(isModal = false) {
             const tbody = isModal ? document.getElementById('modal-signals-body') : document.getElementById('signals-body');
             if(!tbody) return; 
-            tbody.innerHTML = this.signals.map(s => `
-                <tr class="signal-${s.status === 'active' ? s.direction : s.status}">
+            tbody.innerHTML = this.signals.map(s => {
+                const baseCols = `
                     <td>${new Date(s.timestamp).toLocaleTimeString()}</td>
                     <td>${s.direction.toUpperCase()}</td>
                     <td>${this.formatPrice(s.price)}</td>
                     <td>${this.formatPrice(s.tp)}</td>
                     <td>${this.formatPrice(s.sl)}</td>
                     <td>${typeof s.score==='number' ? s.score.toFixed(1) : s.score}</td>
-                    <td>${s.status.toUpperCase()}</td>
-                </tr>`).join('');
+                `;
+                const contribCol = isModal ? `<td title="${this.formatContributors(s, true)}">${this.formatContributors(s, false)}</td>` : '';
+                const statusCol = `<td>${(s.status || 'ACTIVE').toUpperCase()}</td>`;
+                return `
+                    <tr class="signal-${s.status === 'active' ? s.direction : s.status}">
+                        ${baseCols}
+                        ${contribCol}
+                        ${statusCol}
+                    </tr>
+                `;
+            }).join('');
         }
         renderStats(isModal = false) {
             const container = isModal ? document.getElementById('modal-stats-container') : document.getElementById('stats-container');
@@ -1642,6 +1577,9 @@
                 <div class="stat-item"><span class="stat-label">Başarılı (TP):</span><span class="stat-value" style="color:var(--positive)">${this.stats.tp}</span></div>
                 <div class="stat-item"><span class="stat-label">Başarısız (SL):</span><span class="stat-value" style="color:var(--negative)">${this.stats.sl}</span></div>
                 <div class="stat-item"><span class="stat-label">Başarı Oranı:</span><span class="stat-value" style="color:var(--primary)">${winRate}%</span></div>
+                <div class="stat-item"><span class="stat-label">Rejim:</span><span class="stat-value">${this.marketRegime.toUpperCase()}</span></div>
+                <div class="stat-item"><span class="stat-label">Efektif Eşik:</span><span class="stat-value">${this.getEffectiveThreshold().toFixed(1)}</span></div>
+                <div class="stat-item"><span class="stat-label">Risk Durumu:</span><span class="stat-value">${this.riskState}</span></div>
             `;
         }
 
@@ -1666,15 +1604,8 @@
             const sd = document.getElementById('connection-status');
             const st = document.getElementById('connection-text');
             const tickerSymbolEl = document.getElementById('ticker-bar-symbol');
-
-            if(isConnected) { 
-                sd.classList.add('online'); 
-                st.textContent = `BAĞLI (${this.currentSymbol.replace('USDT', '/USDT')})`;
-                if(tickerSymbolEl) tickerSymbolEl.textContent = this.currentSymbol.replace('USDT', '/USDT');
-            } else { 
-                sd.classList.remove('online'); 
-                st.textContent = message;
-            } 
+            if(isConnected) { sd.classList.add('online'); st.textContent = `BAĞLI (${this.currentSymbol.replace('USDT', '/USDT')})`; if(tickerSymbolEl) tickerSymbolEl.textContent = this.currentSymbol.replace('USDT', '/USDT'); }
+            else { sd.classList.remove('online'); st.textContent = message; } 
         }
 
         showNotification(message, type = 'info') { const c=document.getElementById('notifications-container'); if(!c) return; const n = document.createElement('div'); n.className=`notification ${type}`; n.textContent=message; c.prepend(n); setTimeout(() => { n.style.transition='opacity 0.5s ease'; n.style.opacity=0; setTimeout(()=>n.remove(), 500); }, 5000); }
@@ -1688,12 +1619,18 @@
                 confluenceThreshold: 3,
                 params: { rsiPeriod: 14, atrPeriod: 14, wallBtc: 20, rrRatio: 1.5 },
                 cooldowns: { 
-                    signalMs: 15000, 
-                    sameDirectionMs: 30000, 
-                    proposalTimeoutMs: 3000, 
-                    strategyProposalMs: 10000,
-                    oppositeDirectionMs: 20000,
-                    reverseHysteresisPoints: 2
+                    signalMs: 15000, sameDirectionMs: 30000, proposalTimeoutMs: 3000, strategyProposalMs: 10000,
+                    oppositeDirectionMs: 20000, reverseHysteresisPoints: 2
+                },
+                optimization: {
+                    enabled: true,
+                    timeDecaySec: 3,
+                    dirMargin: 0.5,
+                    gating: { spreadMaxPct: 0.0015, minDepthUsd: 50000, topN: 5 },
+                    breakeven: { enabled: true, beAtR: 0.8, trailAfterR: 1.5, trailToR: 0.5 },
+                    autoToggle: true,
+                    minWeightToStay: 0.6,
+                    minContribForToggle: 30
                 },
                 activeStrategies: defaultActive
             };
@@ -1704,6 +1641,7 @@
                     ...saved,
                     params: { ...defaults.params, ...(saved.params||{}) },
                     cooldowns: { ...defaults.cooldowns, ...(saved.cooldowns||{}) },
+                    optimization: { ...defaults.optimization, ...(saved.optimization||{}) },
                     activeStrategies: { ...defaults.activeStrategies, ...(saved.activeStrategies||{}) }
                 };
             }
