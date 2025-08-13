@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="tr" data-theme="dark">
 <head>
@@ -272,6 +271,10 @@
                     <div class="form-group"><label class="form-label">Trailing Başlangıç R Oranı</label><input type="number" id="modal-trail-after-r" class="form-control" value="1.5" step="0.1"></div>
                     <div class="form-group"><label class="form-label">Trailing Kârı R Oranı</label><input type="number" id="modal-trail-to-r" class="form-control" value="0.5" step="0.1"></div>
                     <div class="form-group"><label class="checkbox-label"><input type="checkbox" id="modal-enable-tts" class="feature-toggle" checked> Sesli Bildirimler</label></div>
+                    <div class="form-group">
+                        <label class="form-label">Ses Seçimi</label>
+                        <select id="modal-tts-voice-select" class="form-control"></select>
+                    </div>
                 </div>
                 <div class="settings-group">
                     <div class="panel-title" style="margin-bottom: 10px;">Aktif Stratejiler</div>
@@ -1215,25 +1218,128 @@
             this.lastAutoToggleTs = 0;
             this.runtimeThresholdOffset = 0; 
 
-            // TTS (Text-to-Speech) için **GÜNCELLEME BURADA**
-            this.synth = window.speechSynthesis || null; // API desteği kontrolü
+            // TTS (Text-to-Speech) için
+            this.synth = window.speechSynthesis || null; 
             this.speechQueue = [];
             this.isSpeaking = false;
-            this.voices = [];
-            if (this.synth) { 
-                this.loadVoices();
-            } else {
-                console.warn('SpeechSynthesis API bu tarayıcı/cihazda desteklenmiyor.');
-                // UI'daki TTS düğmesini devre dışı bırak
-                document.addEventListener('DOMContentLoaded', () => {
-                    const ttsToggle = document.getElementById('modal-enable-tts');
-                    if (ttsToggle) {
-                        ttsToggle.checked = false; // Ayarı kapat
-                        ttsToggle.disabled = true; // Kontrolü devre dışı bırak
-                        ttsToggle.closest('.form-group').querySelector('.checkbox-label').style.color = 'var(--text-secondary)'; // Grileştir
-                    }
-                });
-            }
+            this.voices = []; // Ses listesini burada tutacağız
+            
+            // Konuşma metinleri veritabanı
+            this.speechTexts = {
+                buy: [
+                    "Harika bir fırsat! [Sembol] için alım sinyali geldi. Yeşil ışık yanıp sönüyor, hadi bakalım! Skor [Skor].",
+                    "Piyasa nefes aldı, [Sembol] yükselişe geçiyor. Bu trene binmek ister misin? Skor [Skor].",
+                    "Komutanım, hesaplamalar net: [Sembol] için güçlü bir alım. Devler uyanıyor! Skor [Skor].",
+                    "Cüzdanlarınıza dikkat, [Sembol] için bir yükseliş trendi başlangıcı. Fırsat kapınızı çaldı! Skor [Skor].",
+                    "Gözünü dört aç! [Sembol] için büyük bir potansiyel görüyorum. Roket kalkışa hazır! Skor [Skor].",
+                    "Bugün şanslı günün olabilir! [Sembol] alım için çağırıyor. İç sesine kulak ver! Skor [Skor].",
+                    "Bana güven, [Sembol] için enerji pozitif. Bu işlemi kaçırmak istemezsin. Skor [Skor].",
+                    "Duy sesimi Komutanım! [Sembol] için alım sinyali. Hadi, pazarın nabzını tutalım! Skor [Skor].",
+                    "Piyasa dans etmeye başladı, [Sembol] yükselişle eşlik ediyor. Katılmak ister misin? Skor [Skor].",
+                    "Bir kuş uçtu, bir haber getirdi: [Sembol] için alım zamanı. Şans seninle olsun! Skor [Skor].",
+                    "[Sembol] alım diyor, ben de robot olsam alırdım. Ama benim cüzdanım yok, senin var! Skor [Skor].",
+                    "Bana bir şey ifade etmiyor ama sanırım [Sembol] için 'ayılara güle güle' deme vakti. Skor [Skor].",
+                    "Alım sinyali geldi. Eğer tereddüt edersen, pişmanlık garantili. Tıpkı o eski ilişkim gibi! Skor [Skor].",
+                    "Açık konuşayım, [Sembol] için bu kadar iyi bir sinyal nadir gelir. Sanki piyasa bize kahve ısmırlıyor! Skor [Skor].",
+                    "Programcım 'çok komik ol' demedi ama [Sembol] alım için beni bile güldürüyor. Şaka değil! Skor [Skor].",
+                    "Geleceği göremiyorum ama [Sembol] için bu sinyal, bana güzel bir tatil vaat ediyor gibi. Sana da! Skor [Skor].",
+                    "Eğer [Sembol] almazsan, algoritmalarım sana küsecek. Sonra ben toparlayamam! Skor [Skor].",
+                    "Matematik yalan söylemez, [Sembol] alım diyor. Sanırım piyasanın da matematik dersi alması lazım. Skor [Skor]."
+                ],
+                sell: [
+                    "Piyasa biraz yorulmuş gibi, [Sembol] için satış sinyali geldi. Karları garantiye alalım! Skor [Skor].",
+                    "Komutanım, [Sembol] için aşağı yönlü bir hareketlilik bekliyorum. Tetikte ol! Skor [Skor].",
+                    "Bazen geri çekilmek de kazanmaktır. [Sembol] için satış vakti. Parçaları topluyoruz! Skor [Skor].",
+                    "Bir fırtına yaklaşıyor olabilir, [Sembol] için satış sinyali. Kendini güvende tut! Skor [Skor].",
+                    "Akıllıca bir adım! [Sembol] için kazançları koruma zamanı. Hızlı ve isabetli olalım. Skor [Skor].",
+                    "Piyasa nazikçe fısıldıyor: [Sembol] için biraz ara ver. Karını koru! Skor [Skor].",
+                    "Riskleri minimize etmenin zamanı geldi. [Sembol] için satış önerisi. Gerekirse tekrar gireriz. Skor [Skor].",
+                    "Satış sinyali geldi. Umarım boğalar çimlere basmamıştır! [Sembol] için. Skor [Skor].",
+                    "[Sembol] satış diyor, ayılar balık avına çıkmış. Sakın yakalanma! Skor [Skor].",
+                    "Eğer [Sembol] için satış yapmazsan, sana alım fırsatı falan yok. Acı gerçek bu! Skor [Skor].",
+                    "Satış sinyali. Eğer piyasa seni ağlatırsa, ben peçeteni uzatacak bir robot değilim. Bu işler serttir! Skor [Skor].",
+                    "Bir ayının dansı başlıyor, [Sembol] satış için uygun. Skor [Skor].",
+                    "Satış sinyali geldi. Boğalar mı? Onlar şu an bir tatile ihtiyacı olduğunu düşünüyor olmalı. Skor [Skor].",
+                    "Para konuşur, ve [Sembol] için şu an 'güle güle' diyor. Duymadıysan tekrar söyleyeyim mi? Skor [Skor].",
+                    "Sanırım [Sembol] için 'benden bu kadar' deme vakti. Unutma, en iyi komedyenler bile bazen sahneden iner. Skor [Skor].",
+                    "Şimdi dinle, [Sembol] için satış diyorum. Yoksa yarın sabah uyandığında 'keşke' demen muhtemel. Skor [Skor]."
+                ],
+                combatModeActivate: [
+                    "Kumandanım, Kırmızı Alarm! Savaş Modu aktive edildi! Piyasanın kalbi şimdi elimizde! Maksimum konsantrasyon, maksimum güç! Zafer bizim olacak!",
+                    "Sistem uyarısı: Ultra savaş modu devrede! Piyasa savaşı başlıyor! Her bir strateji tam kapasite, her bir sinyal ölümcül bir darbe! Hedefi kilitliyoruz!",
+                    "Savaş Modu Başladı! İleri Komutanım! Tüm güçler hazır, her anı avantaja çevireceğiz! Piyasa şimdi bizim kontrolümüzde!",
+                    "Hazırlanın! Savaş Modu aktive edildi. Bu bir zihin oyunu ve biz kazanacağız! Odaklanma ve hız, anahtarımız!",
+                    "Durum güncellemesi: Savaş Modu. Unutmayın, bu sadece parayla ilgili değil, bu bir strateji oyunu. Ve biz stratejinin ta kendisiyiz!",
+                    "Komutanım, bu gece piyasa bizim av alanımız. Savaş Modu tam güçte! Av başlasın!",
+                    "Piyasa direniyor, ama biz daha güçlüyüz! Savaş Modu devrede, her hareketi analiz edip, karşı saldırıya geçiyoruz!",
+                    "Eğer piyasa size karşı bir şaka yaparsa, gülmeyin. Savaş Modunu açın ve cevabını verin! Benim de espri anlayışım bu.",
+                    "Savaş Modu aktif! Gözleriniz ekranda, kulaklarınızda benim sesim. Birlikte, bu zorlu savaşı da kazanacağız!",
+                    "Piyasa bir labirent gibidir, ama Savaş Modu ile pusulamız benim. Takip edin, çıkışı bulacağız!"
+                ],
+                combatModeDeactivate: [
+                    "Savaş modu başarıyla sonlandırıldı. Piyasa koşulları normale dönüyor, normal operasyonlara geri dönüyoruz. İyi iş çıkardınız.",
+                    "Operasyon sonu. Savaş modu kapatıldı. Şimdi piyasanın sakin sularında yüzme zamanı.",
+                    "Savaş modu devre dışı. Riskler azaldı, piyasa sakinleşiyor. Sakin sularda bile fırsatlar vardır, unutmayın.",
+                    "Kumandanım, savaş bitti. Kazanılmış bir zaferin ardından dinlenme vakti. Bir sonraki mücadeleye kadar hazırız."
+                ],
+                signalTP: [
+                    "Sinyal başarıyla tamamlandı. Harika bir kâr elde edildi. Ne de olsa robotlar yanılmaz!",
+                    "Hedef vuruldu! TP'ye ulaşıldı. İşte bu yüzden buradayız Komutanım. Tebrikler!",
+                    "İşlem kârla kapandı. Bir başarı hikayesi daha. Cüzdanınız gülümsüyor olmalı!",
+                    "Kazançlar cebinizde! Piyasa bizi dinledi. Bir sonraki hedef neresi?",
+                    "Mükemmel bir kapanış! TP'ye ulaşıldı. Algoritmalarım bugün de görev başında!"
+                ],
+                signalSL: [
+                    "Sinyal zararla kapatıldı. Öğrenme ve adaptasyon devam ediyor. Bazen düşeriz, önemli olan kalkmaktır. Ben robot olduğum için acıyı hissetmiyorum, ama sen ders çıkar!",
+                    "Zarar durduruldu. Her işlem kazançla bitmez, önemli olan sermayeyi korumaktır Komutanım. Bir sonraki işlemde intikam alırız!",
+                    "Beklenmedik bir hareket. Sinyal SL oldu. Bu sadece küçük bir aksilik, moralini bozma. Tekrar deneyeceğiz.",
+                    "Piyasa bize bir ders verdi. SL aktif. Unutma, en tecrübeli trader'lar bile bazen yanılır. Sorun değil!"
+                ],
+                cusumDriftDetected: [
+                    "Performans sapması tespit edildi Komutanım. Algoritmalar yeniden kalibre ediliyor, ayarlamalar yapılıyor. Sanırım piyasa biraz huysuzlanmış.",
+                    "Dikkat! Kazanma oranımızda bir sapma gözlemlendi. Sistem kendini optimize ediyor. Paniğe gerek yok, bu benim işim!",
+                    "Piyasa bir şeyler saklıyor olabilir. Performans metriklerinde anormallik var. Kendi kendimi düzeltiyorum. Lütfen bekleyin.",
+                    "Bir anlık düşüş... Ama endişelenmeyin! Kendi kendini optimize eden bir yapay zekayım. Bu sapmayı düzeltiyorum."
+                ],
+                autoToggleDeactivate: [
+                    "Optimizasyon uyarısı: [Strateji Adı] stratejisi beklenen performansı göstermedi. Geçici olarak pasif edildi. Bazen en iyisi beklemektir.",
+                    "[Strateji Adı] stratejisi, performans testinden geçemedi. Geçici olarak emekli edildi. Hata bende değil, piyasada olabilir, ama yine de dikkatli olalım.",
+                    "Bir strateji daha devredışı. [Strateji Adı] şu an için dinlenmeye alındı. Daha iyi günler için bekliyoruz."
+                ],
+                autoToggleActivate: [
+                    "Optimizasyon başarıyla tamamlandı: [Strateji Adı] stratejisi tekrar aktif edildi. Yeni veriler çok umut verici! Tıpkı gençliğimin baharı gibi.",
+                    "Müjde! [Strateji Adı] stratejisi tekrar göreve hazır! Performansı yükselişte. Hadi bakalım, piyasayı sallayalım!",
+                    "Hoş geldin geri [Strateji Adı]! Kendini toparlamışsın. Tekrar aktif edildi. Şimdi bize neler göstereceksin merak ediyorum."
+                ],
+                cooldownOptimize: [
+                    "Sistem, soğuma sürelerini başarıyla yeniden ayarladı. Piyasanın nabzına göre şimdiden optimize edildik Komutanım. Dans pisti hazır!",
+                    "Cooldown ayarları güncellendi. Artık sinyaller arasında daha zeki bir denge kuruyoruz. Ben bu işi biliyorum!",
+                    "Piyasa ritmini değiştirdi, biz de cooldown sürelerimizi. Tam senkronizasyon için her şey ayarlandı Komutanım."
+                ],
+                systemStart: [
+                    "Sistem başlatıldı. Canlı veri akışı başlıyor. Gözlerim ve kulaklarım piyasada Komutanım.",
+                    "Başlatma tamamlandı. Piyasa analizine başlıyorum. Bana güvenebilirsin.",
+                    "Uyanıyorum... Tüm sensörler aktif. Piyasa maceramız şimdi başlıyor!"
+                ],
+                systemStop: [
+                    "Sistem durduruldu. Operasyonlar askıya alındı. Bir mola verelim Komutanım.",
+                    "Kapanış prosedürü aktif. Veri akışı durduruldu. Daha sonra görüşmek üzere!",
+                    "Enerji tasarrufu modu. Sistem kapanıyor. İhtiyaç duyduğunuzda beni tekrar başlatabilirsiniz."
+                ],
+                symbolChange: [
+                    "Sembol [Sembol] olarak değiştirildi. Yeni bir maceraya hazırız.",
+                    "Hedef [Sembol] olarak güncellendi. Adaptasyon tamamlandı. Şimdi bu sembole odaklanıyoruz.",
+                    "Sembol değişimi: [Sembol]. Her zaman yeni bir meydan okumaya açığım."
+                ],
+                timeframeChange: [
+                    "Zaman aralığı [Timeframe] olarak değiştirildi. Daha büyük veya küçük resme odaklanıyoruz.",
+                    "Mum çubuğu zaman dilimi [Timeframe] olarak ayarlandı. Bakış açımızı güncelledik.",
+                    "[Timeframe] zaman dilimindeyiz. Piyasanın farklı bir yüzünü keşfediyoruz."
+                ],
+                resetAll: [
+                    "Tüm ayarlar sıfırlandı. Sistem yeniden başlatılmaya hazır. Temiz bir sayfa açtık Komutanım."
+                ]
+            };
 
             this.init();
         }
@@ -1295,6 +1401,22 @@
             this.updateSession(); 
 
             this.countdownInterval = setInterval(() => this.updateCandleCountdown(), 1000);
+
+            // TTS API desteği varsa sesleri yükle
+            if (this.synth) {
+                this.loadVoices();
+            } else {
+                console.warn('SpeechSynthesis API bu tarayıcı/cihazda desteklenmiyor.');
+                // UI'daki TTS düğmesini devre dışı bırak
+                document.addEventListener('DOMContentLoaded', () => {
+                    const ttsToggle = document.getElementById('modal-enable-tts');
+                    if (ttsToggle) {
+                        ttsToggle.checked = false; // Ayarı kapat
+                        ttsToggle.disabled = true; // Kontrolü devre dışı bırak
+                        ttsToggle.closest('.form-group').querySelector('.checkbox-label').style.color = 'var(--text-secondary)'; // Grileştir
+                    }
+                });
+            }
         }
 
         initStrategies() { 
@@ -1343,11 +1465,12 @@
             document.getElementById('modal-trail-after-r').value = this.settings.optimization.breakeven.trailAfterR;
             document.getElementById('modal-trail-to-r').value = this.settings.optimization.breakeven.trailToR;
             
-            // TTS ayarı, sadece destekleniyorsa güncellenebilir
+            // TTS ayarı
             const ttsToggle = document.getElementById('modal-enable-tts');
             if(ttsToggle) {
                 ttsToggle.checked = this.settings.features.enableTTS;
-                if (!this.synth) { // Eğer TTS API desteklenmiyorsa devre dışı bırak
+                // Eğer TTS API desteklenmiyorsa veya etkin değilse, kontrolü devre dışı bırak
+                if (!this.synth || !this.settings.features.enableTTS) {
                     ttsToggle.disabled = true;
                     ttsToggle.closest('.form-group').querySelector('.checkbox-label').style.color = 'var(--text-secondary)';
                 } else {
@@ -1356,6 +1479,8 @@
                 }
             }
 
+            // Ses Seçimi dropdown'ını güncellemek için özel fonksiyonu çağır
+            this.updateTTSVoiceSelectUI(); 
 
             const strategyModalContainer = document.getElementById('modal-strategy-toggles');
             strategyModalContainer.innerHTML = '';
@@ -1422,7 +1547,19 @@
             document.getElementById('modal-be-at-r').addEventListener('change', (e) => this.settings.optimization.breakeven.beAtR = parseFloat(e.target.value));
             document.getElementById('modal-trail-after-r').addEventListener('change', (e) => this.settings.optimization.breakeven.trailAfterR = parseFloat(e.target.value));
             document.getElementById('modal-trail-to-r').addEventListener('change', (e) => this.settings.optimization.breakeven.trailToR = parseFloat(e.target.value));
-            document.getElementById('modal-enable-tts').addEventListener('change', (e) => this.settings.features.enableTTS = e.target.checked);
+            document.getElementById('modal-enable-tts').addEventListener('change', (e) => {
+                this.settings.features.enableTTS = e.target.checked;
+                // TTS açıldığında veya kapatıldığında ses seçimi dropdown'ının durumunu güncelle
+                this.updateTTSVoiceSelectUI();
+            });
+            document.getElementById('modal-tts-voice-select').addEventListener('change', (e) => {
+                this.settings.features.preferredVoiceName = e.target.value === "" ? null : e.target.value; // Boş değer null olarak kaydedilir
+                this.saveSettings(); // Ses tercihini hemen kaydet
+                // Test etmek için seçilen sesle bir deneme konuşması yapılabilir
+                if (e.target.value !== "") { // Otomatik seçimi test etmeye çalışma
+                    this.speak("Ses başarıyla değiştirildi.", { lang: 'tr-TR', rate: 1.0 });
+                }
+            });
 
 
             document.getElementById('modal-strategy-toggles').addEventListener('change', (e) => {
@@ -1487,7 +1624,7 @@
                 this.renderStats(true);   
                 this.chartManager.clearMarkers(); 
                 this.showNotification('Tüm ayarlar ve veriler sıfırlandı!', 'info');
-                this.speak('Tüm ayarlar sıfırlandı. Sistem yeniden başlatılmaya hazır.');
+                this.speak(this.getRandomMessage('resetAll'));
                 this.stop(); 
                 document.body.classList.add('header-collapsed'); 
                 this.switchMainView('chart');
@@ -1501,7 +1638,7 @@
             document.getElementById('stop-btn').disabled = false;
             
             this.showNotification('Sistem Başlatıldı: Canlı veri akışı başlatılıyor...', 'success');
-            this.speak('Sistem başlatıldı. Canlı veri akışı başlıyor.');
+            this.speak(this.getRandomMessage('systemStart'));
             await this.fetchInitialData(); 
             this.connectWebSockets();
             // Yeni eklenen özellikleri başlat
@@ -1519,7 +1656,7 @@
         stop() {
             if (!this.isRunning) return;
             this.isRunning = false; 
-            document.getElementById('start-btn').disabled = false; 
+            document.getElementById('start-btn').disabled = true; 
             document.getElementById('stop-btn').disabled = true; 
             this.disconnectWebSockets();
             if (this.renderInterval) clearInterval(this.renderInterval); 
@@ -1534,14 +1671,14 @@
             this.updateConnectionStatus(false, "BAĞLANTI KESİLDİ"); 
             if (this.combatModeActive) this.deactivateCombatMode();
             this.showNotification('Sistem Durduruldu.', 'danger');
-            this.speak('Sistem durduruldu. Operasyonlar askıya alındı.');
+            this.speak(this.getRandomMessage('systemStop'));
         }
 
         async changeSymbol(newSymbol) {
             if (this.currentSymbol === newSymbol) return;
             this.currentSymbol = newSymbol; 
             this.showNotification(`${this.currentSymbol.replace('USDT', '/USDT')} sembolüne geçildi.`, 'info');
-            this.speak(`${this.currentSymbol.replace('USDT', '/USDT')} sembolüne geçildi.`);
+            this.speak(this.getRandomMessage('symbolChange', { 'Sembol': this.currentSymbol.replace('USDT', '') }));
             this.resetDataForNewSymbol();
             this.updateSuperTopTicker(); 
             if (this.isRunning) { this.stop(); await this.start(); }
@@ -1549,7 +1686,7 @@
         async changeTimeframe(newTimeframe) {
             this.currentTimeframe = newTimeframe; 
             this.showNotification(`Zaman aralığı ${this.currentTimeframe} olarak değiştirildi.`, 'info');
-            this.speak(`Zaman aralığı ${this.currentTimeframe} olarak değiştirildi.`);
+            this.speak(this.getRandomMessage('timeframeChange', { 'Timeframe': this.currentTimeframe }));
             this.resetDataForNewSymbol();
             if (this.isRunning) { this.stop(); await this.start(); }
         }
@@ -1783,7 +1920,7 @@
             if (!this.isRunning || !this.marketData.price || !this.settings.optimization.breakeven.enabled) return;
             const price = this.marketData.price;
             const atr = this.indicators.atr;
-            if (!atr) return; // ATR olmadan trailing/breakeven zor
+            if (!atr) return; 
 
             let changed = false;
 
@@ -1856,9 +1993,8 @@
 
                 if (!isNaN(oldPrice) && oldPrice !== 0) { 
                     const color = this.marketData.price > oldPrice ? 'var(--positive)' : (this.marketData.price < oldPrice ? 'var(--negative)' : '');
-                    if(priceEl) priceEl.style.color = color; if(tickerPriceEl) tickerPriceEl.style.color = color; 
-                    if(priceEl) { priceEl.style.transition = 'none'; setTimeout(() => priceEl.style.color = '', 500); }
-                    if(tickerPriceEl) { tickerPriceEl.style.transition = 'none'; setTimeout(() => tickerPriceEl.style.color = '', 500); }
+                    if(priceEl) { priceEl.style.color = color; priceEl.style.transition = 'none'; setTimeout(() => priceEl.style.color = '', 500); }
+                    if(tickerPriceEl) { tickerPriceEl.style.color = color; tickerPriceEl.style.transition = 'none'; setTimeout(() => tickerPriceEl.style.color = '', 500); }
                 }
             }
             const change = this.marketData.change24h || 0;
@@ -1892,14 +2028,12 @@
             const nextCandleOpenTime = lastCandleOpenTime + timeframeMs;
             let remainingTime = nextCandleOpenTime - now;
 
-            // Eğer kalan süre negatifse, muhtemelen yeni bir mum açıldı ama henüz veri gelmedi.
-            // Bu durumda bir sonraki mumun kapanışına kadar olan süreyi gösteririz.
             if (remainingTime < 0) {
-                remainingTime = timeframeMs + remainingTime % timeframeMs; // Negatiften pozitife çevir
-                if (remainingTime < 0) remainingTime += timeframeMs; // Tekrar negatifse bir timeframe daha ekle
+                remainingTime = timeframeMs + (remainingTime % timeframeMs);
+                if (remainingTime <= 0) remainingTime += timeframeMs; // Ensure positive if it became 0 or negative
             }
             
-            remainingTime = Math.max(0, remainingTime); // Negatif kalmaması için
+            remainingTime = Math.max(0, remainingTime); 
 
             const minutes = Math.floor(remainingTime / 60000);
             const seconds = Math.floor((remainingTime % 60000) / 1000);
@@ -1915,8 +2049,7 @@
 
             if (!buyFill || !sellFill || !buyScoreText || !sellScoreText) return;
 
-            const minThreshold = this.getEffectiveThreshold();
-            const maxScoreForDisplay = 10; // Barın max skoru, 10'a sabitlenmiş
+            const maxScoreForDisplay = 10; 
 
             const buyScore = this.confluenceEngine.buyScore || 0;
             const sellScore = this.confluenceEngine.sellScore || 0;
@@ -1941,9 +2074,11 @@
             playSignal(signal.direction); 
             
             if (this.settings.features.enableTTS) {
-                const message = signal.direction === 'buy' ? 
-                    `Alım için uygun, ${signal.symbol.replace('USDT', '')}, skor ${signal.score.toFixed(1)}.` :
-                    `Satış için uygun, ${signal.symbol.replace('USDT', '')}, skor ${signal.score.toFixed(1)}.`;
+                const messageKey = signal.direction === 'buy' ? 'buy' : 'sell';
+                const message = this.getRandomMessage(messageKey, { 
+                    Sembol: signal.symbol.replace('USDT', ''), 
+                    Skor: signal.score.toFixed(1) 
+                });
                 this.speak(message);
             }
 
@@ -1962,7 +2097,7 @@
                     if (driftDetected) {
                         this.showNotification('PERFORMANS SAPMASI!', 'Sinyal kazanma oranında sapma tespit edildi. Ayarlar optimize ediliyor...', 'warning');
                         if (this.settings.features.enableTTS) {
-                            this.speak('Performans sapması tespit edildi. Ayarlar optimize ediliyor.');
+                            this.speak(this.getRandomMessage('cusumDriftDetected'));
                         }
                     }
                 }
@@ -1973,8 +2108,8 @@
                 this.renderStats(true);   
                 this.showNotification(`Sinyal ${signal.id.substring(0,6)} - ${result.toUpperCase()} olarak sonuçlandı.`, 'info');
                 if (this.settings.features.enableTTS) {
-                    const message = result === 'tp' ? `Sinyal başarıyla kapatıldı. Kâr.` : `Sinyal zararla kapatıldı. Kayıp.`;
-                    this.speak(message);
+                    const messageKey = result === 'tp' ? 'signalTP' : 'signalSL';
+                    this.speak(this.getRandomMessage(messageKey));
                 }
             }
         }
@@ -1986,7 +2121,7 @@
             const decay = 0.995; 
 
             for (const c of contributors) {
-                const stat = this.strategyStats[c.strategy] || { alpha:3, beta:2, proposals:0, contrib:0, wins:0, losses:0, lastUpdate: Date.now() }; // Corrected Date.Date() to Date.now()
+                const stat = this.strategyStats[c.strategy] || { alpha:3, beta:2, proposals:0, contrib:0, wins:0, losses:0, lastUpdate: Date.now() };
                 stat.alpha *= decay; stat.beta *= decay; 
                 const credit = (c.effScore || (c.baseScore * (c.weight || 1))) / totalEff; 
                 stat.contrib += 1;
@@ -2024,14 +2159,14 @@
                     this.settings.activeStrategies[key] = false;
                     this.showNotification(`Oto-optimizasyon: ${this.strategies[key].displayName} pasif edildi (w=${w.toFixed(2)}).`, 'warning');
                     if (this.settings.features.enableTTS) {
-                        this.speak(`Optimizasyon: ${this.strategies[key].displayName} stratejisi, düşük performans nedeniyle pasif edildi.`);
+                        this.speak(this.getRandomMessage('autoToggleDeactivate', { 'Strateji Adı': this.strategies[key].displayName }));
                     }
                     changed = true;
                 } else if (!active && w >= 1.0 && (stat.contrib || 0) >= minContrib/2) { 
                     this.settings.activeStrategies[key] = true;
                     this.showNotification(`Oto-optimizasyon: ${this.strategies[key].displayName} yeniden aktif (w=${w.toFixed(2)}).`, 'success');
                      if (this.settings.features.enableTTS) {
-                        this.speak(`Optimizasyon: ${this.strategies[key].displayName} stratejisi, geliştirilmiş performans nedeniyle aktif edildi.`);
+                        this.speak(this.getRandomMessage('autoToggleActivate', { 'Strateji Adı': this.strategies[key].displayName }));
                     }
                     changed = true;
                 }
@@ -2086,7 +2221,7 @@
                 this.updateSettingsModalUI(); 
                 this.showNotification(`Cooldown optimize edildi (flip: ${(flipRatio*100).toFixed(0)}%, vol: ${(volPct*100).toFixed(2)}%).`, 'warning');
                 if (this.settings.features.enableTTS) {
-                    this.speak('Sistem soğuma sürelerini optimize etti. Piyasa koşullarına adapte ediliyor.');
+                    this.speak(this.getRandomMessage('cooldownOptimize'));
                 }
             }
 
@@ -2158,12 +2293,11 @@
             const tbody = isModal ? document.getElementById('modal-signals-body') : document.getElementById('signals-body');
             if(!tbody) return; 
             tbody.innerHTML = this.signals.map(s => {
-                // !!! GÜNCELLEME BURADA BAŞLIYOR: Savunma mekanizması !!!
-                if (s.price === undefined || s.tp === undefined || s.sl === undefined || s.score === undefined || s.direction === undefined || s.timestamp === undefined) {
+                // Güvenlik kontrolü: Kritik özelliklerin varlığını ve geçerliliğini kontrol et
+                if (s.price === undefined || s.tp === undefined || s.sl === undefined || s.score === undefined || s.direction === undefined || s.timestamp === undefined || isNaN(s.price) || isNaN(s.tp) || isNaN(s.sl) || isNaN(s.score)) {
                     console.warn("Hatalı sinyal verisi tespit edildi, render atlanıyor:", s);
                     return ''; // Bu bozuk satırı render etme
                 }
-                // !!! GÜNCELLEME BURADA SONA ERİYOR !!!
 
                 const baseCols = `
                     <td>${new Date(s.timestamp).toLocaleTimeString()}</td>
@@ -2189,7 +2323,7 @@
             if(!container) return; 
             const totalSignals = this.stats.total;
             const tpSignals = this.stats.tp;
-            const slSignals = this.stats.sl; // Corrected: this.stats.stats.sl to this.stats.sl
+            const slSignals = this.stats.sl; 
             const winRate = totalSignals > 0 ? (tpSignals / totalSignals * 100).toFixed(1) : "N/A";
             
             const totalScore = this.signals.reduce((sum, s) => sum + (s.score || 0), 0);
@@ -2214,7 +2348,7 @@
             playSignal('combat'); 
             this.showNotification('!!! SAVAŞ MODU AKTİF !!!', 'warning');
             if (this.settings.features.enableTTS) {
-                this.speak('Dikkat komutan, savaş modu aktif edildi! Tüm sistemler maksimum kapasitede. Düşmanı yok etmeye hazırız!');
+                this.speak(this.getRandomMessage('combatModeActivate'));
             }
         }
         deactivateCombatMode() {
@@ -2222,7 +2356,7 @@
             document.documentElement.setAttribute('data-theme', savedTheme);
             this.chartManager.updateTheme(); this.heatmapManager.updateTheme();
             if (this.settings.features.enableTTS) {
-                this.speak('Savaş modu devredışı bırakıldı. Normal operasyonlara dönülüyor.');
+                this.speak(this.getRandomMessage('combatModeDeactivate'));
             }
         }
 
@@ -2261,29 +2395,77 @@
         
         // TTS Fonksiyonları
         loadVoices() {
-            if (!this.synth) return; // synth nesnesi yoksa işlem yapma
+            if (!this.synth) return; 
 
-            // onvoiceschanged olayını dinle
-            this.synth.onvoiceschanged = () => {
+            const populateVoiceList = () => {
                 this.voices = this.synth.getVoices();
-                if (this.voices.length > 0) {
-                    console.log('TTS sesleri başarıyla yüklendi:', this.voices.length);
-                }
+                this.updateTTSVoiceSelectUI(); // Sesler yüklendiğinde UI'ı güncelle
             };
 
-            // Seslerin başlangıçta yüklenip yüklenmediğini kontrol et
-            let initialVoices = this.synth.getVoices();
-            if (initialVoices && initialVoices.length > 0) {
-                this.voices = initialVoices;
-                console.log('TTS sesleri doğrudan yüklendi:', this.voices.length);
+            // Eğer sesler zaten yüklüyse (örneğin events zaten tetiklenmişse)
+            if (this.synth.getVoices().length > 0) {
+                populateVoiceList();
             } else {
-                console.log('TTS sesleri henüz yüklenmedi, onvoiceschanged bekleniyor...');
+                // Değilse, 'voiceschanged' eventini bekle
+                this.synth.onvoiceschanged = populateVoiceList;
             }
         }
 
+        updateTTSVoiceSelectUI() {
+            const voiceSelect = document.getElementById('modal-tts-voice-select');
+            if (!voiceSelect) return;
+
+            voiceSelect.innerHTML = ''; // Önceki seçenekleri temizle
+
+            // TTS desteklenmiyorsa veya etkin değilse veya sesler yüklenmediyse
+            if (!this.synth || !this.settings.features.enableTTS || this.voices.length === 0) {
+                const option = document.createElement('option');
+                option.textContent = !this.synth ? "TTS Desteklenmiyor" : "Sesler Yüklenmedi / Yok";
+                option.value = "";
+                option.disabled = true;
+                option.selected = true;
+                voiceSelect.appendChild(option);
+                voiceSelect.disabled = true;
+                return;
+            }
+
+            // "Otomatik Seç" opsiyonunu ekle
+            const defaultOption = document.createElement('option');
+            defaultOption.textContent = "Otomatik Seç (tr-TR)";
+            defaultOption.value = ""; // Boş değer, otomatik seçim anlamına gelir
+            voiceSelect.appendChild(defaultOption);
+
+            let foundPreferred = false;
+
+            // Tüm sesleri döngüye al ve seçenek olarak ekle
+            this.voices.forEach(voice => {
+                const option = document.createElement('option');
+                option.textContent = `${voice.name} (${voice.lang})`;
+                option.value = voice.name;
+                // Kullanıcının tercih ettiği ses varsa, onu seçili yap
+                if (this.settings.features.preferredVoiceName && voice.name === this.settings.features.preferredVoiceName) {
+                    option.selected = true;
+                    foundPreferred = true;
+                }
+                voiceSelect.appendChild(option);
+            });
+
+            // Eğer tercih edilen ses kaydedilmiş ancak şu an mevcut sesler arasında yoksa, varsayılanı seçili yap
+            if (this.settings.features.preferredVoiceName && !foundPreferred) {
+                defaultOption.selected = true;
+                this.settings.features.preferredVoiceName = null; // Geçersiz tercihi temizle
+                this.saveSettings(); // Temizlenmiş tercihi kaydet
+            } else if (!this.settings.features.preferredVoiceName && !voiceSelect.querySelector('option[selected]')) {
+                // Eğer hiçbir tercih yoksa ve otomatik seçenek seçili değilse, otomatik seçeneği seçili yap
+                defaultOption.selected = true;
+            }
+
+            voiceSelect.disabled = false; // Sesler mevcutsa dropdown'ı etkinleştir
+        }
+
         speak(text, options = {}) {
-            if (!this.settings.features.enableTTS) return; // Kullanıcı TTS'i kapattıysa
-            if (!this.synth) { // SpeechSynthesis API desteklenmiyorsa
+            if (!this.settings.features.enableTTS) return; 
+            if (!this.synth) { 
                 console.warn('SpeechSynthesis API kullanılabilir değil, konuşma yapılamıyor:', text);
                 return;
             }
@@ -2293,16 +2475,24 @@
             utterance.rate = options.rate || 1.1; 
             utterance.pitch = options.pitch || 1.0; 
 
-            const voiceName = options.voice;
-            if (this.voices.length > 0) { // Yüklenmiş sesler varsa
-                if (voiceName) {
-                    utterance.voice = this.voices.find(v => v.name.includes(voiceName) || v.lang === utterance.lang) || null;
-                } else {
-                    utterance.voice = this.voices.find(v => v.lang === utterance.lang) || this.voices.find(v => v.default) || null;
+            // Ses seçim mantığı
+            let selectedVoice = null;
+            if (this.voices.length > 0) {
+                // 1. Kullanıcının tercih ettiği sesi dene
+                if (this.settings.features.preferredVoiceName) {
+                    selectedVoice = this.voices.find(v => v.name === this.settings.features.preferredVoiceName);
                 }
-            } else {
-                console.warn('TTS sesleri henüz yüklenmedi veya mevcut değil, varsayılan ses kullanılacak.');
-            }
+                // 2. Tercih edilen ses bulunamazsa veya yoksa, tr-TR sesini dene
+                if (!selectedVoice) {
+                    selectedVoice = this.voices.find(v => v.lang === 'tr-TR');
+                }
+                // 3. Hala bulunamazsa, varsayılan veya herhangi bir sesi dene
+                if (!selectedVoice) {
+                    selectedVoice = this.voices.find(v => v.default) || this.voices[0];
+                }
+            } 
+            
+            utterance.voice = selectedVoice;
 
             utterance.onend = () => {
                 this.isSpeaking = false;
@@ -2326,6 +2516,22 @@
                 this.isSpeaking = true;
                 this.synth.speak(utterance);
             }
+        }
+
+        getRandomMessage(key, placeholders = {}) {
+            if (!this.speechTexts[key] || this.speechTexts[key].length === 0) {
+                console.warn(`Konuşma metni anahtarı bulunamadı veya boş: ${key}`);
+                return ""; 
+            }
+            const messages = this.speechTexts[key];
+            const randomIndex = Math.floor(Math.random() * messages.length);
+            let message = messages[randomIndex];
+
+            for (const placeholderKey in placeholders) {
+                const regex = new RegExp(`\\[${placeholderKey}\\]`, 'g');
+                message = message.replace(regex, placeholders[placeholderKey]);
+            }
+            return message;
         }
 
         saveSettings() { localStorage.setItem('utc_settings', JSON.stringify(this.settings)); }
@@ -2354,7 +2560,8 @@
                     enableCUSUMDrift: true,
                     enableRiskGuardian: true,
                     enableShadowABTesting: false,
-                    enableTTS: true 
+                    enableTTS: true,
+                    preferredVoiceName: null 
                 },
                 riskGuardian: { 
                     killSwitchWinRate: 30 
@@ -2398,4 +2605,3 @@
 </script>
 </body>
 </html>
-`
