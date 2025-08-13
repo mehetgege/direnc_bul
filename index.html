@@ -10,10 +10,10 @@
     <style>
         :root {
             --background-dark: #0d1117; --panel-bg-dark: #161b22; --text-main-dark: #c9d1d9; --text-secondary-dark: #8b949e; --border-color-dark: #30363d; --input-bg-dark: #010409; --hover-bg-dark: #21262d; --primary-dark: #58a6ff;
-            --background-light: #ffffff; --panel-bg-light: #f6f8fa; --text-main-light: #24292f; --text-secondary-light: #57606a; --border-color-light: #d0d7de; --input-bg-light: #f0f2f5; --hover-bg-light: #e8eaed; --primary-light: #0969da;
+            --background-light: #ffffff; --panel-bg: #f6f8fa; --text-main: #24292f; --text-secondary: #57606a; --border-color: #d0d7de; --input-bg: #f0f2f5; --hover-bg: #e8eaed; --primary: #0969da;
             --war-mode-bg: linear-gradient(145deg, #4d0000 0%, #000000 75%); --war-mode-panel-bg: rgba(255, 0, 0, 0.08); --war-mode-border: #8B0000; --war-mode-text: #ff5858; --war-mode-primary: #ffc107;
             --positive: #28a745; --negative: #dc3545; --neutral: #ffc107;
-            --ticker-height: 30px; /* Yeni butonlar için biraz daha yüksek */
+            --ticker-height: 30px; 
             --header-min-height: 40px;
         }
         [data-theme="light"] { --background: var(--background-light); --panel-bg: var(--panel-bg-light); --text-main: var(--text-main-light); --text-secondary: var(--text-secondary-light); --border-color: var(--border-color-light); --input-bg: var(--input-bg-light); --hover-bg: var(--hover-bg-light); --primary: var(--primary-light); }
@@ -32,10 +32,10 @@
             width: 100%;
             background: var(--panel-bg);
             border-bottom: 1px solid var(--border-color);
-            padding: 2px 10px; /* Düğmeler için biraz daha dar */
+            padding: 2px 10px; 
             z-index: 1100;
             align-items: center;
-            justify-content: space-between; /* Fiyat sola, butonlar sağa */
+            justify-content: space-between; 
             font-size: 11px;
             font-weight: 700;
             height: var(--ticker-height);
@@ -43,7 +43,7 @@
         .super-top-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0;}
         #ticker-bar-symbol { color: var(--primary); }
         #ticker-bar-price { color: var(--text-main); font-size: 12px; }
-        .super-top-right-buttons { display: flex; gap: 5px; /* Butonlar arası boşluk */ }
+        .super-top-right-buttons { display: flex; gap: 5px; }
 
         .container { 
             display: flex; flex-direction: column; height: 100vh; padding-top: var(--ticker-height);
@@ -54,24 +54,32 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.2); margin: 5px; position: relative;
         }
         
-        .header-top-bar { /* Eskiden logo ve ayarların olduğu yer, şimdi sadece başlık veya boşluk */
+        .header-top-bar { 
             display: flex; align-items: center; width: 100%; padding: 5px 15px; 
-            min-height: var(--header-min-height); justify-content: space-between; cursor: default; /* Artık tıklanabilir değil */
+            min-height: var(--header-min-height); justify-content: space-between; 
+            cursor: pointer;
             font-weight: 700; font-size: 16px; color: var(--primary);
         }
-        /* Eski #open-settings-modal-btn CSS'i kaldırıldı/taşındı */
 
         .header-collapsible-content {
             transition: max-height 0.35s ease-in-out, opacity 0.3s ease, padding 0.35s ease, visibility 0.35s;
-            max-height: 300px; /* Yüksekliği artırıldı */
+            max-height: 300px; 
             opacity: 1; overflow: hidden; visibility: visible; padding: 0 15px 8px 15px;
         }
-        .header-collapsible-content .main-controls {
+        body.header-collapsed .header-collapsible-content { 
+            max-height: 0; 
+            opacity: 0; 
+            visibility: hidden; 
+            padding-top: 0; 
+            padding-bottom: 0; 
+        }
+
+        .main-controls {
             display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-bottom: 8px;
         }
-        body.header-collapsed .header-collapsible-content { max-height: 0; opacity: 0; visibility: hidden; padding-top: 0; padding-bottom: 0; }
 
         .form-control { background: var(--input-bg); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 4px; padding: 4px 8px; font-family: 'Roboto Mono', monospace; }
+        
         .status { display: flex; align-items: center; gap: 5px; font-size: 11px; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 4px; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--negative); transition: background-color 0.5s; }
         .status-dot.online { background: var(--positive); animation: pulse 2s infinite; }
@@ -81,7 +89,7 @@
         .btn { padding: 4px 12px; border: 1px solid var(--border-color); background: var(--panel-bg); color: var(--text-main); border-radius: 4px; cursor: pointer; transition: all 0.2s; }
         .btn:hover { background: var(--hover-bg); border-color: var(--primary); }
         .btn-success { background: var(--positive); color: white; border-color: var(--positive); } .btn-danger { background: var(--negative); color: white; border-color: var(--negative); }
-        .btn-tiny { /* Yeni eklenen küçük butonlar için stil */
+        .btn-tiny { 
             padding: 2px 6px;
             font-size: 10px;
             line-height: 1;
@@ -91,9 +99,9 @@
         
         .main-grid { 
             display: grid; grid-template-columns: 1fr; gap: 5px; flex-grow: 1; margin: 5px; 
-            overflow: hidden; height: calc(100% - var(--header-min-height) - 10px - var(--ticker-height)); /* Top bar yüksekliği düşüldü */
+            overflow: hidden; height: calc(100% - var(--header-min-height) - 10px - var(--ticker-height)); 
         }
-        body.header-collapsed .main-grid { height: calc(100vh - var(--ticker-height) - 10px); margin-top: 0; } /* Header kapatıldığında tam ekran */
+        body.header-collapsed .main-grid { height: calc(100vh - var(--ticker-height) - 10px); margin-top: 0; } 
         
         .panel { display: flex; flex-direction: column; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; }
         .panel-title { font-weight: 700; font-size: 13px; color: var(--primary); padding: 8px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; display: flex; justify-content: space-between; align-items: center;}
@@ -104,32 +112,29 @@
         .price-display { 
             display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; width: 100%;
             border: 1px solid var(--border-color); border-radius: 4px; padding: 8px; font-size: 10px;
-            margin-top: 8px; /* Diğer kontrollerden ayrılması için */
+            margin-top: 8px; 
         } 
         .price-item .price-label { color: var(--text-secondary); } 
         .price-item .price-value { font-size: 18px; font-weight: 700; }
         
-        /* === CSS DÜZELTMELERİ BAŞLANGICI === */
         .center-panel { display: grid; grid-template-rows: 1fr; gap: 5px; padding: 0 !important; } 
         .data-container { display: grid; grid-template-rows: 1fr auto; overflow: hidden; height: 100%; } 
         .data-grid { position: relative; overflow: hidden; min-height: 0; } 
-        /* === CSS DÜZELTMELERİ BİTİŞİ === */
 
         #live-chart { width: 100%; height: 100%; } 
         .heatmap-container { display: grid; grid-template-rows: auto 1fr; border-top: 1px solid var(--border-color); }
         #orderbook-heatmap { width: 100%; height: 100%; display: block; }
 
-        /* Grafik Zoom Butonları */
         .chart-zoom-controls {
             position: absolute;
             top: 10px;
             right: 10px;
             display: flex;
             gap: 5px;
-            z-index: 100; /* Chart'ın üstünde olması için */
+            z-index: 100; 
         }
         .chart-zoom-controls .btn-tiny {
-            background: rgba(var(--panel-bg-dark-rgb), 0.7); /* hafif şeffaf */
+            background: rgba(1, 4, 9, 0.7);
             backdrop-filter: blur(2px);
         }
 
@@ -148,10 +153,9 @@
         .notification { background: var(--panel-bg); border: 1px solid var(--border-color); border-left-width: 5px; border-radius: 4px; padding: 12px; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); margin-top: 10px; }
         .notification.success { border-left-color: var(--positive); } .notification.danger { border-left-color: var(--negative); } .notification.warning { border-left-color: var(--neutral); }
         
-        /* Masaüstü: yan paneller gizli (çünkü modal'dan yönetilecekler) */
         aside#settings-panel, aside#analytics-panel { display: none !important; }
 
-        .hidden-view { display: none !important; } /* Görünüm geçişleri için */
+        .hidden-view { display: none !important; } 
 
         /* Ayarlar Modalı */
         #settings-modal-overlay {
@@ -185,38 +189,87 @@
             display: flex; justify-content: flex-end; gap: 10px;
         }
 
-        /* Mobil */
         @media screen and (max-width: 768px) {
             .container { padding-top: var(--ticker-height); }
-            .header { order: 2; position: sticky; bottom: 0; top: auto; width: 100%; z-index: 1000; margin: 0; border-radius: 0; border: none; border-top: 1px solid var(--border-color); }
-            .header-top-bar { flex-direction: column; align-items: center; gap: 10px; padding: 10px 15px; cursor: default; }
-            .header-top-bar .logo { margin-bottom: 5px; } 
+            .header { 
+                order: 2; 
+                position: sticky; 
+                bottom: 0; 
+                top: auto; 
+                width: 100%; 
+                z-index: 1000; 
+                margin: 0; 
+                border-radius: 0; 
+                border: none; 
+                border-top: 1px solid var(--border-color); 
+            }
+            .header-top-bar { 
+                flex-direction: column; 
+                align-items: center; 
+                gap: 10px; 
+                padding: 10px 15px; 
+            }
             
             .header-collapsible-content { padding: 0; }
-            .header-collapsible-content .main-controls { flex-direction: column; align-items: center; padding: 0; width: 100%; }
-            .form-control, .btn, .status { width: 100%; text-align: center; padding: 8px 10px; font-size: 11px; }
+            .header-collapsible-content .main-controls { 
+                flex-direction: column; 
+                align-items: center; 
+                padding: 0; 
+                width: 100%; 
+            }
+            .form-control, .btn, .status { 
+                width: 100%; 
+                text-align: center; 
+                padding: 8px 10px; 
+                font-size: 11px; 
+            }
             .status { justify-content: center; }
 
-            .price-display { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; width: 100%; border: 1px solid var(--border-color); border-radius: 4px; padding: 8px; font-size: 10px; margin-top: 10px; }
+            .price-display { 
+                grid-template-columns: repeat(2, 1fr); 
+                margin-top: 10px; 
+            }
             .price-item .price-value { font-size: 14px; } 
 
-            .main-grid { order: 1; display: flex; flex-direction: column; gap: 5px; margin: 5px; flex-grow: 1; overflow: visible; padding-bottom: 5px; height: auto; }
-            .center-panel { order: 1; flex-grow: 0; height: auto; border: 1px solid var(--border-color); border-radius: 6px; background: var(--panel-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.2); margin: 0; }
+            .main-grid { 
+                order: 1; 
+                flex-direction: column; 
+                margin: 5px; 
+                overflow: visible; 
+                padding-bottom: 5px; 
+                height: auto; 
+            }
+            .center-panel { 
+                order: 1; 
+                flex-grow: 0; 
+                height: auto; 
+                border: 1px solid var(--border-color); 
+                border-radius: 6px; 
+                background: var(--panel-bg); 
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2); 
+                margin: 0; 
+            }
             .center-panel > .panel-title { display: none; }
-            .data-container { display: flex; flex-direction: column; height: auto; padding: 10px; }
+            .data-container { 
+                flex-direction: column; 
+                height: auto; 
+                padding: 10px; 
+            }
             .data-grid { height: 50vh; flex-shrink: 0; }
             #live-chart { height: 100%; width: 100%; } 
-            .heatmap-container { height: 150px; flex-shrink: 0; margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 10px; }
+            .heatmap-container { 
+                height: 150px; 
+                flex-shrink: 0; 
+                margin-top: 10px; 
+                border-top: 1px solid var(--border-color); 
+                padding-top: 10px; 
+            }
             .heatmap-container .panel-title { border-bottom: none; margin-bottom: 5px; }
-
-            aside#settings-panel, aside#analytics-panel { display: none !important; }
 
             .settings-modal-content { width: 95%; margin: 10px; }
             .settings-modal-body { grid-template-columns: 1fr; gap: 15px; }
 
-            .super-top-right-buttons { /* Mobil'de butonları alta al veya gizle */
-                display: none; /* Mobil'de üstteki butonları gizle, alt bara taşı veya farklı düzenle */
-            }
+            .super-top-right-buttons { display: none; }
         }
     </style>
 </head>
@@ -236,12 +289,12 @@
 
     <div class="container">
         <header class="header">
-            <div id="header-main-bar" class="header-top-bar">
+            <div id="header-main-bar" class="header-top-bar" title="Paneli aç/kapatmak için çift tıkla">
                 <span>KOMUTA MERKEZİ KONTROLLERİ</span>
             </div>
             <div class="header-collapsible-content">
                 <div class="main-controls">
-                    <select id="symbol-select" class="form-control"></select>
+                    <input type="text" id="symbol-input" class="form-control" placeholder="Örn: BTC, ETH, SOL">
                     <select id="timeframe-select" class="form-control">
                         <option value="1m">1m</option><option value="5m">5m</option><option value="15m" selected>15m</option><option value="1h">1h</option><option value="4h">4h</option>
                     </select>
@@ -252,7 +305,7 @@
                     <button id="theme-toggle-btn" class="btn">Tema</button>
                     <button id="start-btn" class="btn btn-success">SİSTEMİ BAŞLAT</button>
                     <button id="stop-btn" class="btn btn-danger" disabled>DURDUR</button>
-                    <button id="clear-markers-btn" class="btn">Grafik Sinyallerini Sil</button> <!-- Yeni buton -->
+                    <button id="clear-markers-btn" class="btn">Grafik Sinyallerini Sil</button> 
                 </div>
                 <div class="price-display">
                     <div class="price-item"><div class="price-label">FİYAT</div><div class="price-value" id="current-price">-</div></div>
@@ -268,7 +321,7 @@
                 <div class="data-container">
                     <div class="data-grid" id="chart-container-view">
                         <div id="live-chart"></div>
-                        <div class="chart-zoom-controls"> <!-- Yeni zoom butonları -->
+                        <div class="chart-zoom-controls"> 
                             <button id="chart-zoom-in" class="btn btn-tiny">+</button>
                             <button id="chart-zoom-out" class="btn btn-tiny">-</button>
                             <button id="chart-zoom-reset" class="btn btn-tiny">Sıfırla</button>
@@ -281,8 +334,6 @@
                 </div>
             </section>
             
-            <!-- Masaüstünde gizli (modal üzerinden yönetim) -->
-            <!-- Bu paneller hala burada duruyor ancak mobil ve desktop'ta modal/main-grid CSS'i ile gizleniyorlar. -->
             <aside id="settings-panel" class="panel hidden-view">
                 <div class="panel-title">AYARLAR & STRATEJİLER</div>
                 <div class="panel-content">
@@ -340,6 +391,8 @@
                     <div class="panel-title" style="margin-bottom: 10px;">Cooldown Ayarları</div>
                     <div class="form-group"><label class="form-label">Genel Sinyal Cooldown (ms)</label><input type="number" id="modal-signal-cooldown-ms" class="form-control" value="15000" min="0" step="100"></div>
                     <div class="form-group"><label class="form-label">Aynı Yön Sinyal Cooldown (ms)</label><input type="number" id="modal-same-direction-cooldown-ms" class="form-control" value="30000" min="0" step="100"></div>
+                    <div class="form-group"><label class="form-label">Ters Yön Cooldown (ms)</label><input type="number" id="modal-opposite-direction-cooldown-ms" class="form-control" value="20000" min="0" step="100"></div>
+                    <div class="form-group"><label class="form-label">Ters Yön Histerezis (+Puan)</label><input type="number" id="modal-reverse-hysteresis-points" class="form-control" value="2" min="0" step="1"></div>
                     <div class="form-group"><label class="form-label">Teklif Zaman Penceresi - Proposal Timeout (ms)</label><input type="number" id="modal-proposal-timeout-ms" class="form-control" value="3000" min="500" step="100"></div>
                     <div class="form-group"><label class="form-label">Strateji Teklifi Cooldown (ms)</label><input type="number" id="modal-strategy-proposal-cooldown-ms" class="form-control" value="10000" min="0" step="100"></div>
                 </div>
@@ -444,7 +497,7 @@
                 position: signal.direction === 'buy' ? 'belowBar' : 'aboveBar',
                 color: signal.direction === 'buy' ? styles.getPropertyValue('--positive').trim() : styles.getPropertyValue('--negative').trim(),
                 shape: signal.direction === 'buy' ? 'arrowUp' : 'arrowDown',
-                text: `Skor: ${signal.score} @ ${this._formatMarkerPrice(signal.price)}`
+                text: `Skor: ${typeof signal.score === 'number' ? signal.score.toFixed(1) : signal.score} @ ${this._formatMarkerPrice(signal.price)}`
             };
             this.signalMarkers.push(marker);
             this.series.candles.setMarkers(this.signalMarkers);
@@ -553,12 +606,12 @@
         constructor(bot, name) { 
             this.bot = bot; this.name = name; this.displayName = this._getDisplayName(name); 
             this.lastProposalTime = {};
-            this.DEFAULT_PROPOSAL_COOLDOWN_MS = 10000; // fallback
+            this.DEFAULT_PROPOSAL_COOLDOWN_MS = 10000; // dynamic baseline
         }
         propose(symbol, direction, reason, score) {
             const now = Date.now(); 
             const key = `${symbol}-${direction}`;
-            const cooldown = (this.bot.settings && this.bot.settings.cooldowns && this.bot.settings.cooldowns.strategyProposalMs) || this.DEFAULT_PROPOSAL_COOLDOWN_MS;
+            const cooldown = (this.DEFAULT_PROPOSAL_COOLDOWN_MS ?? 10000);
             if (now - (this.lastProposalTime[key] || 0) < cooldown) return;
             this.bot.confluenceEngine.propose(this.name, direction, reason, score);
             this.lastProposalTime[key] = now;
@@ -653,7 +706,6 @@
         }
     }
 
-    // Doldurulan stratejiler + yeni stratejiler
     class BreakoutPatternStrategy extends Strategy {
         constructor(bot) { super(bot, 'breakoutPattern'); this.LOOKBACK = 30; this.VOL_SPIKE = 1.4; this.BREAK_PCT = 0.03/100; }
         periodicAnalyze() {
@@ -727,12 +779,10 @@
         periodicAnalyze() {
             const c = this.bot.candles; if (c.length < 3) return;
             const a = c[c.length-3], b = c[c.length-2], d = c[c.length-1];
-            // Bullish FVG: a.high < d.low (gap)
-            if ((d.low - a.high)/d.low > this.GAP_MIN_PCT) {
+            if ((d.low - a.high)/Math.max(1e-8, d.low) > this.GAP_MIN_PCT) {
                 this.propose(this.bot.currentSymbol, 'buy', 'Bullish FVG', 4);
             }
-            // Bearish FVG: a.low > d.high
-            if ((a.low - d.high)/d.high > this.GAP_MIN_PCT) {
+            if ((a.low - d.high)/Math.max(1e-8, d.high) > this.GAP_MIN_PCT) {
                 this.propose(this.bot.currentSymbol, 'sell', 'Bearish FVG', 4);
             }
         }
@@ -799,7 +849,6 @@
             const mid = (bestAsk + bestBid)/2;
             const spreadPct = (bestAsk - bestBid) / mid;
             if (spreadPct > this.SPREAD_PCT) {
-                // Mean reversion yaklaşımı
                 const current = this.bot.marketData.price || mid;
                 if (current < mid) this.propose(this.bot.currentSymbol, 'buy', 'Geniş Spread - Mean Reversion', 2);
                 else this.propose(this.bot.currentSymbol, 'sell', 'Geniş Spread - Mean Reversion', 2);
@@ -807,13 +856,12 @@
         }
     }
 
-    // Yeni stratejiler
     class VWAPReversionStrategy extends Strategy {
         constructor(bot) { super(bot, 'vwapReversion'); this.MULT = 1.0; }
         periodicAnalyze() {
             const price = this.bot.marketData.price, vwap = this.bot.indicators.vwap, atr = this.bot.indicators.atr;
             if (!price || !vwap || !atr) return;
-            const dev = atr / price; // ATR tabanlı normalize
+            const dev = atr / price; 
             const diffPct = (price - vwap) / vwap;
             if (diffPct > this.MULT * dev) this.propose(this.bot.currentSymbol, 'sell', 'VWAP Üstü Aşırı Sapma', 3);
             if (diffPct < -this.MULT * dev) this.propose(this.bot.currentSymbol, 'buy', 'VWAP Altı Aşırı Sapma', 3);
@@ -838,19 +886,30 @@
             this.proposals = []; 
             this.lastSignalTime = 0; 
             this.lastSignalTimeByDirection = { buy: 0, sell: 0 };
+            this.lastDirection = null;
         }
         propose(strategy, direction, reason, score) {
             const now = Date.now();
-            // Aynı stratejiden gelen eski teklifi çıkar, yenisini ekle
+            // Eski aynı strat teklifini sil
             this.proposals = this.proposals.filter(p => !(p.strategy === strategy));
             this.proposals.push({ strategy, direction, reason, score, timestamp: now });
+            // Strateji proposal sayacı
+            const s = this.bot.strategyStats[strategy] || { alpha:3, beta:2, proposals:0, contrib:0, wins:0, losses:0, lastUpdate: now };
+            s.proposals += 1;
+            s.lastUpdate = now;
+            this.bot.strategyStats[strategy] = s;
+            this.bot.saveStrategyStats();
             this.checkConfluence();
         }
         checkConfluence() {
             const now = Date.now();
-            const proposalTimeout = (this.bot.settings?.cooldowns?.proposalTimeoutMs) ?? 3000;
-            const signalCooldown = (this.bot.settings?.cooldowns?.signalMs) ?? 15000;
-            const sameDirCooldown = (this.bot.settings?.cooldowns?.sameDirectionMs) ?? 30000;
+            const cd = this.bot.settings?.cooldowns || {};
+            const proposalTimeout = cd.proposalTimeoutMs ?? 3000;
+            const signalCooldown = cd.signalMs ?? 15000;
+            const sameDirCooldown = cd.sameDirectionMs ?? 30000;
+            const oppCooldown = cd.oppositeDirectionMs ?? 20000;
+            const reverseHys = cd.reverseHysteresisPoints ?? 2;
+            const minThreshold = this.bot.settings.confluenceThreshold;
 
             if (now - this.lastSignalTime < signalCooldown) return;
 
@@ -859,28 +918,47 @@
 
             const buyProposals = this.proposals.filter(p => p.direction === 'buy');
             const sellProposals = this.proposals.filter(p => p.direction === 'sell');
-            const buyScore = buyProposals.reduce((sum, p) => sum + p.score, 0);
-            const sellScore = sellProposals.reduce((sum, p) => sum + p.score, 0);
-            const minThreshold = this.bot.settings.confluenceThreshold;
+
+            // Ağırlıklı skorlar
+            const weighted = (arr) => arr.reduce((sum, p) => sum + p.score * this.bot.getStrategyWeight(p.strategy), 0);
+            const buyScore = weighted(buyProposals);
+            const sellScore = weighted(sellProposals);
 
             if (buyScore >= minThreshold && buyScore > sellScore) {
                 if (now - this.lastSignalTimeByDirection.buy < sameDirCooldown) return; 
+                if (this.lastDirection === 'sell' && (now - this.lastSignalTime) < oppCooldown) {
+                    if (buyScore < (minThreshold + reverseHys)) return;
+                }
                 this.generateFinalSignal('buy', buyProposals);
             } else if (sellScore >= minThreshold && sellScore > buyScore) {
                 if (now - this.lastSignalTimeByDirection.sell < sameDirCooldown) return;
+                if (this.lastDirection === 'buy' && (now - this.lastSignalTime) < oppCooldown) {
+                    if (sellScore < (minThreshold + reverseHys)) return;
+                }
                 this.generateFinalSignal('sell', sellProposals);
             }
         }
         generateFinalSignal(direction, proposals) {
-            const totalScore = proposals.reduce((sum, p) => sum + p.score, 0);
             const contributingStrats = proposals.map(p => this.bot.strategies[p.strategy].displayName).join(', ');
-            const signal = { id: `sig_${Date.now()}`, timestamp: Date.now(), symbol: this.bot.currentSymbol, direction: direction, price: this.bot.marketData.price, score: totalScore, reason: contributingStrats, status: 'active', note: ''};
+            const contributors = proposals.map(p => ({
+                strategy: p.strategy,
+                baseScore: p.score,
+                weight: this.bot.getStrategyWeight(p.strategy)
+            }));
+            const weightedScore = proposals.reduce((s,p)=> s + p.score * this.bot.getStrategyWeight(p.strategy), 0);
+
+            const signal = { 
+                id: `sig_${Date.now()}`, timestamp: Date.now(), symbol: this.bot.currentSymbol, 
+                direction, price: this.bot.marketData.price, score: weightedScore, 
+                reason: contributingStrats, contributors, status: 'active', note: '' 
+            };
             this.bot.calculateDynamicTpSl(signal);
             this.bot.addFinalSignal(signal);
             this.proposals = [];
             const now = Date.now();
             this.lastSignalTime = now;
             this.lastSignalTimeByDirection[direction] = now;
+            this.lastDirection = direction;
         }
     }
 
@@ -895,22 +973,33 @@
                 'volumeProfile': VolumeProfileStrategy, 'smartMoneyConcepts': SmartMoneyConceptsStrategy, 'divergenceDetection': DivergenceDetectionStrategy, 
                 'breakoutPattern': BreakoutPatternStrategy, 'supportResistance': SupportResistanceStrategy, 'marketStructure': MarketStructureStrategy, 
                 'institutionalOrderFlow': InstitutionalOrderFlowStrategy, 'microSpreadArbitrage': MicroSpreadArbitrageStrategy,
-                // Yeni eklenenler:
                 'vwapReversion': VWAPReversionStrategy, 'superTrend': SuperTrendStrategy
             };
             this.allStrategyKeys = Object.keys(this.allStrategiesMap); 
 
             this.isRunning = false; 
             this.sockets = {}; 
-            this.currentSymbol = 'BTCUSDT'; 
-            this.currentTimeframe = '15m';
+            
+            this.currentSymbol = this.loadData('utc_current_symbol') || 'BTCUSDT'; 
+            this.currentTimeframe = this.loadData('utc_current_timeframe') || '15m';
+            this.headerCollapsed = this.loadData('utc_header_collapsed') !== null ? (this.loadData('utc_header_collapsed') === 'true') : true; 
+            this.currentMainView = this.loadData('utc_current_view') || 'chart';
+
             this.marketData = {}; 
             this.orderBook = { bids: [], asks: [], lastUpdateId: null }; 
             this.aggTrades = []; 
             this.candles = [];
-            this.indicators = { rsi: [], atr: null, sma20: null, sma50: null, volSma20: null, vwap: null }; 
+            this.indicators = { rsi: [], atr: null, sma20: null, sma50: null, volSma20: null, vwap: null, adx: null }; 
             this.signals = this.loadData('utc_signals') || [];
             this.stats = this.loadData('utc_stats') || { total: 0, tp: 0, sl: 0 };
+
+            // Performans öğrenme
+            this.strategyStats = this.loadData('utc_strategy_stats') || this.initDefaultStrategyStats();
+            this.marketRegime = 'unknown';
+            this.strategyGroups = {
+                trending: ['breakoutPattern','orderFlowMomentum','marketStructure','volumeProfile','smartMoneyConcepts','superTrend'],
+                meanReversion: ['vwapReversion','wallBounce','liquidityGaps','fibonacciRetracement','supportResistance','microSpreadArbitrage','divergenceDetection','rsiDivergence','institutionalOrderFlow']
+            };
             
             this.settings = this.loadSettings();
             this.strategies = {};
@@ -923,9 +1012,40 @@
             this.confluenceEngine = new ConfluenceEngine(this);
             this.renderInterval = null; 
             this.analysisInterval = null;
+            this.cooldownTuneInterval = null;
 
-            this.currentMainView = 'chart'; // 'chart', 'heatmap', 'commandCenter'
             this.init();
+        }
+
+        initDefaultStrategyStats() {
+            const stats = {};
+            (this.allStrategyKeys || []).forEach(k => {
+                stats[k] = { alpha: 3, beta: 2, proposals: 0, contrib: 0, wins: 0, losses: 0, lastUpdate: Date.now() };
+            });
+            return stats;
+        }
+        saveStrategyStats() { this.saveData('utc_strategy_stats', this.strategyStats); }
+
+        getStrategyGroup(key) {
+            if (this.strategyGroups.trending.includes(key)) return 'trending';
+            if (this.strategyGroups.meanReversion.includes(key)) return 'meanReversion';
+            return 'neutral';
+        }
+        getGroupBoost(key) {
+            const grp = this.getStrategyGroup(key);
+            if (this.marketRegime === 'trend' && grp === 'trending') return 1.15;
+            if (this.marketRegime === 'range' && grp === 'meanReversion') return 1.15;
+            return 1.0;
+        }
+        getStrategyWeight(name) {
+            const s = this.strategyStats[name] || { alpha: 3, beta: 2 };
+            const mean = s.alpha / (s.alpha + s.beta);
+            const variance = (s.alpha * s.beta) / (Math.pow(s.alpha + s.beta, 2) * (s.alpha + s.beta + 1));
+            const uncertaintyPenalty = Math.max(0.8, 1 - Math.sqrt(variance) * 3);
+            let w = (0.5 + mean) * uncertaintyPenalty;
+            w *= this.getGroupBoost(name);
+            w = Math.max(0.3, Math.min(2.0, w));
+            return w;
         }
 
         init() {
@@ -935,17 +1055,34 @@
             this.renderSignals(); 
             this.renderStats(); 
             this.logToJournal('Sistem hazır. "SİSTEMİ BAŞLAT" butonuna tıklayın.');
-            this.switchMainView(this.currentMainView); // Başlangıç görünümünü ayarla
+            
+            if (this.headerCollapsed) {
+                document.body.classList.add('header-collapsed');
+            } else {
+                document.body.classList.remove('header-collapsed');
+            }
+            this.switchMainView(this.currentMainView);
         }
 
-        initStrategies() { for (const key in this.allStrategiesMap) { this.strategies[key] = new this.allStrategiesMap[key](this); } this.updateActiveStrategies(); }
-        updateActiveStrategies() { for (const key in this.strategies) { this.strategies[key].DEFAULT_PROPOSAL_COOLDOWN_MS = this.settings.cooldowns.strategyProposalMs; } this.activeStrategies = {}; for (const key in this.strategies) { if (this.settings.activeStrategies[key]) { this.activeStrategies[key] = this.strategies[key]; } } }
+        initStrategies() { 
+            for (const key in this.allStrategiesMap) { this.strategies[key] = new this.allStrategiesMap[key](this); } 
+            this.updateActiveStrategies(); 
+        }
+        updateActiveStrategies() { 
+            for (const key in this.strategies) { 
+                // baseline: global setting
+                this.strategies[key].DEFAULT_PROPOSAL_COOLDOWN_MS = this.settings.cooldowns.strategyProposalMs; 
+            } 
+            this.activeStrategies = {}; 
+            for (const key in this.strategies) { 
+                if (this.settings.activeStrategies[key]) { this.activeStrategies[key] = this.strategies[key]; } 
+            } 
+        }
 
         setupUI() {
-            const commonSymbols = ['FUNUSDT', 'ORDIUSDT', 'BNBUSDT', 'SOLUSDT', 'ENAUSDT', 'ADAUSDT', 'DOGEUSDT', 'LTCUSDT', 'AVAXUSDT', 'BTCUSDT', 'ETHUSDT'];
-            document.getElementById('symbol-select').innerHTML = commonSymbols.map(s => `<option value="${s}">${s.replace('USDT', '/USDT')}</option>`).join('');
-            document.getElementById('symbol-select').value = this.currentSymbol;
+            document.getElementById('symbol-input').value = this.currentSymbol.replace('USDT', '');
             document.getElementById('timeframe-select').value = this.currentTimeframe;
+
             this.updateSettingsModalUI();
             const savedTheme = localStorage.getItem('utc_theme') || 'dark';
             document.documentElement.setAttribute('data-theme', savedTheme);
@@ -967,6 +1104,8 @@
 
             document.getElementById('modal-signal-cooldown-ms').value = this.settings.cooldowns.signalMs;
             document.getElementById('modal-same-direction-cooldown-ms').value = this.settings.cooldowns.sameDirectionMs;
+            document.getElementById('modal-opposite-direction-cooldown-ms').value = this.settings.cooldowns.oppositeDirectionMs;
+            document.getElementById('modal-reverse-hysteresis-points').value = this.settings.cooldowns.reverseHysteresisPoints;
             document.getElementById('modal-proposal-timeout-ms').value = this.settings.cooldowns.proposalTimeoutMs;
             document.getElementById('modal-strategy-proposal-cooldown-ms').value = this.settings.cooldowns.strategyProposalMs;
 
@@ -986,22 +1125,46 @@
             document.getElementById('start-btn').addEventListener('click', () => this.start());
             document.getElementById('stop-btn').addEventListener('click', () => this.stop());
             document.getElementById('theme-toggle-btn').addEventListener('click', () => this.toggleTheme());
-            document.getElementById('symbol-select').addEventListener('change', (e) => this.changeSymbol(e.target.value));
-            document.getElementById('timeframe-select').addEventListener('change', (e) => this.changeTimeframe(e.target.value));
             
-            // Yeni butonların event listener'ları
-            document.getElementById('main-controls-btn').addEventListener('click', () => this.toggleControlsPanel());
-            document.getElementById('chart-view-btn').addEventListener('click', () => this.switchMainView('chart'));
-            document.getElementById('heatmap-view-btn').addEventListener('click', () => this.switchMainView('heatmap'));
+            document.getElementById('symbol-input').addEventListener('change', (e) => {
+                let newSymbol = e.target.value.toUpperCase();
+                if (!newSymbol.endsWith('USDT')) {
+                    newSymbol += 'USDT';
+                }
+                this.changeSymbol(newSymbol);
+                this.saveData('utc_current_symbol', newSymbol);
+            });
+
+            document.getElementById('timeframe-select').addEventListener('change', (e) => {
+                this.changeTimeframe(e.target.value);
+                this.saveData('utc_current_timeframe', e.target.value);
+            });
+            
+            document.getElementById('header-main-bar').addEventListener('dblclick', () => {
+                this.toggleControlsPanel();
+                this.saveData('utc_header_collapsed', this.headerCollapsed.toString());
+            });
+
+            document.getElementById('main-controls-btn').addEventListener('click', () => {
+                this.toggleControlsPanel();
+                this.saveData('utc_header_collapsed', this.headerCollapsed.toString());
+            });
+
+            document.getElementById('chart-view-btn').addEventListener('click', () => {
+                this.switchMainView('chart');
+                this.saveData('utc_current_view', 'chart'); 
+            });
+            document.getElementById('heatmap-view-btn').addEventListener('click', () => {
+                this.switchMainView('heatmap');
+                this.saveData('utc_current_view', 'heatmap'); 
+            });
             document.getElementById('open-settings-modal-btn').addEventListener('click', () => this.openSettingsModal());
             
-            document.getElementById('clear-markers-btn').addEventListener('click', () => this.clearChartMarkers()); // Yeni eklenen buton
+            document.getElementById('clear-markers-btn').addEventListener('click', () => this.clearChartMarkers()); 
 
-            // Chart zoom butonları
             document.getElementById('chart-zoom-in').addEventListener('click', () => this.chartManager.zoomIn());
             document.getElementById('chart-zoom-out').addEventListener('click', () => this.chartManager.zoomOut());
             document.getElementById('chart-zoom-reset').addEventListener('click', () => this.chartManager.resetZoom());
-
 
             document.getElementById('close-settings-modal-btn').addEventListener('click', () => this.closeSettingsModal());
             document.getElementById('settings-modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'settings-modal-overlay') this.closeSettingsModal(); });
@@ -1014,6 +1177,8 @@
             
             document.getElementById('modal-signal-cooldown-ms').addEventListener('change', (e) => this.settings.cooldowns.signalMs = parseInt(e.target.value) || 0);
             document.getElementById('modal-same-direction-cooldown-ms').addEventListener('change', (e) => this.settings.cooldowns.sameDirectionMs = parseInt(e.target.value) || 0);
+            document.getElementById('modal-opposite-direction-cooldown-ms').addEventListener('change', (e) => this.settings.cooldowns.oppositeDirectionMs = parseInt(e.target.value) || 0);
+            document.getElementById('modal-reverse-hysteresis-points').addEventListener('change', (e) => this.settings.cooldowns.reverseHysteresisPoints = parseInt(e.target.value) || 0);
             document.getElementById('modal-proposal-timeout-ms').addEventListener('change', (e) => this.settings.cooldowns.proposalTimeoutMs = parseInt(e.target.value) || 1000);
             document.getElementById('modal-strategy-proposal-cooldown-ms').addEventListener('change', (e) => this.settings.cooldowns.strategyProposalMs = parseInt(e.target.value) || 0);
 
@@ -1035,6 +1200,7 @@
 
         toggleControlsPanel() {
             document.body.classList.toggle('header-collapsed');
+            this.headerCollapsed = document.body.classList.contains('header-collapsed'); 
             setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 360);
         }
 
@@ -1046,15 +1212,17 @@
             if (viewName === 'chart') {
                 chartView.classList.remove('hidden-view');
                 heatmapView.classList.add('hidden-view');
-                this.chartManager.chart.resize(chartView.clientWidth, chartView.clientHeight);
-                this.chartManager.chart.timeScale().fitContent();
+                setTimeout(() => {
+                    this.chartManager.chart.resize(chartView.clientWidth, chartView.clientHeight);
+                    this.chartManager.chart.timeScale().fitContent();
+                }, 0); 
             } else if (viewName === 'heatmap') {
                 chartView.classList.add('hidden-view');
                 heatmapView.classList.remove('hidden-view');
-                this.heatmapManager._resizeCanvas();
+                setTimeout(() => {
+                    this.heatmapManager._resizeCanvas();
+                }, 0); 
             }
-            // "Komuta Merkezi" butonu zaten toggleControlsPanel'i çağırıyor,
-            // bu yüzden burada sadece ilgili panellerin görünürlüğünü ayarlıyoruz.
         }
 
         openSettingsModal() { this.updateSettingsModalUI(); document.getElementById('settings-modal-overlay').classList.add('visible'); }
@@ -1065,9 +1233,21 @@
                 localStorage.removeItem('utc_settings');
                 localStorage.removeItem('utc_signals');
                 localStorage.removeItem('utc_stats');
+                localStorage.removeItem('utc_strategy_stats');
+                localStorage.removeItem('utc_current_symbol'); 
+                localStorage.removeItem('utc_current_timeframe'); 
+                localStorage.removeItem('utc_header_collapsed'); 
+                localStorage.removeItem('utc_current_view'); 
+                
                 this.settings = this.loadSettings(); 
                 this.signals = []; 
                 this.stats = { total: 0, tp: 0, sl: 0 }; 
+                this.strategyStats = this.initDefaultStrategyStats();
+                this.currentSymbol = 'BTCUSDT'; 
+                this.currentTimeframe = '15m'; 
+                this.headerCollapsed = true;
+                this.currentMainView = 'chart'; 
+
                 this.initStrategies(); 
                 this.updateSettingsModalUI(); 
                 this.renderSignals(); 
@@ -1075,6 +1255,8 @@
                 this.chartManager.clearMarkers(); 
                 this.showNotification('Tüm ayarlar ve veriler sıfırlandı!', 'info');
                 this.stop(); 
+                document.body.classList.add('header-collapsed'); 
+                this.switchMainView('chart');
             }
         }
 
@@ -1083,13 +1265,13 @@
             this.isRunning = true; 
             document.getElementById('start-btn').disabled = true; 
             document.getElementById('stop-btn').disabled = false;
-            // this.toggleControlsPanel(); // Başlatınca paneli kapat
             
             this.showNotification('Sistem Başlatıldı: Canlı veri akışı başlatılıyor...', 'success');
             await this.fetchInitialData(); 
             this.connectWebSockets();
             this.renderInterval = setInterval(() => this.render(), 250);
             this.analysisInterval = setInterval(() => this.runPeriodicAnalysis(), 5000);
+            this.cooldownTuneInterval = setInterval(() => this.autoTuneCooldowns(), 60000);
         }
 
         stop() {
@@ -1100,6 +1282,7 @@
             this.disconnectWebSockets();
             if (this.renderInterval) clearInterval(this.renderInterval); 
             if (this.analysisInterval) clearInterval(this.analysisInterval);
+            if (this.cooldownTuneInterval) clearInterval(this.cooldownTuneInterval);
             this.updateConnectionStatus(false, "BAĞLANTI KESİLDİ"); 
             if (this.combatModeActive) this.deactivateCombatMode();
             this.showNotification('Sistem Durduruldu.', 'danger');
@@ -1108,9 +1291,9 @@
         async changeSymbol(newSymbol) {
             if (this.currentSymbol === newSymbol) return;
             this.currentSymbol = newSymbol; 
-            this.showNotification(`${this.currentSymbol} sembolüne geçildi.`, 'info');
+            this.showNotification(`${this.currentSymbol.replace('USDT', '/USDT')} sembolüne geçildi.`, 'info');
             this.resetDataForNewSymbol();
-            this.updateSuperTopTicker(); // Sembol değişince üst barı güncelle
+            this.updateSuperTopTicker(); 
             if (this.isRunning) { this.stop(); await this.start(); }
         }
 
@@ -1123,7 +1306,7 @@
 
         resetDataForNewSymbol() {
             this.candles = []; this.aggTrades = []; this.marketData = {}; this.orderBook = { bids: [], asks: [], lastUpdateId: null };
-            this.indicators = { rsi: [], atr: null, sma20: null, sma50: null, volSma20: null, vwap: null };
+            this.indicators = { rsi: [], atr: null, sma20: null, sma50: null, volSma20: null, vwap: null, adx: null };
             this.chartManager.setData([]); this.chartManager.clearMarkers(); this.render();
         }
 
@@ -1231,16 +1414,49 @@
             let atrSum = trs.slice(0, atrPeriod).reduce((a, b) => a + b, 0);
             this.indicators.atr = atrSum / atrPeriod;
 
-            // Ek indikatörler
             const sma = (arr, n) => arr.slice(-n).reduce((a,b)=>a+b,0)/Math.max(1, Math.min(arr.length, n));
             if (closes.length >= 20) this.indicators.sma20 = sma(closes, 20);
             if (closes.length >= 50) this.indicators.sma50 = sma(closes, 50);
             const volumes = this.candles.map(x=>x.volume);
             if (volumes.length >= 20) this.indicators.volSma20 = sma(volumes, 20);
-            // VWAP (basit, tüm veri üzerinden)
             let cumPV = 0, cumV = 0;
             for (const k of this.candles) { const tp = (k.high + k.low + k.close)/3; cumPV += tp * k.volume; cumV += k.volume; }
             this.indicators.vwap = cumV ? (cumPV / cumV) : null;
+
+            // Basit ADX/DX (rejim)
+            this.indicators.adx = this.calcADX(this.candles, this.settings.params.atrPeriod);
+            this.marketRegime = (this.indicators.adx && this.indicators.adx > 22) ? 'trend' : 'range';
+        }
+
+        calcADX(candles, period = 14) {
+            if (!candles || candles.length < period + 2) return null;
+            const tr = [], plusDM = [], minusDM = [];
+            for (let i = 1; i < candles.length; i++) {
+                const c = candles[i], p = candles[i-1];
+                const upMove = c.high - p.high;
+                const downMove = p.low - c.low;
+                const trueRange = Math.max(c.high - c.low, Math.abs(c.high - p.close), Math.abs(c.low - p.close));
+                tr.push(trueRange);
+                plusDM.push((upMove > downMove && upMove > 0) ? upMove : 0);
+                minusDM.push((downMove > upMove && downMove > 0) ? downMove : 0);
+            }
+            const smooth = (arr) => {
+                let s = arr.slice(0, period).reduce((a,b)=>a+b,0);
+                const out = [s];
+                for (let i = period; i < arr.length; i++) {
+                    s = s - (s/period) + arr[i];
+                    out.push(s);
+                }
+                return out;
+            };
+            const trS = smooth(tr), pS = smooth(plusDM), mS = smooth(minusDM);
+            const idxStart = Math.min(trS.length, pS.length, mS.length) - 1;
+            if (idxStart < 0) return null;
+            const atr = trS[idxStart] / period;
+            const pDI = 100 * ((pS[idxStart] / period) / Math.max(1e-8, atr));
+            const mDI = 100 * ((mS[idxStart] / period) / Math.max(1e-8, atr));
+            const dx = 100 * Math.abs(pDI - mDI) / Math.max(1, (pDI + mDI));
+            return dx;
         }
 
         calculateDynamicTpSl(signal) {
@@ -1251,7 +1467,7 @@
                 return;
             }
             const rrRatio = this.settings.params.rrRatio;
-            const atrMultiplier = 1.5 - (signal.score / 20); // Skora göre ATR multiplier'ı ayarla
+            const atrMultiplier = 1.5 - (signal.score / 20); 
             const slDistance = atr * atrMultiplier;
             const tpDistance = slDistance * rrRatio;
 
@@ -1259,7 +1475,6 @@
             else { signal.sl = signal.price + slDistance; signal.tp = signal.price - tpDistance; }
         }
 
-        // Otomatik TP/SL kapatma
         checkAutoCloseSignals() {
             const price = this.marketData.price;
             if (!price || this.signals.length === 0) return;
@@ -1310,7 +1525,7 @@
             this.renderSignals(); 
             this.renderStats(); 
             this.chartManager.addSignalMarker(signal);
-            this.showNotification(`YENİ SİNYAL: ${signal.direction.toUpperCase()} ${signal.symbol} | Skor: ${signal.score}`, signal.direction === 'buy' ? 'success' : 'danger');
+            this.showNotification(`YENİ SİNYAL: ${signal.direction.toUpperCase()} ${signal.symbol.replace('USDT', '/USDT')} | Skor: ${typeof signal.score==='number'?signal.score.toFixed(1):signal.score}`, signal.direction === 'buy' ? 'success' : 'danger');
             playSignal(signal.direction); 
             if (signal.score >= 8) { this.activateCombatMode(); }
         }
@@ -1321,6 +1536,9 @@
                 signal.status = result;
                 this.stats.total++;
                 this.stats[result]++;
+                // Strateji performans güncelle
+                this.updateStrategyStats(signal);
+
                 this.saveData('utc_signals', this.signals);
                 this.saveData('utc_stats', this.stats);
                 this.renderSignals(); 
@@ -1329,23 +1547,76 @@
             }
         }
 
-        clearAllSignals() {
-            if (confirm('Tüm sinyalleri silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
-                this.signals = [];
-                this.stats = { total: 0, tp: 0, sl: 0 };
-                this.saveData('utc_signals', this.signals);
-                this.saveData('utc_stats', this.stats);
-                this.renderSignals();
-                this.renderStats();
-                this.chartManager.clearMarkers(); // Grafik işaretçilerini de temizle
-                this.showNotification('Tüm sinyaller başarıyla silindi.', 'info');
+        updateStrategyStats(signal) {
+            const isWin = signal.status === 'tp';
+            const contributors = signal.contributors || [];
+            const totalWeighted = contributors.reduce((s, c) => s + (c.baseScore * (c.weight || 1)), 0) || 1;
+            const decay = 0.995;
+
+            for (const c of contributors) {
+                const stat = this.strategyStats[c.strategy] || { alpha:3, beta:2, proposals:0, contrib:0, wins:0, losses:0, lastUpdate: Date.now() };
+                stat.alpha *= decay; stat.beta *= decay;
+                const credit = (c.baseScore * (c.weight || 1)) / totalWeighted;
+                stat.contrib += 1;
+                if (isWin) { stat.wins += credit; stat.alpha += credit; }
+                else { stat.losses += credit; stat.beta += credit; }
+                stat.lastUpdate = Date.now();
+                this.strategyStats[c.strategy] = stat;
             }
+
+            // Performansa göre strateji proposal cooldown ayarla
+            for (const key of Object.keys(this.activeStrategies)) {
+                const w = this.getStrategyWeight(key);
+                const base = this.settings.cooldowns.strategyProposalMs || 10000;
+                const factor = Math.max(0.5, Math.min(2.0, 1.2 / Math.max(0.01,w))); 
+                const newCd = Math.max(500, Math.round(base * factor));
+                this.strategies[key].DEFAULT_PROPOSAL_COOLDOWN_MS = newCd;
+            }
+
+            this.saveStrategyStats();
         }
-        
-        // Sadece grafik üzerindeki işaretçileri temizleyen metod
-        clearChartMarkers() {
-            this.chartManager.clearMarkers();
-            this.showNotification('Grafik üzerindeki sinyal işaretçileri temizlendi.', 'info');
+
+        autoTuneCooldowns() {
+            if (!this.isRunning) return;
+            const now = Date.now();
+            const WINDOW_MS = 5 * 60 * 1000;
+            const recent = this.signals.filter(s => now - s.timestamp <= WINDOW_MS).slice(0, 100).sort((a,b)=> a.timestamp - b.timestamp);
+
+            let quickFlips = 0, totalPairs = 0;
+            for (let i = 1; i < recent.length; i++) {
+                totalPairs++;
+                const dt = recent[i].timestamp - recent[i-1].timestamp;
+                if (recent[i-1].direction !== recent[i].direction && dt <= 15000) {
+                    quickFlips++;
+                }
+            }
+            const flipRatio = totalPairs ? (quickFlips / totalPairs) : 0;
+            const volPct = (this.indicators.atr && this.marketData.price) ? (this.indicators.atr / this.marketData.price) : 0.001;
+
+            const cd = this.settings.cooldowns;
+            const baseSame = cd.sameDirectionMs || 30000;
+            const baseOpp = cd.oppositeDirectionMs || 20000;
+            const baseSignal = cd.signalMs || 15000;
+
+            const newSame = Math.max(10000, Math.min(120000, Math.round(baseSame * (1 + flipRatio * 0.8))));
+            const newOpp  = Math.max(5000, Math.min(120000, Math.round(baseOpp  * (1 + flipRatio * 1.2))));
+            const volFactor = volPct < 0.005 ? 0.8 : (volPct > 0.02 ? 1.3 : 1.0);
+            const newSignal = Math.max(3000, Math.min(60000, Math.round(baseSignal * volFactor)));
+            const newProposalTimeout = Math.max(1500, Math.min(8000, Math.round(2000 + 6000 * volPct)));
+
+            const changed = Math.abs(newSame - baseSame) / baseSame > 0.1 ||
+                            Math.abs(newOpp - baseOpp) / baseOpp > 0.1 ||
+                            Math.abs(newSignal - baseSignal) / baseSignal > 0.1 ||
+                            Math.abs(newProposalTimeout - cd.proposalTimeoutMs) / Math.max(1, cd.proposalTimeoutMs) > 0.1;
+
+            if (changed) {
+                this.settings.cooldowns.sameDirectionMs = newSame;
+                this.settings.cooldowns.oppositeDirectionMs = newOpp;
+                this.settings.cooldowns.signalMs = newSignal;
+                this.settings.cooldowns.proposalTimeoutMs = newProposalTimeout;
+                this.saveSettings();
+                this.showNotification(`Cooldown otomatik optimize edildi (flip: ${(flipRatio*100).toFixed(0)}%, vol: ${(volPct*100).toFixed(2)}%).`, 'warning');
+            }
         }
 
         renderSignals(isModal = false) {
@@ -1358,7 +1629,7 @@
                     <td>${this.formatPrice(s.price)}</td>
                     <td>${this.formatPrice(s.tp)}</td>
                     <td>${this.formatPrice(s.sl)}</td>
-                    <td>${s.score}</td>
+                    <td>${typeof s.score==='number' ? s.score.toFixed(1) : s.score}</td>
                     <td>${s.status.toUpperCase()}</td>
                 </tr>`).join('');
         }
@@ -1398,14 +1669,11 @@
 
             if(isConnected) { 
                 sd.classList.add('online'); 
-                st.textContent = `BAĞLI (${this.currentSymbol})`;
+                st.textContent = `BAĞLI (${this.currentSymbol.replace('USDT', '/USDT')})`;
                 if(tickerSymbolEl) tickerSymbolEl.textContent = this.currentSymbol.replace('USDT', '/USDT');
             } else { 
                 sd.classList.remove('online'); 
                 st.textContent = message;
-                // Eğer bağlantı yoksa, ticker sembolünü "BAĞLANTI YOK" yapmayız, o sabit kalır.
-                // İsteğe bağlı olarak burası boşaltılabilir veya statik tutulabilir.
-                // if(tickerSymbolEl) tickerSymbolEl.textContent = message; 
             } 
         }
 
@@ -1415,12 +1683,18 @@
         saveSettings() { localStorage.setItem('utc_settings', JSON.stringify(this.settings)); }
         loadSettings() {
             const defaultActive = {};
-            // Varsayılan olarak ilk 5 stratejiyi açık bırak
             this.allStrategyKeys.forEach((key, i) => defaultActive[key] = i < 5); 
             const defaults = {
                 confluenceThreshold: 3,
                 params: { rsiPeriod: 14, atrPeriod: 14, wallBtc: 20, rrRatio: 1.5 },
-                cooldowns: { signalMs: 15000, sameDirectionMs: 30000, proposalTimeoutMs: 3000, strategyProposalMs: 10000 },
+                cooldowns: { 
+                    signalMs: 15000, 
+                    sameDirectionMs: 30000, 
+                    proposalTimeoutMs: 3000, 
+                    strategyProposalMs: 10000,
+                    oppositeDirectionMs: 20000,
+                    reverseHysteresisPoints: 2
+                },
                 activeStrategies: defaultActive
             };
             const saved = this.loadData('utc_settings');
@@ -1442,7 +1716,6 @@
     document.addEventListener('DOMContentLoaded', () => { 
         try { 
             window.app = new UltimateTradingCommandCenter(); 
-            // Sayfa yüklendiğinde grafik boyutunu ve içeriğini doğru ayarlamak için resize event'i tetikle
             setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
         } 
         catch(e) {
