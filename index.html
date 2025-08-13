@@ -13,7 +13,7 @@
             --background-light: #ffffff; --panel-bg-light: #f6f8fa; --text-main-light: #24292f; --text-secondary-light: #57606a; --border-color-light: #d0d7de; --input-bg-light: #f0f2f5; --hover-bg-light: #e8eaed; --primary-light: #0969da;
             --war-mode-bg: linear-gradient(145deg, #4d0000 0%, #000000 75%); --war-mode-panel-bg: rgba(255, 0, 0, 0.08); --war-mode-border: #8B0000; --war-mode-text: #ff5858; --war-mode-primary: #ffc107;
             --positive: #28a745; --negative: #dc3545; --neutral: #ffc107;
-            --ticker-height: 22px; 
+            --ticker-height: 30px; /* Yeni butonlar için biraz daha yüksek */
             --header-min-height: 40px;
         }
         [data-theme="light"] { --background: var(--background-light); --panel-bg: var(--panel-bg-light); --text-main: var(--text-main-light); --text-secondary: var(--text-secondary-light); --border-color: var(--border-color-light); --input-bg: var(--input-bg-light); --hover-bg: var(--hover-bg-light); --primary: var(--primary-light); }
@@ -32,16 +32,18 @@
             width: 100%;
             background: var(--panel-bg);
             border-bottom: 1px solid var(--border-color);
-            padding: 2px 15px;
+            padding: 2px 10px; /* Düğmeler için biraz daha dar */
             z-index: 1100;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between; /* Fiyat sola, butonlar sağa */
             font-size: 11px;
             font-weight: 700;
             height: var(--ticker-height);
         }
-        #ticker-bar-symbol { color: var(--primary); margin-right: 15px; }
+        .super-top-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0;}
+        #ticker-bar-symbol { color: var(--primary); }
         #ticker-bar-price { color: var(--text-main); font-size: 12px; }
+        .super-top-right-buttons { display: flex; gap: 5px; /* Butonlar arası boşluk */ }
 
         .container { 
             display: flex; flex-direction: column; height: 100vh; padding-top: var(--ticker-height);
@@ -52,23 +54,17 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.2); margin: 5px; position: relative;
         }
         
-        .header-top-bar {
+        .header-top-bar { /* Eskiden logo ve ayarların olduğu yer, şimdi sadece başlık veya boşluk */
             display: flex; align-items: center; width: 100%; padding: 5px 15px; 
-            min-height: var(--header-min-height); justify-content: space-between; cursor: pointer;
+            min-height: var(--header-min-height); justify-content: space-between; cursor: default; /* Artık tıklanabilir değil */
+            font-weight: 700; font-size: 16px; color: var(--primary);
         }
-        .header-top-bar .logo { font-weight: 700; font-size: 16px; color: var(--primary); flex-shrink: 0; }
-        .header-top-bar .header-controls-group { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
-        
-        #open-settings-modal-btn {
-            padding: 4px 12px; border: 1px solid var(--border-color); 
-            background: var(--panel-bg); color: var(--text-main); 
-            border-radius: 4px; cursor: pointer; transition: all 0.2s;
-        }
-        #open-settings-modal-btn:hover { background: var(--hover-bg); border-color: var(--primary); }
+        /* Eski #open-settings-modal-btn CSS'i kaldırıldı/taşındı */
 
         .header-collapsible-content {
             transition: max-height 0.35s ease-in-out, opacity 0.3s ease, padding 0.35s ease, visibility 0.35s;
-            max-height: 200px; opacity: 1; overflow: hidden; visibility: visible; padding: 0 15px 8px 15px;
+            max-height: 300px; /* Yüksekliği artırıldı */
+            opacity: 1; overflow: hidden; visibility: visible; padding: 0 15px 8px 15px;
         }
         .header-collapsible-content .main-controls {
             display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-bottom: 8px;
@@ -85,12 +81,19 @@
         .btn { padding: 4px 12px; border: 1px solid var(--border-color); background: var(--panel-bg); color: var(--text-main); border-radius: 4px; cursor: pointer; transition: all 0.2s; }
         .btn:hover { background: var(--hover-bg); border-color: var(--primary); }
         .btn-success { background: var(--positive); color: white; border-color: var(--positive); } .btn-danger { background: var(--negative); color: white; border-color: var(--negative); }
+        .btn-tiny { /* Yeni eklenen küçük butonlar için stil */
+            padding: 2px 6px;
+            font-size: 10px;
+            line-height: 1;
+            min-width: 0;
+            white-space: nowrap;
+        }
         
         .main-grid { 
             display: grid; grid-template-columns: 1fr; gap: 5px; flex-grow: 1; margin: 5px; 
-            overflow: hidden; height: calc(100% - var(--header-min-height) - 10px);
+            overflow: hidden; height: calc(100% - var(--header-min-height) - 10px - var(--ticker-height)); /* Top bar yüksekliği düşüldü */
         }
-        body.header-collapsed .main-grid { height: calc(100% - var(--header-min-height) - 10px); margin-top: 0; }
+        body.header-collapsed .main-grid { height: calc(100vh - var(--ticker-height) - 10px); margin-top: 0; } /* Header kapatıldığında tam ekran */
         
         .panel { display: flex; flex-direction: column; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; }
         .panel-title { font-weight: 700; font-size: 13px; color: var(--primary); padding: 8px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; display: flex; justify-content: space-between; align-items: center;}
@@ -101,15 +104,35 @@
         .price-display { 
             display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; width: 100%;
             border: 1px solid var(--border-color); border-radius: 4px; padding: 8px; font-size: 10px;
+            margin-top: 8px; /* Diğer kontrollerden ayrılması için */
         } 
         .price-item .price-label { color: var(--text-secondary); } 
         .price-item .price-value { font-size: 18px; font-weight: 700; }
         
-        .center-panel { display: grid; grid-template-rows: 1fr; gap: 5px; padding: 0 !important; }
-        .data-container { display: grid; grid-template-rows: 1fr auto; overflow: hidden; } 
-        .data-grid { position: relative; overflow: hidden; } #live-chart { width: 100%; height: 100%; } 
+        /* === CSS DÜZELTMELERİ BAŞLANGICI === */
+        .center-panel { display: grid; grid-template-rows: 1fr; gap: 5px; padding: 0 !important; } 
+        .data-container { display: grid; grid-template-rows: 1fr auto; overflow: hidden; height: 100%; } 
+        .data-grid { position: relative; overflow: hidden; min-height: 0; } 
+        /* === CSS DÜZELTMELERİ BİTİŞİ === */
+
+        #live-chart { width: 100%; height: 100%; } 
         .heatmap-container { display: grid; grid-template-rows: auto 1fr; border-top: 1px solid var(--border-color); }
         #orderbook-heatmap { width: 100%; height: 100%; display: block; }
+
+        /* Grafik Zoom Butonları */
+        .chart-zoom-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            z-index: 100; /* Chart'ın üstünde olması için */
+        }
+        .chart-zoom-controls .btn-tiny {
+            background: rgba(var(--panel-bg-dark-rgb), 0.7); /* hafif şeffaf */
+            backdrop-filter: blur(2px);
+        }
+
         .data-table-container { width: 100%; height: 100%; overflow: auto; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 11px; }
         .data-table th, .data-table td { padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap;}
@@ -125,10 +148,10 @@
         .notification { background: var(--panel-bg); border: 1px solid var(--border-color); border-left-width: 5px; border-radius: 4px; padding: 12px; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); margin-top: 10px; }
         .notification.success { border-left-color: var(--positive); } .notification.danger { border-left-color: var(--negative); } .notification.warning { border-left-color: var(--neutral); }
         
-        /* Masaüstü: yan paneller gizli, odak grafik + ısı haritası */
+        /* Masaüstü: yan paneller gizli (çünkü modal'dan yönetilecekler) */
         aside#settings-panel, aside#analytics-panel { display: none !important; }
 
-        .hidden { display: none !important; }
+        .hidden-view { display: none !important; } /* Görünüm geçişleri için */
 
         /* Ayarlar Modalı */
         #settings-modal-overlay {
@@ -167,8 +190,7 @@
             .container { padding-top: var(--ticker-height); }
             .header { order: 2; position: sticky; bottom: 0; top: auto; width: 100%; z-index: 1000; margin: 0; border-radius: 0; border: none; border-top: 1px solid var(--border-color); }
             .header-top-bar { flex-direction: column; align-items: center; gap: 10px; padding: 10px 15px; cursor: default; }
-            .header-top-bar .header-controls-group { width: 100%; justify-content: center; }
-            .logo { margin-bottom: 5px; } 
+            .header-top-bar .logo { margin-bottom: 5px; } 
             
             .header-collapsible-content { padding: 0; }
             .header-collapsible-content .main-controls { flex-direction: column; align-items: center; padding: 0; width: 100%; }
@@ -191,22 +213,31 @@
 
             .settings-modal-content { width: 95%; margin: 10px; }
             .settings-modal-body { grid-template-columns: 1fr; gap: 15px; }
+
+            .super-top-right-buttons { /* Mobil'de butonları alta al veya gizle */
+                display: none; /* Mobil'de üstteki butonları gizle, alt bara taşı veya farklı düzenle */
+            }
         }
     </style>
 </head>
 <body class="header-collapsed"> 
     <div id="super-top-ticker">
-        <span id="ticker-bar-symbol"></span>
-        <span id="ticker-bar-price"></span>
+        <div class="super-top-left">
+            <span id="ticker-bar-symbol"></span>
+            <span id="ticker-bar-price"></span>
+        </div>
+        <div class="super-top-right-buttons">
+            <button id="main-controls-btn" class="btn btn-tiny">Komuta Merkezi</button>
+            <button id="chart-view-btn" class="btn btn-tiny">Grafik</button>
+            <button id="heatmap-view-btn" class="btn btn-tiny">Isı Haritası</button>
+            <button id="open-settings-modal-btn" class="btn btn-tiny">Ayarlar</button>
+        </div>
     </div>
 
     <div class="container">
         <header class="header">
-            <div id="header-main-bar" class="header-top-bar" title="Paneli aç/kapatmak için çift tıkla">
-                <div class="logo">KOMUTA MERKEZİ</div>
-                <div class="header-controls-group">
-                    <button id="open-settings-modal-btn" class="btn">AYARLAR</button>
-                </div>
+            <div id="header-main-bar" class="header-top-bar">
+                <span>KOMUTA MERKEZİ KONTROLLERİ</span>
             </div>
             <div class="header-collapsible-content">
                 <div class="main-controls">
@@ -221,6 +252,7 @@
                     <button id="theme-toggle-btn" class="btn">Tema</button>
                     <button id="start-btn" class="btn btn-success">SİSTEMİ BAŞLAT</button>
                     <button id="stop-btn" class="btn btn-danger" disabled>DURDUR</button>
+                    <button id="clear-markers-btn" class="btn">Grafik Sinyallerini Sil</button> <!-- Yeni buton -->
                 </div>
                 <div class="price-display">
                     <div class="price-item"><div class="price-label">FİYAT</div><div class="price-value" id="current-price">-</div></div>
@@ -234,8 +266,15 @@
         <main class="main-grid">
             <section class="center-panel panel">
                 <div class="data-container">
-                    <div class="data-grid"><div id="live-chart"></div></div>
-                    <div class="heatmap-container">
+                    <div class="data-grid" id="chart-container-view">
+                        <div id="live-chart"></div>
+                        <div class="chart-zoom-controls"> <!-- Yeni zoom butonları -->
+                            <button id="chart-zoom-in" class="btn btn-tiny">+</button>
+                            <button id="chart-zoom-out" class="btn btn-tiny">-</button>
+                            <button id="chart-zoom-reset" class="btn btn-tiny">Sıfırla</button>
+                        </div>
+                    </div>
+                    <div class="heatmap-container" id="heatmap-container-view">
                         <div class="panel-title" style="border-top: 1px solid var(--border-color); border-bottom: none;">EMİR DEFTERİ ISI HARİTASI</div>
                         <canvas id="orderbook-heatmap"></canvas>
                     </div>
@@ -243,7 +282,8 @@
             </section>
             
             <!-- Masaüstünde gizli (modal üzerinden yönetim) -->
-            <aside id="settings-panel" class="panel">
+            <!-- Bu paneller hala burada duruyor ancak mobil ve desktop'ta modal/main-grid CSS'i ile gizleniyorlar. -->
+            <aside id="settings-panel" class="panel hidden-view">
                 <div class="panel-title">AYARLAR & STRATEJİLER</div>
                 <div class="panel-content">
                     <div class="settings-group">
@@ -257,7 +297,7 @@
                 </div>
             </aside>
 
-            <aside id="analytics-panel" class="panel">
+            <aside id="analytics-panel" class="panel hidden-view">
                 <div class="panel-title">
                     <span>SİNYALLER & ANALİZ</span>
                     <button id="clear-signals-btn" class="btn btn-danger btn-sm">Tüm Sinyalleri Sil</button>
@@ -370,7 +410,7 @@
             this.series.candles = this.chart.addCandlestickSeries(this._getCandlestickOptions());
             this.series.volume = this.chart.addHistogramSeries(this._getVolumeOptions());
             window.addEventListener('resize', () => { 
-                if (this.chart && this.chartContainer.clientWidth > 0) {
+                if (this.chart && this.chartContainer.clientWidth > 0 && this.chartContainer.clientHeight > 0) {
                     this.chart.resize(this.chartContainer.clientWidth, this.chartContainer.clientHeight);
                 }
             });
@@ -410,6 +450,24 @@
             this.series.candles.setMarkers(this.signalMarkers);
         }
         clearMarkers() { if (!this.series.candles) return; this.signalMarkers = []; this.series.candles.setMarkers([]); }
+        
+        // Yeni zoom metotları
+        zoom(factor) {
+            if (!this.chart) return;
+            const timeScale = this.chart.timeScale();
+            const currentLogicalRange = timeScale.getVisibleLogicalRange();
+            if (!currentLogicalRange) return;
+
+            const newLogicalRange = {
+                from: currentLogicalRange.from * factor,
+                to: currentLogicalRange.to * factor
+            };
+            timeScale.setVisibleLogicalRange(newLogicalRange);
+        }
+
+        zoomIn() { this.zoom(0.9); }
+        zoomOut() { this.zoom(1.1); }
+        resetZoom() { if (this.chart) this.chart.timeScale().fitContent(); }
 
         _getDecimalPlacesBasedOnPrice(price) { if(!price) return 2; if (price > 1000) return 2; if (price > 1) return 3; if (price > 0.01) return 4; return 6; }
         _formatMarkerPrice(price) { const d = this._getDecimalPlacesBasedOnPrice(price); return price.toFixed(d); }
@@ -865,6 +923,8 @@
             this.confluenceEngine = new ConfluenceEngine(this);
             this.renderInterval = null; 
             this.analysisInterval = null;
+
+            this.currentMainView = 'chart'; // 'chart', 'heatmap', 'commandCenter'
             this.init();
         }
 
@@ -875,10 +935,11 @@
             this.renderSignals(); 
             this.renderStats(); 
             this.logToJournal('Sistem hazır. "SİSTEMİ BAŞLAT" butonuna tıklayın.');
+            this.switchMainView(this.currentMainView); // Başlangıç görünümünü ayarla
         }
 
         initStrategies() { for (const key in this.allStrategiesMap) { this.strategies[key] = new this.allStrategiesMap[key](this); } this.updateActiveStrategies(); }
-        updateActiveStrategies() { this.activeStrategies = {}; for (const key in this.strategies) { if (this.settings.activeStrategies[key]) { this.activeStrategies[key] = this.strategies[key]; } } }
+        updateActiveStrategies() { for (const key in this.strategies) { this.strategies[key].DEFAULT_PROPOSAL_COOLDOWN_MS = this.settings.cooldowns.strategyProposalMs; } this.activeStrategies = {}; for (const key in this.strategies) { if (this.settings.activeStrategies[key]) { this.activeStrategies[key] = this.strategies[key]; } } }
 
         setupUI() {
             const commonSymbols = ['FUNUSDT', 'ORDIUSDT', 'BNBUSDT', 'SOLUSDT', 'ENAUSDT', 'ADAUSDT', 'DOGEUSDT', 'LTCUSDT', 'AVAXUSDT', 'BTCUSDT', 'ETHUSDT'];
@@ -890,6 +951,11 @@
             document.documentElement.setAttribute('data-theme', savedTheme);
             this.chartManager.updateTheme(); 
             this.heatmapManager.updateTheme();
+            this.updateSuperTopTicker();
+        }
+
+        updateSuperTopTicker() {
+            document.getElementById('ticker-bar-symbol').textContent = this.currentSymbol.replace('USDT', '/USDT');
         }
 
         updateSettingsModalUI() {
@@ -923,12 +989,20 @@
             document.getElementById('symbol-select').addEventListener('change', (e) => this.changeSymbol(e.target.value));
             document.getElementById('timeframe-select').addEventListener('change', (e) => this.changeTimeframe(e.target.value));
             
-            document.getElementById('header-main-bar').addEventListener('click', (e) => {
-                if (e.target.closest('.header-controls-group')) return; 
-                this.toggleControlsPanel();
-            });
-
+            // Yeni butonların event listener'ları
+            document.getElementById('main-controls-btn').addEventListener('click', () => this.toggleControlsPanel());
+            document.getElementById('chart-view-btn').addEventListener('click', () => this.switchMainView('chart'));
+            document.getElementById('heatmap-view-btn').addEventListener('click', () => this.switchMainView('heatmap'));
             document.getElementById('open-settings-modal-btn').addEventListener('click', () => this.openSettingsModal());
+            
+            document.getElementById('clear-markers-btn').addEventListener('click', () => this.clearChartMarkers()); // Yeni eklenen buton
+
+            // Chart zoom butonları
+            document.getElementById('chart-zoom-in').addEventListener('click', () => this.chartManager.zoomIn());
+            document.getElementById('chart-zoom-out').addEventListener('click', () => this.chartManager.zoomOut());
+            document.getElementById('chart-zoom-reset').addEventListener('click', () => this.chartManager.resetZoom());
+
+
             document.getElementById('close-settings-modal-btn').addEventListener('click', () => this.closeSettingsModal());
             document.getElementById('settings-modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'settings-modal-overlay') this.closeSettingsModal(); });
 
@@ -964,6 +1038,25 @@
             setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 360);
         }
 
+        switchMainView(viewName) {
+            this.currentMainView = viewName;
+            const chartView = document.getElementById('chart-container-view');
+            const heatmapView = document.getElementById('heatmap-container-view');
+
+            if (viewName === 'chart') {
+                chartView.classList.remove('hidden-view');
+                heatmapView.classList.add('hidden-view');
+                this.chartManager.chart.resize(chartView.clientWidth, chartView.clientHeight);
+                this.chartManager.chart.timeScale().fitContent();
+            } else if (viewName === 'heatmap') {
+                chartView.classList.add('hidden-view');
+                heatmapView.classList.remove('hidden-view');
+                this.heatmapManager._resizeCanvas();
+            }
+            // "Komuta Merkezi" butonu zaten toggleControlsPanel'i çağırıyor,
+            // bu yüzden burada sadece ilgili panellerin görünürlüğünü ayarlıyoruz.
+        }
+
         openSettingsModal() { this.updateSettingsModalUI(); document.getElementById('settings-modal-overlay').classList.add('visible'); }
         closeSettingsModal() { document.getElementById('settings-modal-overlay').classList.remove('visible'); this.updateActiveStrategies(); this.calculateAllIndicators(); window.dispatchEvent(new Event('resize')); }
 
@@ -990,7 +1083,7 @@
             this.isRunning = true; 
             document.getElementById('start-btn').disabled = true; 
             document.getElementById('stop-btn').disabled = false;
-            document.body.classList.remove('header-collapsed'); 
+            // this.toggleControlsPanel(); // Başlatınca paneli kapat
             
             this.showNotification('Sistem Başlatıldı: Canlı veri akışı başlatılıyor...', 'success');
             await this.fetchInitialData(); 
@@ -1017,6 +1110,7 @@
             this.currentSymbol = newSymbol; 
             this.showNotification(`${this.currentSymbol} sembolüne geçildi.`, 'info');
             this.resetDataForNewSymbol();
+            this.updateSuperTopTicker(); // Sembol değişince üst barı güncelle
             if (this.isRunning) { this.stop(); await this.start(); }
         }
 
@@ -1157,7 +1251,7 @@
                 return;
             }
             const rrRatio = this.settings.params.rrRatio;
-            const atrMultiplier = 1.5 - (signal.score / 20);
+            const atrMultiplier = 1.5 - (signal.score / 20); // Skora göre ATR multiplier'ı ayarla
             const slDistance = atr * atrMultiplier;
             const tpDistance = slDistance * rrRatio;
 
@@ -1243,9 +1337,15 @@
                 this.saveData('utc_stats', this.stats);
                 this.renderSignals();
                 this.renderStats();
-                this.chartManager.clearMarkers();
+                this.chartManager.clearMarkers(); // Grafik işaretçilerini de temizle
                 this.showNotification('Tüm sinyaller başarıyla silindi.', 'info');
             }
+        }
+        
+        // Sadece grafik üzerindeki işaretçileri temizleyen metod
+        clearChartMarkers() {
+            this.chartManager.clearMarkers();
+            this.showNotification('Grafik üzerindeki sinyal işaretçileri temizlendi.', 'info');
         }
 
         renderSignals(isModal = false) {
@@ -1299,11 +1399,13 @@
             if(isConnected) { 
                 sd.classList.add('online'); 
                 st.textContent = `BAĞLI (${this.currentSymbol})`;
-                if(tickerSymbolEl) tickerSymbolEl.textContent = this.currentSymbol;
+                if(tickerSymbolEl) tickerSymbolEl.textContent = this.currentSymbol.replace('USDT', '/USDT');
             } else { 
                 sd.classList.remove('online'); 
                 st.textContent = message;
-                if(tickerSymbolEl) tickerSymbolEl.textContent = message;
+                // Eğer bağlantı yoksa, ticker sembolünü "BAĞLANTI YOK" yapmayız, o sabit kalır.
+                // İsteğe bağlı olarak burası boşaltılabilir veya statik tutulabilir.
+                // if(tickerSymbolEl) tickerSymbolEl.textContent = message; 
             } 
         }
 
@@ -1338,7 +1440,11 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => { 
-        try { window.app = new UltimateTradingCommandCenter(); } 
+        try { 
+            window.app = new UltimateTradingCommandCenter(); 
+            // Sayfa yüklendiğinde grafik boyutunu ve içeriğini doğru ayarlamak için resize event'i tetikle
+            setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
+        } 
         catch(e) {
             console.error("Uygulama başlatılırken kritik bir hata oluştu:", e);
             document.body.innerHTML = `<div style="color: red; padding: 20px; font-family: monospace;">Uygulama başlatılamadı. Konsolu kontrol edin. Hata: ${e.message}</div>`;
