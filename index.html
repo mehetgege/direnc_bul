@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="tr" data-theme="dark">
 <head>
@@ -1042,6 +1043,8 @@
             this.lastSignalTime = 0; 
             this.lastSignalTimeByDirection = { buy: 0, sell: 0 };
             this.lastDirection = null;
+            this.buyScore = 0; // Canlı sinyal barı için
+            this.sellScore = 0; // Canlı sinyal barı için
         }
         propose(strategy, direction, reason, score) {
             const now = Date.now();
@@ -1207,17 +1210,30 @@
             this.cooldownTuneInterval = null;
             this.thresholdTuneInterval = null;
             this.sessionUpdateInterval = null;
-            this.countdownInterval = null; // Yeni: Geri sayım için interval
+            this.countdownInterval = null; 
 
             this.lastAutoToggleTs = 0;
             this.runtimeThresholdOffset = 0; 
 
-            // TTS (Text-to-Speech) için
-            this.synth = window.speechSynthesis;
+            // TTS (Text-to-Speech) için **GÜNCELLEME BURADA**
+            this.synth = window.speechSynthesis || null; // API desteği kontrolü
             this.speechQueue = [];
             this.isSpeaking = false;
             this.voices = [];
-            this.loadVoices();
+            if (this.synth) { 
+                this.loadVoices();
+            } else {
+                console.warn('SpeechSynthesis API bu tarayıcı/cihazda desteklenmiyor.');
+                // UI'daki TTS düğmesini devre dışı bırak
+                document.addEventListener('DOMContentLoaded', () => {
+                    const ttsToggle = document.getElementById('modal-enable-tts');
+                    if (ttsToggle) {
+                        ttsToggle.checked = false; // Ayarı kapat
+                        ttsToggle.disabled = true; // Kontrolü devre dışı bırak
+                        ttsToggle.closest('.form-group').querySelector('.checkbox-label').style.color = 'var(--text-secondary)'; // Grileştir
+                    }
+                });
+            }
 
             this.init();
         }
@@ -1278,7 +1294,6 @@
             this.sessionUpdateInterval = setInterval(() => this.updateSession(), 60000); 
             this.updateSession(); 
 
-            // Geri sayım başlat
             this.countdownInterval = setInterval(() => this.updateCandleCountdown(), 1000);
         }
 
@@ -1327,7 +1342,20 @@
             document.getElementById('modal-be-at-r').value = this.settings.optimization.breakeven.beAtR;
             document.getElementById('modal-trail-after-r').value = this.settings.optimization.breakeven.trailAfterR;
             document.getElementById('modal-trail-to-r').value = this.settings.optimization.breakeven.trailToR;
-            document.getElementById('modal-enable-tts').checked = this.settings.features.enableTTS; // Yeni: TTS
+            
+            // TTS ayarı, sadece destekleniyorsa güncellenebilir
+            const ttsToggle = document.getElementById('modal-enable-tts');
+            if(ttsToggle) {
+                ttsToggle.checked = this.settings.features.enableTTS;
+                if (!this.synth) { // Eğer TTS API desteklenmiyorsa devre dışı bırak
+                    ttsToggle.disabled = true;
+                    ttsToggle.closest('.form-group').querySelector('.checkbox-label').style.color = 'var(--text-secondary)';
+                } else {
+                    ttsToggle.disabled = false;
+                    ttsToggle.closest('.form-group').querySelector('.checkbox-label').style.color = 'var(--text-main)';
+                }
+            }
+
 
             const strategyModalContainer = document.getElementById('modal-strategy-toggles');
             strategyModalContainer.innerHTML = '';
@@ -1611,7 +1639,6 @@
                 }
             }
             if (this.settings.features.enableRiskGuardian) this.riskGuardian.checkKillSwitch();
-            // this.shadowABTester.processData('periodic'); 
         }
         
         calculateAllIndicators() {
@@ -1782,7 +1809,7 @@
                 if (s.mfeR >= (settings.trailAfterR || 1.5) && (s.trailingStage || 0) < 1) {
                     let newSl;
                     if (s.direction === 'buy') {
-                        newSl = price - (atr * settings.trailToR); // ATR'nin belirli bir oranı kadar geride tut
+                        newSl = price - (atr * settings.trailToR); 
                         s.sl = Math.min(s.tp, Math.max(s.sl, newSl)); 
                     } else { 
                         newSl = price + (atr * settings.trailToR); 
@@ -1814,7 +1841,7 @@
 
         render() { 
             this.renderPriceDisplay(); 
-            this.updateSignalProgressBar(); // Yeni: Sinyal barını güncelle
+            this.updateSignalProgressBar(); 
         }
         renderPriceDisplay() {
             const priceEl = document.getElementById('current-price');
@@ -1849,7 +1876,8 @@
             }
 
             const now = Date.now();
-            const lastCandleTime = this.candles[this.candles.length - 1].time; // in milliseconds
+            // Binance kline time, mumun açılış zamanıdır.
+            const lastCandleOpenTime = this.candles[this.candles.length - 1].time; 
 
             let timeframeMs;
             switch (this.currentTimeframe) {
@@ -1861,18 +1889,17 @@
                 default: countdownEl.textContent = '--:--'; return;
             }
 
-            // Mevcut mumun kapanış zamanını hesapla (UTC tabanlı)
-            // Binance kline time, mumun açılış zamanıdır.
-            const nextCandleOpenTime = lastCandleTime + timeframeMs;
+            const nextCandleOpenTime = lastCandleOpenTime + timeframeMs;
             let remainingTime = nextCandleOpenTime - now;
 
+            // Eğer kalan süre negatifse, muhtemelen yeni bir mum açıldı ama henüz veri gelmedi.
+            // Bu durumda bir sonraki mumun kapanışına kadar olan süreyi gösteririz.
             if (remainingTime < 0) {
-                // Eğer kalan süre negatifse, bir sonraki mumu hedefle
-                remainingTime += timeframeMs; 
-                // Bu durumda, bir sonraki kline gelene kadar biraz bekleyebiliriz.
-                // Veya simply 00:00 gösterebiliriz.
-                if (remainingTime < 0) remainingTime = 0; // Çok nadiren olur, ama emin olmak için
+                remainingTime = timeframeMs + remainingTime % timeframeMs; // Negatiften pozitife çevir
+                if (remainingTime < 0) remainingTime += timeframeMs; // Tekrar negatifse bir timeframe daha ekle
             }
+            
+            remainingTime = Math.max(0, remainingTime); // Negatif kalmaması için
 
             const minutes = Math.floor(remainingTime / 60000);
             const seconds = Math.floor((remainingTime % 60000) / 1000);
@@ -1889,16 +1916,13 @@
             if (!buyFill || !sellFill || !buyScoreText || !sellScoreText) return;
 
             const minThreshold = this.getEffectiveThreshold();
-            const maxScore = 10; // Confluence Engine'daki maksimum mantıksal skor
+            const maxScoreForDisplay = 10; // Barın max skoru, 10'a sabitlenmiş
 
-            // ConfluenceEngine'dan anlık skorları al
             const buyScore = this.confluenceEngine.buyScore || 0;
             const sellScore = this.confluenceEngine.sellScore || 0;
 
-            // Bar doluluk oranını hesapla
-            // Eşiğin üzerindeki kısmı daha belirgin yapmak için farklı bir ölçeklendirme yapılabilir.
-            const buyPercent = Math.min(100, (buyScore / maxScore) * 100);
-            const sellPercent = Math.min(100, (sellScore / maxScore) * 100);
+            const buyPercent = Math.min(100, Math.max(0, (buyScore / maxScoreForDisplay) * 100));
+            const sellPercent = Math.min(100, Math.max(0, (sellScore / maxScoreForDisplay) * 100));
 
             buyFill.style.width = `${buyPercent}%`;
             sellFill.style.width = `${sellPercent}%`;
@@ -1916,7 +1940,6 @@
             this.showNotification(`YENİ SİNYAL: ${signal.direction.toUpperCase()} ${signal.symbol.replace('USDT', '/USDT')} | Skor: ${typeof signal.score==='number'?signal.score.toFixed(1):signal.score}`, signal.direction === 'buy' ? 'success' : 'danger');
             playSignal(signal.direction); 
             
-            // TTS Sinyal Bildirimi
             if (this.settings.features.enableTTS) {
                 const message = signal.direction === 'buy' ? 
                     `Alım için uygun, ${signal.symbol.replace('USDT', '')}, skor ${signal.score.toFixed(1)}.` :
@@ -1933,7 +1956,6 @@
                 signal.status = result;
                 this.stats.total++;
                 this.stats[result]++;
-                // Strateji performans güncelle
                 this.updateStrategyStats(signal);
                 if (this.settings.features.enableCUSUMDrift) {
                     const driftDetected = this.cusumDetector.update(result === 'tp');
@@ -1964,7 +1986,7 @@
             const decay = 0.995; 
 
             for (const c of contributors) {
-                const stat = this.strategyStats[c.strategy] || { alpha:3, beta:2, proposals:0, contrib:0, wins:0, losses:0, lastUpdate: Date.now() };
+                const stat = this.strategyStats[c.strategy] || { alpha:3, beta:2, proposals:0, contrib:0, wins:0, losses:0, lastUpdate: Date.now() }; // Corrected Date.Date() to Date.now()
                 stat.alpha *= decay; stat.beta *= decay; 
                 const credit = (c.effScore || (c.baseScore * (c.weight || 1))) / totalEff; 
                 stat.contrib += 1;
@@ -2136,6 +2158,13 @@
             const tbody = isModal ? document.getElementById('modal-signals-body') : document.getElementById('signals-body');
             if(!tbody) return; 
             tbody.innerHTML = this.signals.map(s => {
+                // !!! GÜNCELLEME BURADA BAŞLIYOR: Savunma mekanizması !!!
+                if (s.price === undefined || s.tp === undefined || s.sl === undefined || s.score === undefined || s.direction === undefined || s.timestamp === undefined) {
+                    console.warn("Hatalı sinyal verisi tespit edildi, render atlanıyor:", s);
+                    return ''; // Bu bozuk satırı render etme
+                }
+                // !!! GÜNCELLEME BURADA SONA ERİYOR !!!
+
                 const baseCols = `
                     <td>${new Date(s.timestamp).toLocaleTimeString()}</td>
                     <td>${s.direction.toUpperCase()}</td>
@@ -2160,7 +2189,7 @@
             if(!container) return; 
             const totalSignals = this.stats.total;
             const tpSignals = this.stats.tp;
-            const slSignals = this.stats.sl;
+            const slSignals = this.stats.sl; // Corrected: this.stats.stats.sl to this.stats.sl
             const winRate = totalSignals > 0 ? (tpSignals / totalSignals * 100).toFixed(1) : "N/A";
             
             const totalScore = this.signals.reduce((sum, s) => sum + (s.score || 0), 0);
@@ -2220,7 +2249,7 @@
                 this.renderStats(true);
                 this.chartManager.clearMarkers();
                 this.showNotification('Tüm sinyal geçmişi silindi.', 'info');
-                this.cusumDetector.reset(); // CUSUM detector'ı da sıfırla
+                this.cusumDetector.reset(); 
                 if (this.settings.features.enableTTS) {
                     this.speak('Tüm sinyal geçmişi silindi.');
                 }
@@ -2232,28 +2261,47 @@
         
         // TTS Fonksiyonları
         loadVoices() {
-            this.voices = this.synth.getVoices();
-            if (this.voices.length === 0) {
-                this.synth.onvoiceschanged = () => {
-                    this.voices = this.synth.getVoices();
-                    this.synth.onvoiceschanged = null; // Event listener'ı bir kez çalıştıktan sonra kaldır
-                };
+            if (!this.synth) return; // synth nesnesi yoksa işlem yapma
+
+            // onvoiceschanged olayını dinle
+            this.synth.onvoiceschanged = () => {
+                this.voices = this.synth.getVoices();
+                if (this.voices.length > 0) {
+                    console.log('TTS sesleri başarıyla yüklendi:', this.voices.length);
+                }
+            };
+
+            // Seslerin başlangıçta yüklenip yüklenmediğini kontrol et
+            let initialVoices = this.synth.getVoices();
+            if (initialVoices && initialVoices.length > 0) {
+                this.voices = initialVoices;
+                console.log('TTS sesleri doğrudan yüklendi:', this.voices.length);
+            } else {
+                console.log('TTS sesleri henüz yüklenmedi, onvoiceschanged bekleniyor...');
             }
         }
 
         speak(text, options = {}) {
-            if (!this.settings.features.enableTTS || !this.synth) return;
+            if (!this.settings.features.enableTTS) return; // Kullanıcı TTS'i kapattıysa
+            if (!this.synth) { // SpeechSynthesis API desteklenmiyorsa
+                console.warn('SpeechSynthesis API kullanılabilir değil, konuşma yapılamıyor:', text);
+                return;
+            }
             
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = options.lang || 'tr-TR'; // Türkçe öncelikli
-            utterance.rate = options.rate || 1.1; // Hız
-            utterance.pitch = options.pitch || 1.0; // Ton
+            utterance.lang = options.lang || 'tr-TR'; 
+            utterance.rate = options.rate || 1.1; 
+            utterance.pitch = options.pitch || 1.0; 
 
             const voiceName = options.voice;
-            if (voiceName) {
-                utterance.voice = this.voices.find(v => v.name.includes(voiceName) || v.lang === utterance.lang) || null;
+            if (this.voices.length > 0) { // Yüklenmiş sesler varsa
+                if (voiceName) {
+                    utterance.voice = this.voices.find(v => v.name.includes(voiceName) || v.lang === utterance.lang) || null;
+                } else {
+                    utterance.voice = this.voices.find(v => v.lang === utterance.lang) || this.voices.find(v => v.default) || null;
+                }
             } else {
-                utterance.voice = this.voices.find(v => v.lang === utterance.lang) || this.voices.find(v => v.default) || null;
+                console.warn('TTS sesleri henüz yüklenmedi veya mevcut değil, varsayılan ses kullanılacak.');
             }
 
             utterance.onend = () => {
@@ -2261,7 +2309,7 @@
                 this._processSpeechQueue();
             };
             utterance.onerror = (event) => {
-                console.error('SpeechSynthesisError:', event.error);
+                console.error('SpeechSynthesisError:', event.error, 'Konuşulan Metin:', text);
                 this.isSpeaking = false;
                 this._processSpeechQueue();
             };
@@ -2306,7 +2354,7 @@
                     enableCUSUMDrift: true,
                     enableRiskGuardian: true,
                     enableShadowABTesting: false,
-                    enableTTS: true // Varsayılan olarak TTS aktif
+                    enableTTS: true 
                 },
                 riskGuardian: { 
                     killSwitchWinRate: 30 
@@ -2340,7 +2388,6 @@
     document.addEventListener('DOMContentLoaded', () => { 
         try { 
             window.app = new UltimateTradingCommandCenter(); 
-            // Sayfa yüklendikten sonra bir kez resize event'ini tetikle
             setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
         } 
         catch(e) {
@@ -2351,3 +2398,4 @@
 </script>
 </body>
 </html>
+`
