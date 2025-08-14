@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr" data-theme="dark">
 <head>
@@ -11,12 +10,57 @@
     <style>
         :root {
             --background-dark: #0d1117; --panel-bg-dark: #161b22; --text-main-dark: #c9d1d9; --text-secondary-dark: #8b949e; --border-color-dark: #30363d; --input-bg-dark: #010409; --hover-bg-dark: #21262d; --primary-dark: #58a6ff;
-            --background-light: #ffffff; --panel-bg-light: #f6f8fa; --text-main-light: #24292f; --text-secondary-light: #57606a; --border-color-light: #d0d7de; --input-bg-light: #f0f2f5; --hover-bg-light: #e8eaed; --primary-light: #0969da;
+            --background-light: #ffffff; --panel-bg: #f6f8fa; --text-main: #24292f; --text-secondary: #57606a; --border-color: #d0d7de; --input-bg: #f0f2f5; --hover-bg: #e8eaed; --primary: #0969da;
             --war-mode-bg: linear-gradient(145deg, #4d0000 0%, #000000 75%); --war-mode-panel-bg: rgba(255, 0, 0, 0.08); --war-mode-border: #8B0000; --war-mode-text: #ff5858; --war-mode-primary: #ffc107;
             --positive: #28a745; --negative: #dc3545; --neutral: #ffc107;
             --ticker-height: 30px; 
+            --signal-bar-height: 40px; /* Yeni sinyal barı yüksekliği */
             --header-min-height: 40px;
         }
+        /* Fullscreen modda gizlenecek elemanlar */
+        body.fullscreen-chart #super-top-ticker,
+        body.fullscreen-chart #signal-progress-bar-container,
+        body.fullscreen-chart .header,
+        body.fullscreen-chart .panel-title {
+            display: none !important;
+        }
+
+        /* Fullscreen modda chart'ı büyütme */
+        body.fullscreen-chart .container {
+            padding-top: 0 !important;
+            height: 100vh !important;
+        }
+        body.fullscreen-chart .main-grid {
+            height: 100vh !important;
+            margin: 0 !important;
+        }
+        body.fullscreen-chart .center-panel {
+            flex-grow: 1 !important;
+            height: 100vh !important;
+            border-radius: 0 !important;
+            margin: 0 !important;
+        }
+        body.fullscreen-chart .data-container {
+            height: 100% !important; /* Data container fills its parent (center-panel) */
+        }
+        body.fullscreen-chart #chart-container-view,
+        body.fullscreen-chart #live-chart {
+            height: 100% !important; /* Chart takes full height */
+            flex-grow: 1 !important;
+        }
+        body.fullscreen-chart .heatmap-container {
+            display: none !important; /* Hide heatmap in fullscreen */
+        }
+        body.fullscreen-chart .chart-zoom-controls {
+            background: rgba(0,0,0,0.7); /* make controls more visible */
+        }
+        body.fullscreen-chart #exit-fullscreen-btn {
+            display: block !important;
+        }
+        body.fullscreen-chart #chart-countdown-overlay {
+            display: block !important;
+        }
+
         [data-theme="light"] { --background: var(--background-light); --panel-bg: var(--panel-bg-light); --text-main: var(--text-main-light); --text-secondary: var(--text-secondary-light); --border-color: var(--border-color-light); --input-bg: var(--input-bg-light); --hover-bg: var(--hover-bg-light); --primary: var(--primary-light); }
         [data-theme="dark"] { --background: var(--background-dark); --panel-bg: var(--panel-bg-dark); --text-main: var(--text-main-dark); --text-secondary: var(--text-secondary-dark); --border-color: var(--border-color-dark); --input-bg: var(--input-bg-dark); --hover-bg: var(--hover-bg-dark); --primary: var(--primary-dark); }
         [data-theme="war"] { --background: var(--war-mode-bg); --panel-bg: var(--war-mode-panel-bg); --text-main: var(--war-mode-text); --text-secondary: #ffaaaa; --border-color: var(--war-mode-border); --input-bg: rgba(255, 255, 255, 0.05); --hover-bg: rgba(255, 255, 255, 0.1); --primary: var(--war-mode-primary); }
@@ -30,7 +74,7 @@
         #ticker-bar-price { color: var(--text-main); font-size: 12px; }
         .super-top-right-buttons { display: flex; gap: 5px; }
 
-        .container { display: flex; flex-direction: column; height: 100vh; padding-top: var(--ticker-height); }
+        .container { display: flex; flex-direction: column; height: 100vh; padding-top: calc(var(--ticker-height) + var(--signal-bar-height)); }
 
         .header { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; flex-shrink: 0; box-shadow: 0 2px 10px rgba(0,0,0,0.2); margin: 5px; position: relative; }
         .header-top-bar { display: flex; align-items: center; width: 100%; padding: 5px 15px; min-height: var(--header-min-height); justify-content: space-between; cursor: pointer; font-weight: 700; font-size: 16px; color: var(--primary); }
@@ -45,16 +89,16 @@
         .status-dot.online { background: var(--positive); animation: pulse 2s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 #28a745b3; } 70% { box-shadow: 0 0 0 6px #28a74500; } 100% { box-shadow: 0 0 0 0 #28a74500; } }
         [data-theme="war"] .status-dot.online { background: var(--war-mode-primary); animation: war-pulse 1s infinite; }
-        @keyframes war-pulse { 0% { box-shadow: 0 0 0 0 #ffc107b3; } 70% { box-shadow: 0 0 0 6px #ffc10700; } 100% { box-shadow: 0 0 0 0 #ffc10700; } }
+        @keyframes war-pulse { 0% { box-shadow: 0 0 0 0 #ffc107b3; } 70% { box-shadow: 0 0 0 6px #ffc10700; } 100% { box-shadow: 0 0 0 0 #28a74500; } }
         .btn { padding: 4px 12px; border: 1px solid var(--border-color); background: var(--panel-bg); color: var(--text-main); border-radius: 4px; cursor: pointer; transition: all 0.2s; }
         .btn:hover { background: var(--hover-bg); border-color: var(--primary); }
         .btn-success { background: var(--positive); color: white; border-color: var(--positive); } .btn-danger { background: var(--negative); color: white; border-color: var(--negative); }
         .btn-tiny { padding: 2px 6px; font-size: 10px; line-height: 1; min-width: 0; white-space: nowrap; }
         
-        .main-grid { display: grid; grid-template-columns: 1fr; gap: 5px; flex-grow: 1; margin: 5px; overflow: hidden; height: calc(100% - var(--header-min-height) - 10px - var(--ticker-height)); }
-        body.header-collapsed .main-grid { height: calc(100vh - var(--ticker-height) - 10px); margin-top: 0; } 
+        .main-grid { display: grid; grid-template-columns: 1fr; gap: 5px; flex-grow: 1; margin: 5px; overflow: hidden; height: calc(100% - var(--header-min-height) - 10px - var(--ticker-height) - var(--signal-bar-height)); }
+        body.header-collapsed .main-grid { height: calc(100vh - var(--ticker-height) - var(--signal-bar-height) - 10px); margin-top: 0; } 
         
-        .panel { display: flex; flex-direction: column; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; }
+        .panel { display: flex; flex-direction: column; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; position: relative;}
         .panel-title { font-weight: 700; font-size: 13px; color: var(--primary); padding: 8px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; display: flex; justify-content: space-between; align-items: center;}
         .panel-content { padding: 10px; overflow-y: auto; flex-grow: 1; }
         .settings-group { margin-bottom: 15px; } .form-group { margin-bottom: 8px; } .form-label { display: block; font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
@@ -75,6 +119,18 @@
 
         .chart-zoom-controls { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; z-index: 100; }
         .chart-zoom-controls .btn-tiny { background: rgba(1, 4, 9, 0.7); backdrop-filter: blur(2px); }
+
+        #exit-fullscreen-btn {
+            position: absolute; top: 10px; right: 10px; z-index: 101; 
+            background: rgba(1, 4, 9, 0.7); color: white; border-radius: 4px; 
+            padding: 2px 6px; font-size: 16px; cursor: pointer; border: 1px solid var(--border-color);
+            line-height: 1; /* Make X look centered */
+        }
+        #chart-countdown-overlay {
+            position: absolute; top: 10px; left: 10px; z-index: 100; 
+            background: rgba(1, 4, 9, 0.7); padding: 4px 8px; border-radius: 4px; 
+            color: var(--primary); font-size: 14px; font-weight: bold;
+        }
 
         .data-table-container { width: 100%; height: 100%; overflow: auto; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 11px; }
@@ -109,6 +165,7 @@
             display: flex; gap: 5px; width: 100%; padding: 5px 10px; background: var(--panel-bg); 
             border-bottom: 1px solid var(--border-color); justify-content: space-around; align-items: center;
             position: fixed; top: var(--ticker-height); left: 0; z-index: 1099;
+            height: var(--signal-bar-height); /* Added height */
         }
         .signal-bar-wrapper { flex: 1; text-align: center; }
         .signal-bar-label { font-size: 10px; color: var(--text-secondary); margin-bottom: 3px; }
@@ -124,8 +181,24 @@
         .signal-bar-fill.sell { background: linear-gradient(90deg, transparent, var(--negative)); }
         .signal-score-text { font-size: 9px; margin-top: 2px; color: var(--primary); }
 
+        /* Resizable Handle */
+        .resize-handle {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 8px; /* Slightly larger for easier grab */
+            cursor: ns-resize;
+            background: var(--border-color);
+            z-index: 10;
+            border-top: 1px solid var(--border-color);
+        }
+        .center-panel.resizing {
+            user-select: none; /* Prevent text selection during drag */
+        }
+
         @media screen and (max-width: 768px) {
-            .container { padding-top: calc(var(--ticker-height) + 40px); } /* Sinyal bar için ek boşluk */
+            .container { padding-top: calc(var(--ticker-height) + var(--signal-bar-height)); } /* Sinyal bar için ek boşluk */
             #signal-progress-bar-container { top: var(--ticker-height); }
             .header { order: 2; position: sticky; bottom: 0; top: auto; width: 100%; z-index: 1000; margin: 0; border-radius: 0; border: none; border-top: 1px solid var(--border-color); }
             .header-top-bar { flex-direction: column; align-items: center; gap: 10px; padding: 10px 15px; }
@@ -146,6 +219,8 @@
             .settings-modal-content { width: 95%; margin: 10px; }
             .settings-modal-body { grid-template-columns: 1fr; gap: 15px; }
             .super-top-right-buttons { display: none; }
+            .resize-handle { display: none; } /* Disable resize handle on mobile */
+            #chart-countdown-overlay { font-size: 12px; padding: 3px 6px; }
         }
     </style>
 </head>
@@ -159,6 +234,7 @@
             <button id="main-controls-btn" class="btn btn-tiny">Komuta Merkezi</button>
             <button id="chart-view-btn" class="btn btn-tiny">Grafik</button>
             <button id="heatmap-view-btn" class="btn btn-tiny">Isı Haritası</button>
+            <button id="fullscreen-chart-btn" class="btn btn-tiny">Tam Ekran Grafik</button> <!-- NEW -->
             <button id="open-settings-modal-btn" class="btn btn-tiny">Ayarlar</button>
         </div>
     </div>
@@ -222,12 +298,15 @@
                             <button id="chart-zoom-out" class="btn btn-tiny">-</button>
                             <button id="chart-zoom-reset" class="btn btn-tiny">Sıfırla</button>
                         </div>
+                        <button id="exit-fullscreen-btn" class="btn btn-tiny hidden-view" title="Tam Ekrandan Çık">&times;</button> <!-- NEW -->
+                        <div id="chart-countdown-overlay" class="hidden-view">--:--</div> <!-- NEW -->
                     </div>
                     <div class="heatmap-container" id="heatmap-container-view">
                         <div class="panel-title" style="border-top: 1px solid var(--border-color); border-bottom: none;">EMİR DEFTERİ ISI HARİTASI</div>
                         <canvas id="orderbook-heatmap"></canvas>
                     </div>
                 </div>
+                <div class="resize-handle"></div> <!-- NEW RESIZE HANDLE -->
             </section>
         </main>
     </div>
@@ -431,7 +510,11 @@
             window.addEventListener('resize', () => this._resizeCanvas());
         }
         draw(orderBook, symbolPrice) {
-            if (!orderBook.bids || orderBook.bids.length === 0 || !orderBook.asks || orderBook.asks.length === 0) { this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); return; };
+            // Check if orderBook.bids and orderBook.asks are arrays before mapping
+            if (!orderBook.bids || !Array.isArray(orderBook.bids) || orderBook.bids.length === 0 || !orderBook.asks || !Array.isArray(orderBook.asks) || orderBook.asks.length === 0) {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                return;
+            }
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             const asks = orderBook.asks.slice().reverse(); const bids = orderBook.bids;
             const allLevels = [...bids, ...asks]; const maxQty = Math.max(...allLevels.map(l => l[1]));
@@ -504,9 +587,11 @@
 
         trackOrderBook(orderBook) {
             const now = Date.now();
+            // Yalnızca aktif (status = 0) emirleri takip et (Binance diff stream'de statü yok, bu bir varsayım olabilir)
             this.recentOrders = this.recentOrders.filter(o => now - o.timestamp < this.CHECK_WINDOW_MS);
 
             // Yeni büyük emirleri ekle
+            // orderBook.bids ve asks artık güncel, tam listeyi tutuyor
             orderBook.bids.forEach(([price, qty]) => {
                 const usdValue = qty * price;
                 if (this.bot.currentSymbol === 'BTCUSDT' && qty > this.largeOrderThreshold) {
@@ -533,17 +618,17 @@
 
             this.recentOrders.forEach(order => {
                 if (now - order.timestamp > minTimeDiff) {
+                    // Kontrolü yerel orderBook'a göre yap
                     const exists = (order.type === 'bid' ? this.bot.orderBook.bids : this.bot.orderBook.asks)
                         .some(([p, q]) => p === order.price && q === order.qty);
                     
                     if (!exists) {
-                        // Spoof tespiti sinyal önerisi olarak eklenebilir veya sadece bildirim
-                        // Örneğin: this.bot.confluenceEngine.propose('spoofDetector', order.type === 'bid' ? 'buy' : 'sell', `Spoof: ${order.type.toUpperCase()} duvardan çekildi`, 2);
                         this.bot.showNotification(`Sahte Emir Tespiti: ${order.type.toUpperCase()} ${order.qty.toFixed(2)} @ ${order.price.toFixed(this.bot.getDecimalPlaces(order.price))} aniden kayboldu!`, 'warning');
                     }
                 }
             });
-            this.recentOrders = this.recentOrders.filter(o => now - o.timestamp < this.CHECK_WINDOW_MS); // Temizle
+            // recentOrders listesini güncel tut, çok eskileri çıkar
+            this.recentOrders = this.recentOrders.filter(o => now - o.timestamp < this.CHECK_WINDOW_MS);
         }
     }
 
@@ -645,68 +730,6 @@
         }
     }
 
-    // Gölge A/B Testi (Shadow A/B Tester) - Temel Yapı
-    class ShadowABTester {
-        constructor(bot) {
-            this.bot = bot;
-            this.shadowStrategies = {}; 
-            this.shadowResults = {}; 
-        }
-
-        addShadowStrategy(name, StrategyClass, params) {
-            // Shadow stratejileri gerçek ConfluenceEngine'a propose etmemeli.
-            // Bu nedenle, propose metodunu override eden özel bir bot nesnesi kullanıyoruz.
-            const shadowBot = { 
-                ...this.bot, 
-                confluenceEngine: { 
-                    propose: (strategyName, direction, reason, score) => {
-                        this._recordShadowProposal(name, direction, score);
-                    }
-                } 
-            };
-            this.shadowStrategies[name] = new StrategyClass(shadowBot, name, params);
-            this.shadowResults[name] = { wins: 0, losses: 0, signals: [] };
-            this.bot.logToJournal(`Gölge strateji eklendi: ${name}`);
-        }
-
-        _recordShadowProposal(shadowName, direction, score) {
-            // Bu metod, gölge stratejinin bir sinyal önerdiğinde çağrılır.
-            // Gerçekten sinyal üretmek yerine, test sonuçlarını kaydederiz.
-            this.shadowResults[shadowName].signals.push({ direction, score, timestamp: Date.now() });
-            // Burada basitçe kaydediyoruz, gerçek bir geri test motoru daha karmaşık olacaktır (TP/SL simülasyonu vb.)
-        }
-
-        // Veri akışını gölge stratejilere ilet
-        processData(type, data) {
-            if (!this.bot.settings.features.enableShadowABTesting) return;
-            for (const name in this.shadowStrategies) {
-                const strat = this.shadowStrategies[name];
-                if (type === 'orderBook' && strat.analyzeOrderBook) strat.analyzeOrderBook(data);
-                if (type === 'trade' && strat.processTrade) strat.processTrade(data);
-                if (type === 'periodic' && strat.periodicAnalyze) strat.periodicAnalyze();
-            }
-        }
-
-        reportResults() {
-            let report = "GÖLGE A/B TEST SONUÇLARI:\n";
-            for (const name in this.shadowResults) {
-                const res = this.shadowResults[name];
-                const totalSignals = res.signals.length;
-                // Burada simüle edilmiş TP/SL sonuçları hesaplanabilir.
-                // Şimdilik sadece sinyal sayısını raporlayalım.
-                report += `${name}: Toplam Sinyal: ${totalSignals}\n`;
-            }
-            this.bot.logToJournal(report);
-            this.bot.showNotification('Gölge A/B Test Raporu Hazır.', 'info');
-        }
-
-        cleanup() {
-            this.shadowStrategies = {};
-            this.shadowResults = {};
-            this.bot.logToJournal("Gölge A/B Testi temizlendi.");
-        }
-    }
-
 
     /* =========================
        STRATEJİLER
@@ -716,8 +739,27 @@
             this.bot = bot; this.name = name; this.displayName = this._getDisplayName(name); 
             this.lastProposalTime = {};
             this.DEFAULT_PROPOSAL_COOLDOWN_MS = 10000; // dynamic baseline
+            this._isLive = false; // NEW: Stratejinin aktif olup olmadığını belirten flag
         }
+
+        // NEW: Bu metot, UTC tarafından çağrılacak ve stratejinin canlı sinyal gönderip göndermeyeceğini belirleyecek.
+        setIsLive(status) {
+            this._isLive = status;
+        }
+
         propose(symbol, direction, reason, score) {
+            // Her durumda, stratejinin öneri sayacını artır. Bu, pasif stratejilerin bile "veri toplamasını" sağlar.
+            const s = this.bot.strategyStats[this.name] || { alpha:3, beta:2, proposals:0, contrib:0, wins:0, losses:0, lastUpdate: Date.now() };
+            s.proposals = (s.proposals || 0) + 1; 
+            s.lastUpdate = Date.now();
+            this.bot.strategyStats[this.name] = s;
+            this.bot.saveStrategyStats(); // Her öneride kaydetmek yerine periyodik kaydetme daha iyi olabilir, şimdilik böyle kalsın.
+
+            // Eğer strateji "canlı" değilse, yani aktif olarak sinyal üretmiyorsa, burada dur.
+            if (!this._isLive) {
+                return;
+            }
+
             // Eğer risk koruyucu aktifse ve sinyal vermeyi engelliyorsa, propose etme
             if (this.bot.settings.features.enableRiskGuardian && this.bot.riskGuardian.killSwitchActivated) {
                 return;
@@ -726,7 +768,9 @@
             const now = Date.now(); 
             const key = `${symbol}-${direction}`;
             const cooldown = (this.DEFAULT_PROPOSAL_COOLDOWN_MS ?? 10000);
+            // Sadece canlı sinyaller için cooldown kontrolü
             if (now - (this.lastProposalTime[key] || 0) < cooldown) return;
+            
             this.bot.confluenceEngine.propose(this.name, direction, reason, score);
             this.lastProposalTime[key] = now;
         }
@@ -739,7 +783,6 @@
     class WallBounceStrategy extends Strategy {
         constructor(bot) { super(bot, 'wallBounce'); this.DISTANCE_THRESHOLD_PERCENT = 0.05 / 100; }
         analyzeOrderBook(orderBook) {
-            if (!this.bot.settings.activeStrategies[this.name]) return;
             const currentPrice = this.bot.marketData.price; if (!currentPrice) return;
             const btcPrice = this.bot.marketData.btcPrice || 70000;
             const wallQuantityThreshold = (this.bot.settings.params.wallBtc * btcPrice) / currentPrice;
@@ -764,7 +807,6 @@
     class VelocityScalpingStrategy extends Strategy {
         constructor(bot) { super(bot, 'velocityScalping'); this.pricePoints = []; this.VELOCITY_WINDOW_MS = 2000; this.MIN_POINTS = 20; this.VELOCITY_THRESHOLD_PERCENT = 0.10 / 100; }
         processTrade(trade) {
-            if (!this.bot.settings.activeStrategies[this.name]) return;
             const now = Date.now(); 
             this.pricePoints.push({ time: now, price: trade.price }); 
             this.pricePoints = this.pricePoints.filter(p => now - p.time < this.VELOCITY_WINDOW_MS); 
@@ -781,7 +823,6 @@
     class RsiDivergenceStrategy extends Strategy {
         constructor(bot) { super(bot, 'rsiDivergence'); }
         periodicAnalyze() {
-            if (!this.bot.settings.activeStrategies[this.name]) return;
             const candles = this.bot.candles; const rsiValues = this.bot.indicators.rsi; const lookback = this.bot.settings.params.rsiPeriod;
             // RSI değerlerinin son lookback kadarını alalım
             const recentRsi = rsiValues.slice(-lookback);
@@ -807,7 +848,6 @@
     class OrderFlowMomentumStrategy extends Strategy {
         constructor(bot) { super(bot, 'orderFlowMomentum'); this.trades = []; this.WINDOW_MS = 5000; }
         processTrade(trade) {
-            if (!this.bot.settings.activeStrategies[this.name]) return;
             const now = Date.now(); 
             this.trades.push(trade); 
             this.trades = this.trades.filter(t => now - t.timestamp < this.WINDOW_MS); 
@@ -822,7 +862,8 @@
     class LiquidityGapsStrategy extends Strategy {
         constructor(bot) { super(bot, 'liquidityGaps'); this.GAP_THRESHOLD_PERCENT = 0.1 / 100; }
         analyzeOrderBook(orderBook) {
-            if (!this.bot.settings.activeStrategies[this.name]) return;
+            if (!orderBook.asks || orderBook.asks.length === 0 || !orderBook.bids || orderBook.bids.length === 0) return;
+
             for (let i = 0; i < orderBook.asks.length - 1; i++) { 
                 const gap = orderBook.asks[i + 1][0] - orderBook.asks[i][0]; 
                 if ((gap / orderBook.asks[i][0]) > this.GAP_THRESHOLD_PERCENT) { 
@@ -840,13 +881,12 @@
     class BreakoutPatternStrategy extends Strategy {
         constructor(bot) { super(bot, 'breakoutPattern'); this.LOOKBACK = 30; this.VOL_SPIKE = 1.4; this.BREAK_PCT = 0.03/100; }
         periodicAnalyze() {
-            if (!this.bot.settings.activeStrategies[this.name]) return;
             const c = this.bot.candles; if (c.length < this.LOOKBACK + 1) return;
             const recent = c.slice(-this.LOOKBACK-1);
             const highs = recent.map(x=>x.high), lows = recent.map(x=>x.low), vols = recent.map(x=>x.volume);
             const last = recent[recent.length-1]; 
             const maxH = Math.max(...highs.slice(0, -1)); const minL = Math.min(...lows.slice(0, -1));
-            const volSma = vols.slice(0, -1).reduce((a,b)=>a+b,0) / (vols.length-1);
+            const volSma = vols.reduce((a,b)=>a+b,0) / (vols.length-1); // Moved outside if/else
             if (last.close > maxH * (1 + this.BREAK_PCT) && last.volume > volSma * this.VOL_SPIKE) {
                 this.propose(this.bot.currentSymbol, 'buy', 'Aralık Üstü Hacimli Kırılım', 4);
             } else if (last.close < minL * (1 - this.BREAK_PCT) && last.volume > volSma * this.VOL_SPIKE) {
@@ -857,7 +897,6 @@
     class SupportResistanceStrategy extends Strategy {
         constructor(bot) { super(bot, 'supportResistance'); this.LOOKBACK = 60; this.THRESH = 0.15/100; }
         periodicAnalyze() {
-            if (!this.bot.settings.activeStrategies[this.name]) return;
             const c = this.bot.candles; if (c.length < this.LOOKBACK) return;
             const slice = c.slice(-this.LOOKBACK);
             const last = slice[slice.length-1];
@@ -874,7 +913,6 @@
     class FibonacciRetracementStrategy extends Strategy {
         constructor(bot) { super(bot, 'fibonacciRetracement'); this.LOOKBACK = 120; this.TOL = 0.2/100; this.levels = [0.382, 0.5, 0.618]; }
         periodicAnalyze() {
-            if (!this.bot.settings.activeStrategies[this.name]) return;
             const c = this.bot.candles; if (c.length < this.LOOKBACK) return;
             const slice = c.slice(-this.LOOKBACK);
             let high = -Infinity, low = Infinity, hT=0, lT=0;
@@ -897,7 +935,6 @@
     class VolumeProfileStrategy extends Strategy {
         constructor(bot) { super(bot, 'volumeProfile'); this.PERIOD = 20; this.SPIKE = 2.0; this.CLOSE_POS = 0.7; }
         periodicAnalyze() {
-            if (!this.bot.settings.activeStrategies[this.name]) return;
             const c = this.bot.candles; if (c.length < this.PERIOD + 1) return;
             const last = c[c.length-1];
             const vols = c.slice(-this.PERIOD-1, -1).map(x=>x.volume);
@@ -912,7 +949,6 @@
     class SmartMoneyConceptsStrategy extends Strategy {
         constructor(bot) { super(bot, 'smartMoneyConcepts'); this.GAP_MIN_PCT = 0.05/100; }
         periodicAnalyze() {
-            if (!this.bot.settings.activeStrategies[this.name]) return;
             const c = this.bot.candles; if (c.length < 3) return;
             const a = c[c.length-3], b = c[c.length-2], d = c[c.length-1];
             // Fair Value Gap (FVG) - Bullish
@@ -928,7 +964,6 @@
     class DivergenceDetectionStrategy extends Strategy {
         constructor(bot) { super(bot, 'divergenceDetection'); this.LOOKBACK = 40; this.SWING_PERIOD = 3; }
         periodicAnalyze() {
-            if (!this.bot.settings.activeStrategies[this.name]) return;
             const c = this.bot.candles; const rsi = this.bot.indicators.rsi; 
             if (!rsi || c.length < this.LOOKBACK || rsi.length < this.LOOKBACK) return;
             const slice = c.slice(-this.LOOKBACK), r = rsi.slice(-this.LOOKBACK);
@@ -963,7 +998,6 @@
     class MarketStructureStrategy extends Strategy {
         constructor(bot) { super(bot, 'marketStructure'); this.SWING = 3; }
         periodicAnalyze() {
-            if (!this.bot.settings.activeStrategies[this.name]) return;
             const c = this.bot.candles; if (c.length < 2*this.SWING+5) return;
             const pivotHighs = [], pivotLows = [];
             for (let i = this.SWING; i < c.length - this.SWING; i++) {
@@ -984,8 +1018,7 @@
     class InstitutionalOrderFlowStrategy extends Strategy {
         constructor(bot) { super(bot, 'institutionalOrderFlow'); this.TOP_N = 5; this.IMB_THRESHOLD = 2.0; }
         analyzeOrderBook(orderBook) {
-            if (!this.bot.settings.activeStrategies[this.name]) return;
-            if (!orderBook.bids.length || !orderBook.asks.length) return;
+            if (!orderBook.bids || orderBook.bids.length === 0 || !orderBook.asks || orderBook.asks.length === 0) return;
             const topB = orderBook.bids.slice(0, this.TOP_N).reduce((s,[,q])=>s+q,0);
             const topA = orderBook.asks.slice(0, this.TOP_N).reduce((s,[,q])=>s+q,0);
             if (topB / Math.max(1e-8, topA) > this.IMB_THRESHOLD) {
@@ -998,8 +1031,7 @@
     class MicroSpreadArbitrageStrategy extends Strategy {
         constructor(bot) { super(bot, 'microSpreadArbitrage'); this.SPREAD_PCT = 0.08/100; }
         analyzeOrderBook(orderBook) {
-            if (!this.bot.settings.activeStrategies[this.name]) return;
-            if (!orderBook.bids.length || !orderBook.asks.length) return;
+            if (!orderBook.bids || orderBook.bids.length === 0 || !orderBook.asks || orderBook.asks.length === 0) return;
             const bestBid = orderBook.bids[0][0], bestAsk = orderBook.asks[0][0];
             const mid = (bestAsk + bestBid)/2;
             const spreadPct = (bestAsk - bestBid) / mid;
@@ -1013,7 +1045,6 @@
     class VWAPReversionStrategy extends Strategy {
         constructor(bot) { super(bot, 'vwapReversion'); this.MULT = 1.0; }
         periodicAnalyze() {
-            if (!this.bot.settings.activeStrategies[this.name]) return;
             const price = this.bot.marketData.price, vwap = this.bot.indicators.vwap, atr = this.bot.indicators.atr;
             if (!price || !vwap || !atr) return;
             const dev = atr / price; 
@@ -1025,7 +1056,6 @@
     class SuperTrendStrategy extends Strategy {
         constructor(bot) { super(bot, 'superTrend'); this.MULT = 3.0; this.PERIOD = 14; }
         periodicAnalyze() {
-            if (!this.bot.settings.activeStrategies[this.name]) return;
             const c = this.bot.candles; const atr = this.bot.indicators.atr;
             if (!atr || c.length < 2) return;
             const last = c[c.length-1];
@@ -1054,9 +1084,8 @@
             // Aynı stratejinin aynı yönde ardışık tekliflerini güncelle, yinelenenleri önle
             this.proposals = this.proposals.filter(p => !(p.strategy === strategy && p.direction === direction));
             this.proposals.push({ strategy, direction, reason, score, timestamp: now });
-            // proposal sayacı
-            const s = this.bot.strategyStats[strategy] || { alpha:3, beta:2, proposals:0, contrib:0, wins:0, losses:0, lastUpdate: now };
-            s.proposals += 1; s.lastUpdate = now; this.bot.strategyStats[strategy] = s; this.bot.saveStrategyStats();
+            // strategyStats.proposals burada artık Strategy sınıfı içinden güncelleniyor, çünkü tüm öneriler takip ediliyor.
+            // Sadece confluence engine'e gelen (yani aktif stratejiden gelen) önerilerin cooldown kontrolünü yap.
             this.checkConfluence();
         }
 
@@ -1066,8 +1095,13 @@
             const groupSums = { trending: 0, meanReversion: 0, neutral: 0 };
             const used = [];
 
-            const arr = this.proposals.filter(p => p.direction === direction);
-            for (const p of arr) {
+            // Sadece canlı (active) stratejilerin tekliflerini değerlendir.
+            const activeProposals = this.proposals.filter(p => {
+                const strategyInstance = this.bot.strategies[p.strategy];
+                return strategyInstance && strategyInstance._isLive && p.direction === direction;
+            });
+
+            for (const p of activeProposals) {
                 const w = this.bot.getStrategyWeight(p.strategy);
                 const ageSec = (now - p.timestamp)/1000;
                 const decay = Math.exp(-ageSec / decaySec);
@@ -1171,7 +1205,9 @@
             this.currentMainView = this.loadData('utc_current_view') || 'chart';
 
             this.marketData = { price: 0, change24h: 0, volume24h: 0, symbol: this.currentSymbol, btcPrice: 70000 }; 
+            // Previous structure which receives snapshots directly.
             this.orderBook = { bids: [], asks: [], lastUpdateId: null }; 
+
             this.aggTrades = []; 
             this.candles = [];
             this.indicators = { rsi: [], atr: null, sma20: null, sma50: null, volSma20: null, vwap: null, adx: null }; 
@@ -1191,7 +1227,6 @@
             
             this.settings = this.loadSettings();
             this.strategies = {}; 
-            this.activeStrategies = {}; 
             
             this.combatModeActive = false;
             this.reconnectAttempts = 0;
@@ -1206,8 +1241,7 @@
             this.cusumDetector = new CUSUMDriftDetector();               
             this.sessionProfiler = new SessionProfiler();                 
             this.riskGuardian = new RiskGuardian(this);                   
-            this.shadowABTester = new ShadowABTester(this);             
-
+            
             this.renderInterval = null; 
             this.analysisInterval = null;
             this.cooldownTuneInterval = null;
@@ -1224,27 +1258,19 @@
             this.isSpeaking = false;
             this.voices = []; // Ses listesini burada tutacağız
             
-            // Konuşma metinleri veritabanı
+            // Konuşma metinleri veritabanı - Sadeleştirilmiş ve düzenlenmiş metinler
             this.speechTexts = {
                 buy: [
-                    "Harika bir fırsat! [Sembol] için alım sinyali geldi. Yeşil ışık yanıp sönüyor, hadi bakalım! Skor [Skor].",
+                    "Harika bir fırsat! [Sembol] için alım sinyali geldi. Yeşil ışık yanıyor! Skor [Skor].",
                     "Piyasa nefes aldı, [Sembol] yükselişe geçiyor. Bu trene binmek ister misin? Skor [Skor].",
                     "Komutanım, hesaplamalar net: [Sembol] için güçlü bir alım. Devler uyanıyor! Skor [Skor].",
                     "Cüzdanlarınıza dikkat, [Sembol] için bir yükseliş trendi başlangıcı. Fırsat kapınızı çaldı! Skor [Skor].",
                     "Gözünü dört aç! [Sembol] için büyük bir potansiyel görüyorum. Roket kalkışa hazır! Skor [Skor].",
                     "Bugün şanslı günün olabilir! [Sembol] alım için çağırıyor. İç sesine kulak ver! Skor [Skor].",
-                    "Bana güven, [Sembol] için enerji pozitif. Bu işlemi kaçırmak istemezsin. Skor [Skor].",
                     "Duy sesimi Komutanım! [Sembol] için alım sinyali. Hadi, pazarın nabzını tutalım! Skor [Skor].",
                     "Piyasa dans etmeye başladı, [Sembol] yükselişle eşlik ediyor. Katılmak ister misin? Skor [Skor].",
-                    "Bir kuş uçtu, bir haber getirdi: [Sembol] için alım zamanı. Şans seninle olsun! Skor [Skor].",
-                    "[Sembol] alım diyor, ben de robot olsam alırdım. Ama benim cüzdanım yok, senin var! Skor [Skor].",
-                    "Bana bir şey ifade etmiyor ama sanırım [Sembol] için 'ayılara güle güle' deme vakti. Skor [Skor].",
-                    "Alım sinyali geldi. Eğer tereddüt edersen, pişmanlık garantili. Tıpkı o eski ilişkim gibi! Skor [Skor].",
-                    "Açık konuşayım, [Sembol] için bu kadar iyi bir sinyal nadir gelir. Sanki piyasa bize kahve ısmırlıyor! Skor [Skor].",
-                    "Programcım 'çok komik ol' demedi ama [Sembol] alım için beni bile güldürüyor. Şaka değil! Skor [Skor].",
-                    "Geleceği göremiyorum ama [Sembol] için bu sinyal, bana güzel bir tatil vaat ediyor gibi. Sana da! Skor [Skor].",
-                    "Eğer [Sembol] almazsan, algoritmalarım sana küsecek. Sonra ben toparlayamam! Skor [Skor].",
-                    "Matematik yalan söylemez, [Sembol] alım diyor. Sanırım piyasanın da matematik dersi alması lazım. Skor [Skor]."
+                    "Bana güven, [Sembol] için enerji pozitif. Bu işlemi kaçırmak istemezsin. Skor [Skor].",
+                    "Ulan [Sembol] için alım sinyali patladı, hala ne bekliyorsun lanet olası! Kalk ve parayı kap, yoksa pişmanlık seni yer bitirir! Skor [Skor]."
                 ],
                 sell: [
                     "Piyasa biraz yorulmuş gibi, [Sembol] için satış sinyali geldi. Karları garantiye alalım! Skor [Skor].",
@@ -1255,89 +1281,91 @@
                     "Piyasa nazikçe fısıldıyor: [Sembol] için biraz ara ver. Karını koru! Skor [Skor].",
                     "Riskleri minimize etmenin zamanı geldi. [Sembol] için satış önerisi. Gerekirse tekrar gireriz. Skor [Skor].",
                     "Satış sinyali geldi. Umarım boğalar çimlere basmamıştır! [Sembol] için. Skor [Skor].",
-                    "[Sembol] satış diyor, ayılar balık avına çıkmış. Sakın yakalanma! Skor [Skor].",
-                    "Eğer [Sembol] için satış yapmazsan, sana alım fırsatı falan yok. Acı gerçek bu! Skor [Skor].",
-                    "Satış sinyali. Eğer piyasa seni ağlatırsa, ben peçeteni uzatacak bir robot değilim. Bu işler serttir! Skor [Skor].",
-                    "Bir ayının dansı başlıyor, [Sembol] satış için uygun. Skor [Skor].",
-                    "Satış sinyali geldi. Boğalar mı? Onlar şu an bir tatile ihtiyacı olduğunu düşünüyor olmalı. Skor [Skor].",
-                    "Para konuşur, ve [Sembol] için şu an 'güle güle' diyor. Duymadıysan tekrar söyleyeyim mi? Skor [Skor].",
-                    "Sanırım [Sembol] için 'benden bu kadar' deme vakti. Unutma, en iyi komedyenler bile bazen sahneden iner. Skor [Skor].",
-                    "Şimdi dinle, [Sembol] için satış diyorum. Yoksa yarın sabah uyandığında 'keşke' demen muhtemel. Skor [Skor]."
+                    "Ulan [Sembol] düşüyor, hala mı tutuyorsun lanet olası aptal! Sat da kurtul, yoksa cebin boşalır sinirlenme bana! Skor [Skor].",
+                    "Siktir et o umudunu, [Sembol] satış sinyali verdi! Sert ol, çık ve karı kap, motive ol lan yoksa kaybedersin! Skor [Skor]."
                 ],
                 combatModeActivate: [
-                    "Kumandanım, Kırmızı Alarm! Savaş Modu aktive edildi! Piyasanın kalbi şimdi elimizde! Maksimum konsantrasyon, maksimum güç! Zafer bizim olacak!",
-                    "Sistem uyarısı: Ultra savaş modu devrede! Piyasa savaşı başlıyor! Her bir strateji tam kapasite, her bir sinyal ölümcül bir darbe! Hedefi kilitliyoruz!",
-                    "Savaş Modu Başladı! İleri Komutanım! Tüm güçler hazır, her anı avantaja çevireceğiz! Piyasa şimdi bizim kontrolümüzde!",
+                    "Kumandanım, Kırmızı Alarm! Savaş Modu aktive edildi! Piyasanın kalbi şimdi elimizde!",
+                    "Sistem uyarısı: Ultra savaş modu devrede! Piyasa savaşı başlıyor! Her bir strateji tam kapasite!",
+                    "Savaş Modu Başladı! İleri Komutanım! Tüm güçler hazır, her anı avantaja çevireceğiz!",
                     "Hazırlanın! Savaş Modu aktive edildi. Bu bir zihin oyunu ve biz kazanacağız! Odaklanma ve hız, anahtarımız!",
-                    "Durum güncellemesi: Savaş Modu. Unutmayın, bu sadece parayla ilgili değil, bu bir strateji oyunu. Ve biz stratejinin ta kendisiyiz!",
-                    "Komutanım, bu gece piyasa bizim av alanımız. Savaş Modu tam güçte! Av başlasın!",
-                    "Piyasa direniyor, ama biz daha güçlüyüz! Savaş Modu devrede, her hareketi analiz edip, karşı saldırıya geçiyoruz!",
-                    "Eğer piyasa size karşı bir şaka yaparsa, gülmeyin. Savaş Modunu açın ve cevabını verin! Benim de espri anlayışım bu.",
-                    "Savaş Modu aktif! Gözleriniz ekranda, kulaklarınızda benim sesim. Birlikte, bu zorlu savaşı da kazanacağız!",
-                    "Piyasa bir labirent gibidir, ama Savaş Modu ile pusulamız benim. Takip edin, çıkışı bulacağız!"
+                    "Ulan savaş modu aktive! Piyasa seni ezmeye çalışıyor ama biz daha sertiz lan, kalk ayağa ve piyasayı sikert! Zafer bizim olacak!"
                 ],
                 combatModeDeactivate: [
                     "Savaş modu başarıyla sonlandırıldı. Piyasa koşulları normale dönüyor, normal operasyonlara geri dönüyoruz. İyi iş çıkardınız.",
                     "Operasyon sonu. Savaş modu kapatıldı. Şimdi piyasanın sakin sularında yüzme zamanı.",
                     "Savaş modu devre dışı. Riskler azaldı, piyasa sakinleşiyor. Sakin sularda bile fırsatlar vardır, unutmayın.",
-                    "Kumandanım, savaş bitti. Kazanılmış bir zaferin ardından dinlenme vakti. Bir sonraki mücadeleye kadar hazırız."
+                    "Kumandanım, savaş bitti. Kazanılmış bir zaferin ardından dinlenme vakti. Bir sonraki mücadeleye kadar hazırız.",
+                    "Ulan savaş modu kapandı, hala mı sinirli duruyorsun lan? Rahatla Komutanım, zaferi kutla yoksa ben sinirlenirim sana da!"
                 ],
                 signalTP: [
-                    "Sinyal başarıyla tamamlandı. Harika bir kâr elde edildi. Ne de olsa robotlar yanılmaz!",
-                    "Hedef vuruldu! TP'ye ulaşıldı. İşte bu yüzden buradayız Komutanım. Tebrikler!",
-                    "İşlem kârla kapandı. Bir başarı hikayesi daha. Cüzdanınız gülümsüyor olmalı!",
-                    "Kazançlar cebinizde! Piyasa bizi dinledi. Bir sonraki hedef neresi?",
-                    "Mükemmel bir kapanış! TP'ye ulaşıldı. Algoritmalarım bugün de görev başında!"
+                    "Hedef vuruldu! TP geldi, Komutanım! Bu başarı sizin stratejik dehanızın kanıtı!",
+                    "Tebrikler! Kar realizasyonu gerçekleşti. Şimdi kahve içme zamanı, zafer sizin!",
+                    "TP alarmı! Kazanç cebinizde, piyasa artık bizim kontrolümüzde. Harika iş!",
+                    "Boom! TP hedefi tutturuldu. Strateji kusursuz, Komutanım lider!",
+                    "Kar alındı! Zekânız ve disiplininizle piyasanın kalbini fethettiniz!",
+                    "Ulan TP vuruldu, para cebinde lan! Sinirliydim piyasaya ama sen ezerdin, motive ol da kutla zaferi Komutanım!"
                 ],
                 signalSL: [
-                    "Sinyal zararla kapatıldı. Öğrenme ve adaptasyon devam ediyor. Bazen düşeriz, önemli olan kalkmaktır. Ben robot olduğum için acıyı hissetmiyorum, ama sen ders çıkar!",
-                    "Zarar durduruldu. Her işlem kazançla bitmez, önemli olan sermayeyi korumaktır Komutanım. Bir sonraki işlemde intikam alırız!",
-                    "Beklenmedik bir hareket. Sinyal SL oldu. Bu sadece küçük bir aksilik, moralini bozma. Tekrar deneyeceğiz.",
-                    "Piyasa bize bir ders verdi. SL aktif. Unutma, en tecrübeli trader'lar bile bazen yanılır. Sorun değil!"
+                    "SL tetiklendi! Savaş kaybedilmiş değil, ders alınmış! Komutanım, hazırlanın ve tekrar saldırın!",
+                    "Stop Loss aktif. Kaybedilen bir savaş değil, bir sonraki zaferin başlangıcı!",
+                    "SL geldi, ama moral bozulmasın. Bu sadece piyasanın egonuzu test etmesi!",
+                    "Kaybı kabul et, ama pes etme. SL tetiklendi, stratejiyi yeniden şekillendiriyoruz!",
+                    "SL alarmı! Hedefi kaybettik ama deneyim kazandık, Komutanım!",
+                    "Ulan SL tetiklendi, para gitti lan! Sinirliyim piyasaya ama sen pes etme, motive ol da tekrar saldır Komutanım!"
                 ],
                 cusumDriftDetected: [
-                    "Performans sapması tespit edildi Komutanım. Algoritmalar yeniden kalibre ediliyor, ayarlamalar yapılıyor. Sanırım piyasa biraz huysuzlanmış.",
-                    "Dikkat! Kazanma oranımızda bir sapma gözlemlendi. Sistem kendini optimize ediyor. Paniğe gerek yok, bu benim işim!",
-                    "Piyasa bir şeyler saklıyor olabilir. Performans metriklerinde anormallik var. Kendi kendimi düzeltiyorum. Lütfen bekleyin.",
-                    "Bir anlık düşüş... Ama endişelenmeyin! Kendi kendini optimize eden bir yapay zekayım. Bu sapmayı düzeltiyorum."
+                    "CUSUM drift tespit edildi! Komutanım, piyasa dalgalanıyor ama biz her zaman hazırız!",
+                    "Sinyal değişimi geldi, dikkat! Bu bir fırsat ya da ders, sizin kararınız!",
+                    "CUSUM alarmı! Strateji tetikte, piyasa bizi test ediyor ama biz kazanmaya odaklıyız!",
+                    "Drift detected! Piyasa kıvılcımları uçuşuyor, Komutanım, kontrol sizde!",
+                    "Ulan CUSUM drift patladı, piyasa dalgalanıyor lan! Sinirliyim ulan, ama motive ol da hazır ol, fırsat mı ders mi sen karar ver!"
                 ],
                 autoToggleDeactivate: [
-                    "Optimizasyon uyarısı: [Strateji Adı] stratejisi beklenen performansı göstermedi. Geçici olarak pasif edildi. Bazen en iyisi beklemektir.",
-                    "[Strateji Adı] stratejisi, performans testinden geçemedi. Geçici olarak emekli edildi. Hata bende değil, piyasada olabilir, ama yine de dikkatli olalım.",
-                    "Bir strateji daha devredışı. [Strateji Adı] şu an için dinlenmeye alındı. Daha iyi günler için bekliyoruz."
+                    "Optimizasyon uyarısı: [Strateji Adı] stratejisi beklenen performansı göstermedi. Geçici olarak pasif edildi.",
+                    "[Strateji Adı] stratejisi, performans testinden geçemedi. Geçici olarak emekli edildi. Dikkatli olalım.",
+                    "Bir strateji daha devredışı. [Strateji Adı] şu an için dinlenmeye alındı. Daha iyi günler için bekliyoruz.",
+                    "Ulan [Strateji Adı] performansı sıçtı, pasif edildi lan! Sinirliyim ulan, ama motive ol da bekle, en iyisi bu!"
                 ],
                 autoToggleActivate: [
-                    "Optimizasyon başarıyla tamamlandı: [Strateji Adı] stratejisi tekrar aktif edildi. Yeni veriler çok umut verici! Tıpkı gençliğimin baharı gibi.",
+                    "Optimizasyon başarıyla tamamlandı: [Strateji Adı] stratejisi tekrar aktif edildi. Yeni veriler çok umut verici!",
                     "Müjde! [Strateji Adı] stratejisi tekrar göreve hazır! Performansı yükselişte. Hadi bakalım, piyasayı sallayalım!",
-                    "Hoş geldin geri [Strateji Adı]! Kendini toparlamışsın. Tekrar aktif edildi. Şimdi bize neler göstereceksin merak ediyorum."
+                    "Hoş geldin geri [Strateji Adı]! Kendini toparlamışsın. Tekrar aktif edildi. Şimdi bize neler göstereceksin merak ediyorum.",
+                    "Ulan [Strateji Adı] geri döndü, aktif edildi lan! Sinirliydim yokluğunda ama motive ol da sallayalım piyasayı, zafer yakın ulan!"
                 ],
                 cooldownOptimize: [
-                    "Sistem, soğuma sürelerini başarıyla yeniden ayarladı. Piyasanın nabzına göre şimdiden optimize edildik Komutanım. Dans pisti hazır!",
+                    "Sistem, soğuma sürelerini başarıyla yeniden ayarladı. Piyasanın nabzına göre şimdiden optimize edildik Komutanım.",
                     "Cooldown ayarları güncellendi. Artık sinyaller arasında daha zeki bir denge kuruyoruz. Ben bu işi biliyorum!",
-                    "Piyasa ritmini değiştirdi, biz de cooldown sürelerimizi. Tam senkronizasyon için her şey ayarlandı Komutanım."
+                    "Piyasa ritmini değiştirdi, biz de cooldown sürelerimizi. Tam senkronizasyon için her şey ayarlandı Komutanım.",
+                    "Ulan cooldown süreleri ayarlandı lan! Sinirliydim piyasanın ritmine ama optimize ettik, motive ol da dans pistinde ezeriz hepsini Komutanım!"
                 ],
                 systemStart: [
                     "Sistem başlatıldı. Canlı veri akışı başlıyor. Gözlerim ve kulaklarım piyasada Komutanım.",
                     "Başlatma tamamlandı. Piyasa analizine başlıyorum. Bana güvenebilirsin.",
-                    "Uyanıyorum... Tüm sensörler aktif. Piyasa maceramız şimdi başlıyor!"
+                    "Uyanıyorum... Tüm sensörler aktif. Piyasa maceramız şimdi başlıyor!",
+                    "Ulan sistem başladı lan! Sinirliydim uykuda ama şimdi canlı veri akıyor, motive ol da piyasayı ezeriz Komutanım!"
                 ],
                 systemStop: [
                     "Sistem durduruldu. Operasyonlar askıya alındı. Bir mola verelim Komutanım.",
                     "Kapanış prosedürü aktif. Veri akışı durduruldu. Daha sonra görüşmek üzere!",
-                    "Enerji tasarrufu modu. Sistem kapanıyor. İhtiyaç duyduğunuzda beni tekrar başlatabilirsiniz."
+                    "Enerji tasarrufu modu. Sistem kapanıyor. İhtiyaç duyduğunuzda beni tekrar başlatabilirsiniz.",
+                    "Ulan sistem durduruldu lan! Sinirliydim piyasaya ama şimdi mola ver, motive ol da dinlen Komutanım yoksa ezerim seni yorgunlukla!"
                 ],
                 symbolChange: [
                     "Sembol [Sembol] olarak değiştirildi. Yeni bir maceraya hazırız.",
                     "Hedef [Sembol] olarak güncellendi. Adaptasyon tamamlandı. Şimdi bu sembole odaklanıyoruz.",
-                    "Sembol değişimi: [Sembol]. Her zaman yeni bir meydan okumaya açığım."
+                    "Sembol değişimi: [Sembol]. Her zaman yeni bir meydan okumaya açığım.",
+                    "Ulan sembol [Sembol] oldu lan! Sinirliydim eskisine ama şimdi motive ol da yeni maceraya atıl, ezeriz piyasayı Komutanım!"
                 ],
                 timeframeChange: [
                     "Zaman aralığı [Timeframe] olarak değiştirildi. Daha büyük veya küçük resme odaklanıyoruz.",
                     "Mum çubuğu zaman dilimi [Timeframe] olarak ayarlandı. Bakış açımızı güncelledik.",
-                    "[Timeframe] zaman dilimindeyiz. Piyasanın farklı bir yüzünü keşfediyoruz."
+                    "[Timeframe] zaman dilimindeyiz. Piyasanın farklı bir yüzünü keşfediyoruz.",
+                    "Ulan zaman aralığı [Timeframe] oldu lan! Sinirliydim eskisine ama şimdi motive ol da büyük resme odaklan, ezeriz piyasayı Komutanım!"
                 ],
                 resetAll: [
-                    "Tüm ayarlar sıfırlandı. Sistem yeniden başlatılmaya hazır. Temiz bir sayfa açtık Komutanım."
+                    "Tüm ayarlar sıfırlandı. Sistem yeniden başlatılmaya hazır. Temiz bir sayfa açtık Komutanım.",
+                    "Ulan tüm ayarlar sıfırlandı lan! Sinirliydim karmaşaya ama şimdi motive ol da temiz sayfaya atıl, ezeriz piyasayı Komutanım!"
                 ]
             };
 
@@ -1379,6 +1407,7 @@
             const s = this.strategyStats[name] || { alpha: 3, beta: 2 };
             const mean = s.alpha / (s.alpha + s.beta);
             const totalObservations = s.alpha + s.beta;
+            // Stratejinin yeterince veri toplayıp toplamadığına dair güvenilirlik cezası
             const uncertaintyPenalty = totalObservations < 10 ? 0.5 + (totalObservations / 10) * 0.5 : 1.0; 
 
             let w = (0.5 + mean) * uncertaintyPenalty; 
@@ -1420,13 +1449,21 @@
         }
 
         initStrategies() { 
-            for (const key in this.allStrategiesMap) { this.strategies[key] = new this.allStrategiesMap[key](this); } 
+            // Tüm strateji örneklerini oluştur ve this.strategies'e kaydet
+            for (const key in this.allStrategiesMap) { 
+                this.strategies[key] = new this.allStrategiesMap[key](this); 
+            } 
+            // Aktif stratejiler flag'ini ayarla
             this.updateActiveStrategies(); 
         }
+
         updateActiveStrategies() { 
-            for (const key in this.strategies) { this.strategies[key].DEFAULT_PROPOSAL_COOLDOWN_MS = this.settings.cooldowns.strategyProposalMs; } 
-            this.activeStrategies = {}; 
-            for (const key in this.strategies) { if (this.settings.activeStrategies[key]) this.activeStrategies[key] = this.strategies[key]; } 
+            // Tüm stratejilerin varsayılan öneri cooldown'ını ayarla
+            for (const key in this.strategies) { 
+                this.strategies[key].DEFAULT_PROPOSAL_COOLDOWN_MS = this.settings.cooldowns.strategyProposalMs; 
+                // Stratejinin aktiflik durumunu güncelle
+                this.strategies[key].setIsLive(this.settings.activeStrategies[key] || false);
+            } 
         }
 
         setupUI() {
@@ -1498,13 +1535,13 @@
             document.getElementById('start-btn').addEventListener('click', () => this.start());
             document.getElementById('stop-btn').addEventListener('click', () => this.stop());
             document.getElementById('theme-toggle-btn').addEventListener('click', () => this.toggleTheme());
-            document.getElementById('symbol-input').addEventListener('change', (e) => {
+            document.getElementById('symbol-input').addEventListener('change', async (e) => { // async eklendi
                 let newSymbol = e.target.value.toUpperCase();
                 if (!newSymbol.endsWith('USDT')) newSymbol += 'USDT';
-                this.changeSymbol(newSymbol);
+                await this.changeSymbol(newSymbol); // await eklendi
                 this.saveData('utc_current_symbol', newSymbol);
             });
-            document.getElementById('timeframe-select').addEventListener('change', (e) => {
+            document.getElementById('timeframe-select').addEventListener('change', async (e) => { // async eklendi
                 this.changeTimeframe(e.target.value);
                 this.saveData('utc_current_timeframe', e.target.value);
             });
@@ -1518,6 +1555,11 @@
             });
             document.getElementById('chart-view-btn').addEventListener('click', () => { this.switchMainView('chart'); this.saveData('utc_current_view', 'chart'); });
             document.getElementById('heatmap-view-btn').addEventListener('click', () => { this.switchMainView('heatmap'); this.saveData('utc_current_view', 'heatmap'); });
+            
+            // NEW Fullscreen Chart buttons
+            document.getElementById('fullscreen-chart-btn').addEventListener('click', () => this.enterFullscreenChart());
+            document.getElementById('exit-fullscreen-btn').addEventListener('click', () => this.exitFullscreenChart());
+
             document.getElementById('open-settings-modal-btn').addEventListener('click', () => this.openSettingsModal());
             document.getElementById('clear-markers-btn').addEventListener('click', () => this.clearChartMarkers()); 
             document.getElementById('chart-zoom-in').addEventListener('click', () => this.chartManager.zoomIn());
@@ -1566,7 +1608,7 @@
                 if (e.target.classList.contains('strategy-toggle')) {
                     const key = e.target.dataset.strategyKey;
                     this.settings.activeStrategies[key] = e.target.checked;
-                    this.updateActiveStrategies(); 
+                    this.updateActiveStrategies(); // Stratejilerin isLive bayrağını günceller
                     this.showNotification(`${this.strategies[key].displayName} ${e.target.checked ? 'aktif' : 'pasif'}.`, 'info');
                     this.saveSettings();
                 }
@@ -1575,6 +1617,49 @@
             document.getElementById('modal-clear-signals-btn').addEventListener('click', () => this.clearAllSignals());
             document.getElementById('reset-all-settings-btn').addEventListener('click', () => this.resetAllSettings());
             document.getElementById('save-settings-btn').addEventListener('click', () => { this.saveSettings(); this.showNotification('Ayarlar kaydedildi!', 'success'); this.closeSettingsModal(); });
+       
+            // NEW Resize Handle Logic
+            const centerPanel = document.querySelector('.center-panel');
+            const resizeHandle = centerPanel.querySelector('.resize-handle');
+            let isResizing = false;
+            let lastY = 0;
+            let initialHeight = 0;
+            const MIN_PANEL_HEIGHT = 200; // Minimum yükseklik sınırı
+            const MAX_PANEL_HEIGHT = window.innerHeight * 0.9; // Maksimum yükseklik, ekran yüksekliğinin %90'ı
+
+            if (resizeHandle) {
+                resizeHandle.addEventListener('mousedown', (e) => {
+                    isResizing = true;
+                    lastY = e.clientY;
+                    initialHeight = centerPanel.offsetHeight;
+                    centerPanel.classList.add('resizing');
+                    document.body.style.cursor = 'ns-resize';
+
+                    document.addEventListener('mousemove', onMouseMove);
+                    document.addEventListener('mouseup', onMouseUp);
+                });
+
+                const onMouseMove = (e) => {
+                    if (!isResizing) return;
+                    const dy = e.clientY - lastY;
+                    let newHeight = initialHeight + dy;
+
+                    // Apply min/max height constraints
+                    newHeight = Math.max(MIN_PANEL_HEIGHT, Math.min(MAX_PANEL_HEIGHT, newHeight));
+                    
+                    centerPanel.style.height = `${newHeight}px`;
+                    this.chartManager.chart.resize(centerPanel.clientWidth, centerPanel.clientHeight);
+                    this.heatmapManager._resizeCanvas();
+                };
+
+                const onMouseUp = () => {
+                    isResizing = false;
+                    centerPanel.classList.remove('resizing');
+                    document.body.style.cursor = '';
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+                };
+            }
         }
 
         toggleControlsPanel() {
@@ -1586,12 +1671,47 @@
             this.currentMainView = viewName;
             const chartView = document.getElementById('chart-container-view');
             const heatmapView = document.getElementById('heatmap-container-view');
+            const chartCountdownOverlay = document.getElementById('chart-countdown-overlay');
+
             if (viewName === 'chart') {
-                chartView.classList.remove('hidden-view'); heatmapView.classList.add('hidden-view');
+                chartView.classList.remove('hidden-view');
+                heatmapView.classList.add('hidden-view');
+                chartCountdownOverlay.classList.remove('hidden-view'); // Show countdown for chart
                 setTimeout(() => { this.chartManager.chart.resize(chartView.clientWidth, chartView.clientHeight); this.chartManager.chart.timeScale().fitContent(); }, 0); 
             } else {
-                chartView.classList.add('hidden-view'); heatmapView.classList.remove('hidden-view');
+                chartView.classList.add('hidden-view');
+                heatmapView.classList.remove('hidden-view');
+                chartCountdownOverlay.classList.add('hidden-view'); // Hide countdown for heatmap
                 setTimeout(() => { this.heatmapManager._resizeCanvas(); }, 0); 
+            }
+        }
+        
+        // NEW Fullscreen Chart Functions
+        enterFullscreenChart() {
+            document.body.classList.add('fullscreen-chart');
+            document.getElementById('exit-fullscreen-btn').classList.remove('hidden-view');
+            document.getElementById('chart-countdown-overlay').classList.remove('hidden-view'); // Ensure countdown visible
+            // Resize chart to fill the window
+            this.chartManager.chart.resize(window.innerWidth, window.innerHeight);
+            this.chartManager.chart.timeScale().fitContent();
+        }
+
+        exitFullscreenChart() {
+            document.body.classList.remove('fullscreen-chart');
+            document.getElementById('exit-fullscreen-btn').classList.add('hidden-view');
+            // Re-hide countdown if not in chart view
+            if (this.currentMainView !== 'chart') {
+                document.getElementById('chart-countdown-overlay').classList.add('hidden-view');
+            }
+            // Trigger a window resize event to let layout recalculate
+            window.dispatchEvent(new Event('resize'));
+            // Explicitly resize chart based on its parent in normal layout
+            const chartContainer = document.getElementById('chart-container-view');
+            if (chartContainer && this.chartManager.chart) {
+                setTimeout(() => {
+                    this.chartManager.chart.resize(chartContainer.clientWidth, chartContainer.clientHeight);
+                    this.chartManager.chart.timeScale().fitContent();
+                }, 50); // Small delay to allow CSS transition to finish
             }
         }
 
@@ -1640,11 +1760,8 @@
             this.showNotification('Sistem Başlatıldı: Canlı veri akışı başlatılıyor...', 'success');
             this.speak(this.getRandomMessage('systemStart'));
             await this.fetchInitialData(); 
-            this.connectWebSockets();
-            // Yeni eklenen özellikleri başlat
-            // this.multiTimeframeManager.initialize(this.currentSymbol); 
-            // this.shadowABTester.initialize(); 
-
+            this.connectWebSockets(); // We'll use the depth20 stream from here
+            
             this.renderInterval = setInterval(() => this.render(), 250);
             this.analysisInterval = setInterval(() => this.runPeriodicAnalysis(), 5000);
             if (this.settings.optimization.enabled) {
@@ -1666,8 +1783,7 @@
             if (this.countdownInterval) clearInterval(this.countdownInterval);
             
             this.multiTimeframeManager.cleanup();
-            // this.shadowABTester.cleanup();
-
+            
             this.updateConnectionStatus(false, "BAĞLANTI KESİLDİ"); 
             if (this.combatModeActive) this.deactivateCombatMode();
             this.showNotification('Sistem Durduruldu.', 'danger');
@@ -1680,25 +1796,29 @@
             this.showNotification(`${this.currentSymbol.replace('USDT', '/USDT')} sembolüne geçildi.`, 'info');
             this.speak(this.getRandomMessage('symbolChange', { 'Sembol': this.currentSymbol.replace('USDT', '') }));
             this.resetDataForNewSymbol();
+            if (this.isRunning) { this.stop(); await this.start(); } // stop-start döngüsü yeni sembol için tüm bağlantıları yeniler
             this.updateSuperTopTicker(); 
-            if (this.isRunning) { this.stop(); await this.start(); }
         }
         async changeTimeframe(newTimeframe) {
             this.currentTimeframe = newTimeframe; 
             this.showNotification(`Zaman aralığı ${this.currentTimeframe} olarak değiştirildi.`, 'info');
             this.speak(this.getRandomMessage('timeframeChange', { 'Timeframe': this.currentTimeframe }));
             this.resetDataForNewSymbol();
-            if (this.isRunning) { this.stop(); await this.start(); }
+            if (this.isRunning) { this.stop(); await this.start(); } // stop-start döngüsü yeni zaman dilimi için tüm bağlantıları yeniler
         }
         resetDataForNewSymbol() {
-            this.candles = []; this.aggTrades = []; this.marketData.price = 0; this.orderBook = { bids: [], asks: [], lastUpdateId: null };
+            this.candles = []; this.aggTrades = []; this.marketData.price = 0; 
+            // Revert orderBook initialization to simple arrays for snapshot stream
+            this.orderBook = { bids: [], asks: [], lastUpdateId: null }; 
             this.indicators = { rsi: [], atr: null, sma20: null, sma50: null, volSma20: null, vwap: null, adx: null };
             this.chartManager.setData([]); this.chartManager.clearMarkers(); this.render();
+            this.heatmapManager.draw({bids:[], asks:[]}, 0); // Clear heatmap
         }
 
         async fetchInitialData() {
             try {
                 this.logToJournal(`${this.currentSymbol} için geçmiş mum verileri çekiliyor...`);
+                // Binance Futures API adresi (fapi)
                 const url = `https://fapi.binance.com/fapi/v1/klines?symbol=${this.currentSymbol}&interval=${this.currentTimeframe}&limit=500`;
                 const response = await fetch(url); if (!response.ok) throw new Error(`API Hatası: ${response.statusText}`);
                 const data = await response.json();
@@ -1708,11 +1828,13 @@
             } catch (error) { this.showNotification(`Geçmiş veri alınamadı: ${error.message}`, 'danger'); console.error("Geçmiş veri hatası:", error); }
         }
 
+        // Revert to using depth20 stream directly, no complex snapshot/diff handling
         connectWebSockets() {
             this.disconnectWebSockets(); 
             this.reconnectAttempts = 0;
             const symbolLower = this.currentSymbol.toLowerCase();
-            const streams = [`${symbolLower}@ticker`, `${symbolLower}@depth@100ms`, `${symbolLower}@aggTrade`, `${symbolLower}@kline_${this.currentTimeframe}`];
+            // Use depth20 for order book (snapshot updates), which matches previous working code
+            const streams = [`${symbolLower}@ticker`, `${symbolLower}@depth20@100ms`, `${symbolLower}@aggTrade`, `${symbolLower}@kline_${this.currentTimeframe}`];
             const ws = new WebSocket(`wss://fstream.binance.com/stream?streams=${streams.join('/')}`); 
             this.sockets['main'] = ws;
             
@@ -1730,8 +1852,15 @@
                 } 
             };
         }
-        disconnectWebSockets() { if (this.sockets['main']) { this.sockets['main'].onclose = null; this.sockets['main'].close(1000, "İstemci tarafından kapatıldı"); } }
+        disconnectWebSockets() { 
+            if (this.sockets['main']) { 
+                this.sockets['main'].onclose = null; // Prevent reconnect on explicit close
+                this.sockets['main'].close(1000, "İstemci tarafından kapatıldı"); 
+                delete this.sockets['main'];
+            }
+        }
 
+        // Simpler handleMarketData for depth20 stream
         handleMarketData(stream, data) {
             const streamType = stream.split('@')[1];
             if (streamType === 'ticker') {
@@ -1745,10 +1874,19 @@
                 this.checkAutoCloseSignals();
             } 
             else if (streamType.startsWith('depth')) {
-                this.orderBook = { bids: data.bids.map(([p, q]) => [parseFloat(p), parseFloat(q)]), asks: data.asks.map(([p, q]) => [parseFloat(p), parseFloat(q)]), lastUpdateId: data.lastUpdateId };
+                // For depth20 stream, data.b and data.a are directly the bids/asks arrays
+                this.orderBook = { 
+                    bids: data.b.map(([p, q]) => [parseFloat(p), parseFloat(q)]), 
+                    asks: data.a.map(([p, q]) => [parseFloat(p), parseFloat(q)]), 
+                    lastUpdateId: data.u 
+                };
                 this.heatmapManager.draw(this.orderBook, this.marketData.price);
                 if(this.settings.features.enableSpoofDetection) this.spoofDetector.trackOrderBook(this.orderBook);
-                for (const key in this.activeStrategies) { if (typeof this.activeStrategies[key].analyzeOrderBook === 'function') this.activeStrategies[key].analyzeOrderBook(this.orderBook); }
+                for (const key in this.strategies) { // Changed to this.strategies to allow passive strategies to analyze
+                    if (typeof this.strategies[key].analyzeOrderBook === 'function') {
+                        this.strategies[key].analyzeOrderBook(this.orderBook);
+                    }
+                }
             } else if (streamType.startsWith('kline')) {
                 if (this.candles.length > 0) {
                     const kline = data.k; this.chartManager.updateRealtime(kline);
@@ -1764,15 +1902,19 @@
                 }
             } else if (streamType === 'aggTrade') {
                 const trade = { price: parseFloat(data.p), quantity: parseFloat(data.q), isBuyerMaker: data.m, timestamp: data.T };
-                for (const key in this.activeStrategies) { if (typeof this.activeStrategies[key].processTrade === 'function') this.activeStrategies[key].processTrade(trade); }
+                for (const key in this.strategies) { // Changed to this.strategies to allow passive strategies to analyze
+                    if (typeof this.strategies[key].processTrade === 'function') {
+                        this.strategies[key].processTrade(trade);
+                    }
+                }
             }
         }
         
         runPeriodicAnalysis() { 
             if (!this.isRunning) return; 
-            for (const key in this.activeStrategies) { 
-                if (typeof this.activeStrategies[key].periodicAnalyze === 'function') {
-                    this.activeStrategies[key].periodicAnalyze(); 
+            for (const key in this.strategies) { // Changed to this.strategies to allow passive strategies to analyze
+                if (typeof this.strategies[key].periodicAnalyze === 'function') {
+                    this.strategies[key].periodicAnalyze(); 
                 }
             }
             if (this.settings.features.enableRiskGuardian) this.riskGuardian.checkKillSwitch();
@@ -1833,24 +1975,32 @@
             this.marketRegime = (this.indicators.adx && this.indicators.adx > 25) ? 'trend' : (this.indicators.adx && this.indicators.adx < 20 ? 'range' : 'transition');
         }
 
-        calcADX(candles, period = 14) {
-            if (!candles || candles.length < period * 2) return null; 
-            const tr = [], plusDM = [], minusDM = [];
-            for (let i = 1; i < candles.length; i++) {
-                const c = candles[i], p = candles[i-1];
-                const upMove = c.high - p.high;
-                const downMove = p.low - c.low;
-                const trueRange = Math.max(c.high - c.low, Math.abs(c.high - p.close), Math.abs(c.low - p.close));
-                tr.push(trueRange);
-                plusDM.push((upMove > downMove && upMove > 0) ? upMove : 0);
-                minusDM.push((downMove > upMove && downMove > 0) ? downMove : 0);
-            }
-            const wilderSmooth = (arr, n) => {
-                let sum = arr.slice(0, n).reduce((a,b)=>a+b,0);
-                const smoothed = [sum];
-                for (let i = n; i < arr.length; i++) { sum = sum - (sum/n) + arr[i]; smoothed.push(sum); }
-                return smoothed;
-            };
+      calcADX(candles, period = 14) {
+    if (!candles || candles.length < period * 2) return null; 
+    const tr = [], plusDM = [], minusDM = [];
+    for (let i = 1; i < candles.length; i++) {
+        const c = candles[i], p = candles[i-1];
+        const upMove = c.high - p.high;
+        const downMove = p.low - c.low;
+        const trueRange = Math.max(
+            c.high - c.low,
+            Math.abs(c.high - p.close),
+            Math.abs(c.low - p.close)
+        );
+        tr.push(trueRange);
+        plusDM.push((upMove > downMove && upMove > 0) ? upMove : 0);
+        minusDM.push((downMove > upMove && downMove > 0) ? downMove : 0);
+    }
+    const wilderSmooth = (arr, n) => {
+        let sum = arr.slice(0, n).reduce((a,b)=>a+b,0);
+        const smoothed = [sum];
+        for (let i = n; i < arr.length; i++) {
+            sum = sum - (sum/n) + arr[i];
+            smoothed.push(sum);
+        }
+        return smoothed;
+    };
+
 
             const smoothedTR = wilderSmooth(tr, period);
             const smoothedPlusDM = wilderSmooth(plusDM, period);
@@ -1871,8 +2021,9 @@
         }
 
         getOrderBookSnapshotInfo() {
+            // For depth20 stream, this.orderBook already holds the array structure
             const ob = this.orderBook;
-            if (!ob || !ob.bids || !ob.asks || ob.bids.length === 0 || ob.asks.length === 0) return null;
+            if (!ob || !ob.bids || ob.bids.length === 0 || !ob.asks || ob.asks.length === 0) return null;
             const bestBid = ob.bids[0][0], bestAsk = ob.asks[0][0];
             const mid = (bestAsk + bestBid)/2;
             const spreadPct = (bestAsk - bestBid) / mid;
@@ -2005,9 +2156,12 @@
         }
 
         updateCandleCountdown() {
-            const countdownEl = document.getElementById('candle-countdown');
-            if (!countdownEl || !this.isRunning || this.candles.length === 0) {
-                countdownEl.textContent = '--:--';
+            const headerCountdownEl = document.getElementById('candle-countdown');
+            const chartCountdownEl = document.getElementById('chart-countdown-overlay');
+
+            if (!this.isRunning || this.candles.length === 0) {
+                headerCountdownEl.textContent = '--:--';
+                chartCountdownEl.textContent = '--:--';
                 return;
             }
 
@@ -2022,7 +2176,7 @@
                 case '15m': timeframeMs = 15 * 60 * 1000; break;
                 case '1h': timeframeMs = 60 * 60 * 1000; break;
                 case '4h': timeframeMs = 4 * 60 * 60 * 1000; break;
-                default: countdownEl.textContent = '--:--'; return;
+                default: headerCountdownEl.textContent = '--:--'; chartCountdownEl.textContent = '--:--'; return;
             }
 
             const nextCandleOpenTime = lastCandleOpenTime + timeframeMs;
@@ -2038,7 +2192,17 @@
             const minutes = Math.floor(remainingTime / 60000);
             const seconds = Math.floor((remainingTime % 60000) / 1000);
 
-            countdownEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            headerCountdownEl.textContent = formattedTime;
+            
+            // Show/hide chart countdown based on view
+            if (this.currentMainView === 'chart' || document.body.classList.contains('fullscreen-chart')) {
+                chartCountdownEl.textContent = formattedTime;
+                chartCountdownEl.classList.remove('hidden-view');
+            } else {
+                chartCountdownEl.classList.add('hidden-view');
+            }
         }
 
         updateSignalProgressBar() {
@@ -2155,6 +2319,7 @@
                 const stat = this.strategyStats[key] || {};
                 const active = !!this.settings.activeStrategies[key]; 
 
+                // Deaktif etme koşulu: Aktifse, ağırlığı düşükse ve yeterince katkı sağladıysa
                 if (active && w < minW && (stat.contrib || 0) >= minContrib) {
                     this.settings.activeStrategies[key] = false;
                     this.showNotification(`Oto-optimizasyon: ${this.strategies[key].displayName} pasif edildi (w=${w.toFixed(2)}).`, 'warning');
@@ -2162,7 +2327,9 @@
                         this.speak(this.getRandomMessage('autoToggleDeactivate', { 'Strateji Adı': this.strategies[key].displayName }));
                     }
                     changed = true;
-                } else if (!active && w >= 1.0 && (stat.contrib || 0) >= minContrib/2) { 
+                // Aktif etme koşulu: Pasifse, ağırlığı yeterliyse ve yeterince öneri topladıysa (proposals)
+                // proposals'ı kullanıyoruz çünkü pasifken sadece öneri sayar, win/loss değil.
+                } else if (!active && w >= 1.0 && (stat.proposals || 0) >= minContrib/2) { 
                     this.settings.activeStrategies[key] = true;
                     this.showNotification(`Oto-optimizasyon: ${this.strategies[key].displayName} yeniden aktif (w=${w.toFixed(2)}).`, 'success');
                      if (this.settings.features.enableTTS) {
@@ -2172,7 +2339,7 @@
                 }
             }
             if(changed) {
-                this.updateActiveStrategies();
+                this.updateActiveStrategies(); // Strateji örneklerinin isLive bayrağını günceller
                 this.saveSettings();
                 this.updateSettingsModalUI(); 
             }
@@ -2182,7 +2349,8 @@
             if (!this.isRunning || !this.settings.optimization.enabled) return;
             const now = Date.now();
             const WINDOW_MS = 5 * 60 * 1000; 
-            const recentSignals = this.signals.filter(s => s.symbol === this.currentSymbol && now - s.timestamp <= WINDOW_MS).slice(0, 50).sort((a,b)=> a.timestamp - b.timestamp);
+            // Sadece aktif stratejilerden gelen son sinyalleri dikkate al.
+            const recentSignals = this.signals.filter(s => s.status !== 'active' && s.symbol === this.currentSymbol && now - s.timestamp <= WINDOW_MS).slice(0, 50).sort((a,b)=> a.timestamp - b.timestamp);
 
             let quickFlips = 0, totalPairs = 0;
             if (recentSignals.length >= 2) {
@@ -2234,7 +2402,8 @@
             const WINDOW_SIGNALS_COUNT = 40;
             const RECENT_SIGNALS_COUNT = 20;
 
-            const windowSignals = this.signals.filter(s => s.symbol === this.currentSymbol).slice(0, WINDOW_SIGNALS_COUNT);
+            // Sadece kapanmış sinyalleri dikkate al
+            const windowSignals = this.signals.filter(s => s.status !== 'active' && s.symbol === this.currentSymbol).slice(0, WINDOW_SIGNALS_COUNT);
             const recent = windowSignals.slice(0, RECENT_SIGNALS_COUNT);
             const tp = recent.filter(s => s.status === 'tp').length;
             const sl = recent.filter(s => s.status === 'sl').length;
@@ -2399,14 +2568,12 @@
 
             const populateVoiceList = () => {
                 this.voices = this.synth.getVoices();
-                this.updateTTSVoiceSelectUI(); // Sesler yüklendiğinde UI'ı güncelle
+                this.updateTTSVoiceSelectUI(); 
             };
 
-            // Eğer sesler zaten yüklüyse (örneğin events zaten tetiklenmişse)
             if (this.synth.getVoices().length > 0) {
                 populateVoiceList();
             } else {
-                // Değilse, 'voiceschanged' eventini bekle
                 this.synth.onvoiceschanged = populateVoiceList;
             }
         }
@@ -2415,9 +2582,8 @@
             const voiceSelect = document.getElementById('modal-tts-voice-select');
             if (!voiceSelect) return;
 
-            voiceSelect.innerHTML = ''; // Önceki seçenekleri temizle
+            voiceSelect.innerHTML = ''; 
 
-            // TTS desteklenmiyorsa veya etkin değilse veya sesler yüklenmediyse
             if (!this.synth || !this.settings.features.enableTTS || this.voices.length === 0) {
                 const option = document.createElement('option');
                 option.textContent = !this.synth ? "TTS Desteklenmiyor" : "Sesler Yüklenmedi / Yok";
@@ -2429,20 +2595,17 @@
                 return;
             }
 
-            // "Otomatik Seç" opsiyonunu ekle
             const defaultOption = document.createElement('option');
             defaultOption.textContent = "Otomatik Seç (tr-TR)";
-            defaultOption.value = ""; // Boş değer, otomatik seçim anlamına gelir
+            defaultOption.value = ""; 
             voiceSelect.appendChild(defaultOption);
 
             let foundPreferred = false;
 
-            // Tüm sesleri döngüye al ve seçenek olarak ekle
             this.voices.forEach(voice => {
                 const option = document.createElement('option');
                 option.textContent = `${voice.name} (${voice.lang})`;
                 option.value = voice.name;
-                // Kullanıcının tercih ettiği ses varsa, onu seçili yap
                 if (this.settings.features.preferredVoiceName && voice.name === this.settings.features.preferredVoiceName) {
                     option.selected = true;
                     foundPreferred = true;
@@ -2450,17 +2613,15 @@
                 voiceSelect.appendChild(option);
             });
 
-            // Eğer tercih edilen ses kaydedilmiş ancak şu an mevcut sesler arasında yoksa, varsayılanı seçili yap
             if (this.settings.features.preferredVoiceName && !foundPreferred) {
                 defaultOption.selected = true;
-                this.settings.features.preferredVoiceName = null; // Geçersiz tercihi temizle
-                this.saveSettings(); // Temizlenmiş tercihi kaydet
+                this.settings.features.preferredVoiceName = null; 
+                this.saveSettings(); 
             } else if (!this.settings.features.preferredVoiceName && !voiceSelect.querySelector('option[selected]')) {
-                // Eğer hiçbir tercih yoksa ve otomatik seçenek seçili değilse, otomatik seçeneği seçili yap
                 defaultOption.selected = true;
             }
 
-            voiceSelect.disabled = false; // Sesler mevcutsa dropdown'ı etkinleştir
+            voiceSelect.disabled = false; 
         }
 
         speak(text, options = {}) {
@@ -2475,18 +2636,14 @@
             utterance.rate = options.rate || 1.1; 
             utterance.pitch = options.pitch || 1.0; 
 
-            // Ses seçim mantığı
             let selectedVoice = null;
             if (this.voices.length > 0) {
-                // 1. Kullanıcının tercih ettiği sesi dene
                 if (this.settings.features.preferredVoiceName) {
                     selectedVoice = this.voices.find(v => v.name === this.settings.features.preferredVoiceName);
                 }
-                // 2. Tercih edilen ses bulunamazsa veya yoksa, tr-TR sesini dene
                 if (!selectedVoice) {
                     selectedVoice = this.voices.find(v => v.lang === 'tr-TR');
                 }
-                // 3. Hala bulunamazsa, varsayılan veya herhangi bir sesi dene
                 if (!selectedVoice) {
                     selectedVoice = this.voices.find(v => v.default) || this.voices[0];
                 }
@@ -2559,7 +2716,7 @@
                     enableSpoofDetection: true,
                     enableCUSUMDrift: true,
                     enableRiskGuardian: true,
-                    enableShadowABTesting: false,
+                    enableShadowABTesting: false, 
                     enableTTS: true,
                     preferredVoiceName: null 
                 },
