@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr" data-theme="dark">
 <head>
@@ -11,7 +10,7 @@
     <style>
         :root {
             --background-dark: #0d1117; --panel-bg-dark: #161b22; --text-main-dark: #c9d1d9; --text-secondary-dark: #8b949e; --border-color-dark: #30363d; --input-bg-dark: #010409; --hover-bg-dark: #21262d; --primary-dark: #58a6ff;
-            --background-light: #ffffff; --panel-bg: #f6f8fa; --text-main: #24292f; --text-secondary: #57606a; --border-color: #d0d7de; --input-bg: #f0f2f5; --hover-bg: #e8eaed; --primary: #0969da;
+            --background-light: #ffffff; --panel-bg-light: #f6f8fa; --text-main-light: #24292f; --text-secondary-light: #57606a; --border-color-light: #d0d7de; --input-bg-light: #f0f2f5; --hover-bg-light: #e8eaed; --primary-light: #0969da;
             --war-mode-bg: linear-gradient(145deg, #4d0000 0%, #000000 75%); --war-mode-panel-bg: rgba(255, 0, 0, 0.08); --war-mode-border: #8B0000; --war-mode-text: #ff5858; --war-mode-primary: #ffc107;
             --positive: #28a745; --negative: #dc3545; --neutral: #ffc107;
             --ticker-height: 30px; 
@@ -158,22 +157,97 @@
         .resize-handle { position: absolute; bottom: 0; left: 0; width: 100%; height: 8px; cursor: ns-resize; background: var(--border-color); z-index: 10; border-top: 1px solid var(--border-color); }
         .center-panel.resizing { user-select: none; }
 
-        @media screen and (max-width: 768px) {
-            .container { padding-top: calc(var(--ticker-height) + var(--signal-bar-height)); }
+                        /* DÜZELTME: Metinlerin yanlışlıkla seçilmesini engelle */
+        .btn, .panel-title, .header-top-bar, .signal-bar-label, .form-label {
+            user-select: none; /* Standart */
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+        }
+
+                                @media screen and (max-width: 768px) {
+            .desktop-only { display: none !important; }
+            .mobile-only { display: flex !important; align-items: center; }
+
+            .container { 
+                padding-top: calc(var(--ticker-height) + var(--signal-bar-height)); 
+                padding-bottom: var(--header-min-height); 
+            }
             #signal-progress-bar-container { top: var(--ticker-height); }
-            .header { order: 2; position: sticky; bottom: 0; top: auto; width: 100%; z-index: 1000; margin: 0; border-radius: 0; border: none; border-top: 1px solid var(--border-color); }
-            .header-top-bar { flex-direction: column; align-items: center; gap: 10px; padding: 10px 15px; }
+            
+            .header { 
+                order: 2; 
+                position: fixed;
+                bottom: 0; 
+                left: 0;
+                right: 0;
+                width: 100%; 
+                z-index: 1000; 
+                margin: 0; 
+                border-radius: 0; 
+                border: none; 
+                border-top: 1px solid var(--border-color); 
+            }
+            /* DÜZELTME: Butonlar ve başlık için yeni ve daha basit düzen */
+            .header-top-bar { 
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0 10px; 
+                min-height: var(--header-min-height);
+            }
+            .header-center-title {
+                cursor: pointer;
+                flex-grow: 1;
+                text-align: center;
+            }
+            .header-left-controls, .header-right-controls {
+                display: flex;
+                gap: 8px;
+            }
+            #mobile-toggle-controls-btn, .header-right-controls .btn {
+                font-size: 16px;
+                padding: 5px 10px;
+            }
+            /* Mobilde masaüstü başlığını gizle */
+            .header-center-title .header-title-text {
+                display: none;
+            }
+
             .header-collapsible-content { padding: 0; }
             .header-collapsible-content .main-controls { flex-direction: column; align-items: center; padding: 0; width: 100%; }
             .form-control, .btn, .status { width: 100%; text-align: center; padding: 8px 10px; font-size: 11px; }
             .status { justify-content: center; }
             .price-display { grid-template-columns: repeat(2, 1fr); margin-top: 10px; }
             .price-item .price-value { font-size: 14px; } 
-            .main-grid { order: 1; flex-direction: column; margin: 5px; overflow: visible; padding-bottom: 5px; height: auto; }
-            .center-panel { order: 1; flex-grow: 0; height: auto; border: 1px solid var(--border-color); border-radius: 6px; background: var(--panel-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.2); margin: 0; }
+            
+            .main-grid { 
+                order: 1; 
+                margin: 0;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+            .center-panel { 
+                order: 1; 
+                flex-grow: 1;
+                height: 100%;
+                border: none;
+                border-radius: 0; 
+                background: transparent;
+                box-shadow: none; 
+                margin: 0; 
+            }
             .center-panel > .panel-title { display: none; }
-            .data-container { flex-direction: column; height: auto; padding: 10px; }
-            .data-grid { height: 50vh; flex-shrink: 0; }
+            .data-container { 
+                flex-direction: column; 
+                height: 100%; 
+                padding: 5px;
+            }
+            .data-grid { 
+                height: 100%;
+                flex-grow: 1;
+            }
             #live-chart { height: 100%; width: 100%; } 
             .heatmap-container { height: 150px; flex-shrink: 0; margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 10px; }
             .heatmap-container .panel-title { border-bottom: none; margin-bottom: 5px; }
@@ -182,16 +256,24 @@
             .super-top-right-buttons { display: none; }
             .resize-handle { display: none; }
             #chart-countdown-overlay { font-size: 12px; padding: 3px 6px; }
+
+            body.fullscreen-chart .main-grid { height: 100vh; }
+            body.fullscreen-chart .center-panel { height: 100vh; }
         }
+
+
+
+
     </style>
 </head>
 <body class="header-collapsed"> 
-    <div id="super-top-ticker">
+        <div id="super-top-ticker">
         <div class="super-top-left">
             <span id="ticker-bar-symbol"></span>
             <span id="ticker-bar-price"></span>
         </div>
-        <div class="super-top-right-buttons">
+        <!-- MASAÜSTÜ BUTONLARI -->
+        <div class="super-top-right-buttons desktop-only">
             <button id="main-controls-btn" class="btn btn-tiny">Komuta Merkezi</button>
             <button id="chart-view-btn" class="btn btn-tiny">Grafik</button>
             <button id="heatmap-view-btn" class="btn btn-tiny">Isı Haritası</button>
@@ -200,7 +282,13 @@
             <button id="banned-board-btn" class="btn btn-tiny">Banlılar</button>
             <button id="open-settings-modal-btn" class="btn btn-tiny">Ayarlar</button>
         </div>
+        <!-- YENİ MOBİL BUTONLARI -->
+        <div class="super-top-right-buttons mobile-only">
+            <button id="mobile-fullscreen-chart-btn" class="btn btn-tiny">Tam Ekran</button>
+            <button id="mobile-open-settings-modal-btn" class="btn btn-tiny btn-success">Ayarlar</button>
+        </div>
     </div>
+
 
     <!-- Yeni Sinyal Barı -->
     <div id="signal-progress-bar-container">
@@ -221,9 +309,21 @@
     </div>
 
     <div class="container">
-        <header class="header">
-            <div id="header-main-bar" class="header-top-bar" title="Paneli aç/kapatmak için çift tıkla">
-                <span>KOMUTA MERKEZİ KONTROLLERİ</span>
+                                <header class="header">
+            <div id="header-main-bar" class="header-top-bar">
+                <div class="header-left-controls">
+                    <button id="mobile-toggle-controls-btn" class="btn btn-tiny mobile-only" title="Kontrolleri Aç/Kapat">☰</button>
+                </div>
+                <div class="header-center-title" title="Paneli aç/kapatmak için çift tıkla">
+                    <span class="header-title-text">KOMUTA MERKEZİ KONTROLLERİ</span>
+                </div>
+                <div class="header-right-controls">
+                    <!-- DÜZELTME: Eksik olan Grafik butonu eklendi -->
+                    <button id="mobile-chart-view-btn" class="btn btn-tiny mobile-only" title="Grafik">📈</button>
+                    <button id="mobile-heatmap-view-btn" class="btn btn-tiny mobile-only" title="Isı Haritası">🔥</button>
+                    <button id="mobile-honor-board-btn" class="btn btn-tiny mobile-only" title="Şeref Tablosu">🏆</button>
+                    <button id="mobile-banned-board-btn" class="btn btn-tiny mobile-only" title="Banlılar">BAN</button>
+                </div>
             </div>
             <div class="header-collapsible-content">
                 <div class="main-controls">
@@ -249,6 +349,9 @@
                 </div>
             </div>
         </header>
+
+
+
 
         <main class="main-grid">
             <section class="center-panel panel">
@@ -291,6 +394,7 @@
                     <div class="form-group"><label class="form-label">Duvar Tespiti (BTC Miktarı)</label><input type="number" id="modal-param-wall-btc" class="form-control" value="20"></div>
                     <div class="form-group"><label class="form-label">Risk/Ödül Oranı (R/R)</label><input type="number" id="modal-param-rr-ratio" class="form-control" value="1.5" step="0.1"></div>
                 </div>
+                <div
                 <div class="settings-group">
                     <div class="panel-title" style="margin-bottom: 10px;">Cooldown Ayarları</div>
                     <div class="form-group"><label class="form-label">Genel Sinyal Cooldown (ms)</label><input type="number" id="modal-signal-cooldown-ms" class="form-control" value="15000" min="0" step="100"></div>
@@ -416,12 +520,12 @@
     /* =========================
        GÖRSELLEŞTİRME YÖNETİCİLERİ
        ========================= */
-    class ChartManager {
+        class ChartManager {
         constructor(chartContainerId) {
             this.chartContainer = document.getElementById(chartContainerId);
             if (!this.chartContainer) throw new Error("Chart container bulunamadı!");
             this.chart = null; this.series = {}; this.signalMarkers = [];
-            this.bbandsSeries = null; // Bollinger Bands için
+            this.bbandsSeries = null;
             this._initChart();
         }
         _initChart() {
@@ -429,7 +533,6 @@
             this.series.candles = this.chart.addCandlestickSeries(this._getCandlestickOptions());
             this.series.volume = this.chart.addHistogramSeries(this._getVolumeOptions());
             
-            // Bollinger Bandı serilerini oluştur (başlangıçta görünmez)
             const lineStyle = { color: 'rgba(255, 255, 0, 0.6)', lineWidth: 1, lineStyle: LightweightCharts.LineStyle.Dotted };
             this.series.bbUpper = this.chart.addLineSeries(lineStyle);
             this.series.bbMiddle = this.chart.addLineSeries(lineStyle);
@@ -440,7 +543,31 @@
                     this.chart.resize(this.chartContainer.clientWidth, this.chartContainer.clientHeight);
                 }
             });
+
+            // --- YENİ: Grafik görünümünü kaydetmek için olay dinleyici ---
+            this.chart.timeScale().subscribeVisibleLogicalRangeChange(logicalRange => {
+                if (logicalRange) {
+                    localStorage.setItem('utc_chart_view', JSON.stringify(logicalRange));
+                }
+            });
         }
+
+        // --- YENİ: Kaydedilmiş görünümü geri yükleme fonksiyonu ---
+        restoreView() {
+            const savedView = localStorage.getItem('utc_chart_view');
+            if (savedView) {
+                try {
+                    const logicalRange = JSON.parse(savedView);
+                    this.chart.timeScale().setVisibleLogicalRange(logicalRange);
+                } catch (e) {
+                    console.error("Kaydedilmiş grafik görünümü yüklenemedi:", e);
+                    this.chart.timeScale().fitContent();
+                }
+            } else {
+                this.chart.timeScale().fitContent();
+            }
+        }
+
         updateTheme() {
             if(!this.chart) return;
             this.chart.applyOptions(this._getChartOptions());
@@ -457,7 +584,9 @@
             const volumeData = candles.map(c => ({ time: c.time / 1000, value: c.volume, color: c.close >= c.open ? 'rgba(40, 167, 69, 0.5)' : 'rgba(220, 53, 69, 0.5)' }));
             this.series.candles.setData(candleData);
             this.series.volume.setData(volumeData);
-            this.chart.timeScale().fitContent();
+            
+            // --- DÜZELTME: Veri yüklendikten sonra kaydedilmiş görünümü uygula ---
+            this.restoreView();
         }
 
         drawBollingerBands(bbandsData) {
@@ -478,9 +607,18 @@
         addSignalMarker(signal) {
             if (!this.series.candles) return;
             const styles = getComputedStyle(document.body);
-            let text = `Skor: ${typeof signal.score === 'number' ? signal.score.toFixed(1) : signal.score} @ ${this._formatMarkerPrice(signal.price)}`;
-            if(signal.recommendedSize) text += ` | ${signal.recommendedSize}`;
-            
+            const isMobile = window.innerWidth <= 768;
+            let text = '';
+
+            if (isMobile) {
+                text = `S:${typeof signal.score === 'number' ? signal.score.toFixed(1) : signal.score}`;
+            } else {
+                text = `Skor: ${typeof signal.score === 'number' ? signal.score.toFixed(1) : signal.score} @ ${this._formatMarkerPrice(signal.price)}`;
+                if (signal.recommendedSize) {
+                    text += ` | ${signal.recommendedSize}`;
+                }
+            }
+
             const marker = {
                 id: signal.id,
                 time: signal.timestamp / 1000,
@@ -489,11 +627,11 @@
                 shape: signal.direction === 'buy' ? 'arrowUp' : 'arrowDown',
                 text: text
             };
-             if (signal.status === 'pending') {
+            if (signal.status === 'pending') {
                 marker.color = styles.getPropertyValue('--neutral').trim();
                 marker.shape = 'circle';
             }
-            // Remove existing marker with the same id before adding/updating
+            
             this.signalMarkers = this.signalMarkers.filter(m => m.id !== signal.id);
             this.signalMarkers.push(marker);
             this.series.candles.setMarkers(this.signalMarkers);
@@ -509,7 +647,13 @@
         }
         zoomIn() { this.zoom(0.9); }
         zoomOut() { this.zoom(1.1); }
-        resetZoom() { if (this.chart) this.chart.timeScale().fitContent(); }
+        resetZoom() { 
+            if (this.chart) {
+                this.chart.timeScale().fitContent(); 
+                // --- YENİ: Sıfırlama sonrası hafızayı da temizle ---
+                localStorage.removeItem('utc_chart_view');
+            }
+        }
 
         _getDecimalPlacesBasedOnPrice(price) { if(!price) return 2; if (price > 1000) return 2; if (price > 1) return 3; if (price > 0.01) return 4; return 6; }
         _formatMarkerPrice(price) { const d = this._getDecimalPlacesBasedOnPrice(price); return price.toFixed(d); }
@@ -533,6 +677,7 @@
         }
         _getVolumeOptions() { return { priceFormat: { type: 'volume' }, priceScaleId: '', scaleMargins: { top: 0.8, bottom: 0 } }; }
     }
+
 
     class HeatmapManager {
         constructor(canvasId) {
@@ -665,10 +810,17 @@
         getTrend(timeframe) {
             const tfData = this.data[timeframe];
             if (!tfData || !tfData.ema20) return 'neutral';
+            
             const price = this.bot.marketData.price;
-            if (price > tfData.ema20) return 'up';
-            if (price < tfData.ema20) return 'down';
-            return 'neutral';
+            const ema = tfData.ema20;
+            if (!price || !ema) return 'neutral';
+
+            const diff = Math.abs(price - ema) / ema;
+            
+            // Belirsizlik durumu için eşik değer (%0.1)
+            if (diff < 0.001) return 'neutral';
+            
+            return price > ema ? 'up' : 'down';
         }
         
         _timeframeToMs(tf) {
@@ -689,75 +841,89 @@
     }
 
     // Sahte Emir Tespiti (Spoof Detector)
-        // Sahte Emir Tespiti (Spoof Detector) - Geliştirilmiş Versiyon
-    class SpoofDetector {
+        class SpoofDetector {
         constructor(bot) {
             this.bot = bot;
-            this.largeOrderThreshold = 10; // BTC cinsinden eşik
-            this.trackedOrders = new Map(); // Takip edilen büyük emirler (price -> {qty, timestamp, type})
-            this.NOTIFICATION_COOLDOWN_MS = 30000; // 30 saniyede bir bildirim
+            // --- YENİ OPTİMİZASYON DEĞİŞKENLERİ ---
+            this.largeOrderThreshold = 10; // BTC cinsinden BAŞLANGIÇ eşiği
+            this.pendingChecks = []; // Onay bekleyen tespitler
+            this.confirmationStats = { confirmed: 0, rejected: 0 }; // İstatistikler
+            // --- BİTTİ ---
+            this.trackedOrders = new Map();
+            this.NOTIFICATION_COOLDOWN_MS = 30000;
             this.lastNotificationTime = 0;
-            this.PRICE_PROXIMITY_PERCENT = 0.0005; // Fiyat yakınlığı toleransı (%0.05)
+            this.PRICE_PROXIMITY_PERCENT = 0.0005;
         }
 
         trackOrderBook(orderBook) {
             const now = Date.now();
             const currentBids = new Map(orderBook.bids.map(([p, q]) => [p, q]));
             const currentAsks = new Map(orderBook.asks.map(([p, q]) => [p, q]));
-
-            // 1. Adım: Kaybolan veya güncellenen emirleri kontrol et
             this._detectSpoofing(now, currentBids, currentAsks);
-
-            // 2. Adım: Yeni büyük emirleri takibe al
             this._trackNewLargeOrders(now, orderBook);
         }
 
         _detectSpoofing(now, currentBids, currentAsks) {
             const ordersToDelete = [];
             for (const [price, order] of this.trackedOrders.entries()) {
-                // Zaman aşımına uğrayanları sil
-                if (now - order.timestamp > 15000) { // 15 saniyeden eski emirleri temizle
+                if (now - order.timestamp > 15000) {
                     ordersToDelete.push(price);
                     continue;
                 }
-
                 const book = order.type === 'bid' ? currentBids : currentAsks;
                 const priceTolerance = price * this.PRICE_PROXIMITY_PERCENT;
-
-                // Fiyatın çok yakınına bakarak emrin hala var olup olmadığını kontrol et
                 let stillExists = false;
                 for (const [currentPrice, currentQty] of book.entries()) {
                     if (Math.abs(currentPrice - price) <= priceTolerance) {
-                        // Yakında benzer veya daha büyük bir emir varsa, spoof değil say
                         if (currentQty >= order.qty * 0.8) {
                             stillExists = true;
                             break;
                         }
                     }
                 }
-
                 if (!stillExists) {
-                    // Emir gerçekten kaybolduysa ve cooldown süresi dolduysa bildirim göster
                     if (now - this.lastNotificationTime > this.NOTIFICATION_COOLDOWN_MS) {
-                        this.bot.showNotification(`Sahte Emir Tespiti: ${order.type.toUpperCase()} ${order.qty.toFixed(2)} @ ${price.toFixed(this.bot.getDecimalPlaces(price))} kayboldu!`, 'warning');
+                        let notificationText = '';
+                        let ttsKey = '';
+                        let expectedDirection = '';
+
+                        if (order.type === 'bid') {
+                            notificationText = `Sahte Alış Emri Çekildi! Düşüş gelebilir. Dikkat et hacı abi.`;
+                            ttsKey = 'spoofBidRemoved';
+                            expectedDirection = 'down';
+                        } else {
+                            notificationText = `Sahte Satış Emri Çekildi! Alım gelebilir. Dikkat et komutanım.`;
+                            ttsKey = 'spoofAskRemoved';
+                            expectedDirection = 'up';
+                        }
+
+                        this.bot.showNotification(notificationText, 'warning');
+                        this.bot.speak(this.bot.getRandomMessage(ttsKey));
+                        
+                        // --- YENİ: TESPİTİ ONAY İÇİN KAYDET ---
+                        this.pendingChecks.push({
+                            timestamp: now,
+                            priceAtDetection: this.bot.marketData.price,
+                            expectedDirection: expectedDirection,
+                            checkAfterCandles: 5 // 5 mum sonra kontrol et
+                        });
+                        // --- BİTTİ ---
+
                         this.lastNotificationTime = now;
                     }
                     ordersToDelete.push(price);
                 }
             }
-            // İşlenmiş veya zaman aşımına uğramış emirleri listeden sil
             ordersToDelete.forEach(price => this.trackedOrders.delete(price));
         }
 
         _trackNewLargeOrders(now, orderBook) {
             const processBook = (book, type) => {
                 for (const [price, qty] of book) {
-                    const btcValue = (this.bot.currentSymbol === 'BTCUSDT')
-                        ? qty
-                        : (qty * price) / (this.bot.marketData.btcPrice || 70000);
-
-                    if (btcValue > this.largeOrderThreshold) {
-                        // Eğer bu fiyatta zaten bir emir takip edilmiyorsa, ekle
+                    const btcValue = (this.bot.currentSymbol === 'BTCUSDT') ?
+                        qty :
+                        (qty * price) / (this.bot.marketData.btcPrice || 70000);
+                    if (btcValue > this.largeOrderThreshold) { // Değişken eşiği kullan
                         if (!this.trackedOrders.has(price)) {
                             this.trackedOrders.set(price, { qty, timestamp: now, type });
                         }
@@ -767,7 +933,60 @@
             processBook(orderBook.bids, 'bid');
             processBook(orderBook.asks, 'ask');
         }
+
+        // --- YENİ OPTİMİZASYON FONKSİYONLARI ---
+        checkConfirmations() {
+            const candleCount = this.bot.candles.length;
+            if (candleCount < 10) return;
+
+            this.pendingChecks = this.pendingChecks.filter(check => {
+                const candlesSince = candleCount - this.bot.candles.findIndex(c => c.time >= check.timestamp);
+                if (candlesSince < check.checkAfterCandles) {
+                    return true; // Henüz kontrol zamanı gelmedi, listede kalsın
+                }
+
+                const priceNow = this.bot.candles[candleCount - 1].close;
+                const priceChange = (priceNow - check.priceAtDetection) / check.priceAtDetection;
+                
+                let confirmed = false;
+                if (check.expectedDirection === 'up' && priceChange > 0.001) { // %0.1'den fazla yükseldiyse
+                    confirmed = true;
+                } else if (check.expectedDirection === 'down' && priceChange < -0.001) { // %0.1'den fazla düştüyse
+                    confirmed = true;
+                }
+
+                if (confirmed) {
+                    this.confirmationStats.confirmed++;
+                } else {
+                    this.confirmationStats.rejected++;
+                }
+                return false; // Kontrol edildi, listeden kaldır
+            });
+        }
+
+        autoOptimizeThreshold() {
+            const totalChecks = this.confirmationStats.confirmed + this.confirmationStats.rejected;
+            if (totalChecks < 10) return; // Yeterli veri birikene kadar bekle
+
+            const rejectionRate = this.confirmationStats.rejected / totalChecks;
+
+            if (rejectionRate > 0.6) { // Reddedilme oranı %60'tan fazlaysa (çok hassas)
+                this.largeOrderThreshold *= 1.10; // Eşiği %10 artır (daha az hassas yap)
+                this.bot.logToJournal(`Spoof Detector optimizasyonu: Eşik ${this.largeOrderThreshold.toFixed(2)} BTC'ye yükseltildi.`);
+            } else if (rejectionRate < 0.3) { // Reddedilme oranı %30'dan azsa (çok kaba olabilir)
+                this.largeOrderThreshold *= 0.95; // Eşiği %5 düşür (daha hassas yap)
+                this.bot.logToJournal(`Spoof Detector optimizasyonu: Eşik ${this.largeOrderThreshold.toFixed(2)} BTC'ye düşürüldü.`);
+            }
+
+            // Eşiğin mantıklı sınırlar içinde kalmasını sağla
+            this.largeOrderThreshold = Math.max(5, Math.min(50, this.largeOrderThreshold));
+
+            // İstatistikleri sıfırla ki yeni eşikle tekrar ölçüm yapılsın
+            this.confirmationStats = { confirmed: 0, rejected: 0 };
+        }
+        // --- BİTTİ ---
     }
+
 
 
     // CUSUM Sapma Tespiti (CUSUM Drift Detector)
@@ -822,13 +1041,22 @@
             this.killSwitchActivated = false;
         }
         checkKillSwitch() {
+            // DÜZELTME: Kill switch aktifse, yeni teklifleri anında temizle
+            if (this.killSwitchActivated) {
+                if (this.bot.confluenceEngine.proposals.length > 0) {
+                    this.bot.confluenceEngine.proposals = [];
+                }
+                return true; // Aktifse başka kontrol yapma
+            }
+
             if (!this.bot.settings.features.enableRiskGuardian) {
-                this.killSwitchActivated = false; return;
+                this.killSwitchActivated = false; return false;
             }
             const totalSignals = this.bot.stats.total;
             const tpSignals = this.bot.stats.tp;
-            const winRate = totalSignals > 0 ? (tpSignals / totalSignals) * 100 : 0;
+            const winRate = totalSignals > 0 ? (tpSignals / totalSignals) * 100 : 100; // Başlangıçta 100 kabul et
             const drawdownWinRateThreshold = this.bot.settings.riskGuardian.killSwitchWinRate || 35.0; // Default threshold
+            
             if (totalSignals >= 10 && winRate < drawdownWinRateThreshold && !this.killSwitchActivated) {
                 this.killSwitchActivated = true;
                 this.bot.showNotification(`!!! ACİL DURDURMA !!! Kazanma oranı ${winRate.toFixed(1)}% (${drawdownWinRateThreshold}% altı). Sistem durduruldu.`, 'danger');
@@ -851,37 +1079,38 @@
             this._isLive = false;
         }
         setIsLive(status) { this._isLive = status; }
-               propose(symbol, direction, reason, score) {
-            // Strateji istatistik objesinin ve içindeki 'overall' anahtarının varlığını kontrol et.
-            // Eğer herhangi biri eksikse, objeyi yeniden ve doğru bir şekilde oluştur.
-            if (!this.bot.strategyStats[this.name] || !this.bot.strategyStats[this.name].overall) {
-                const baseStat = { alpha: 3, beta: 2, proposals: 0, contrib: 0, wins: 0, losses: 0, shadowWins: 0, shadowLosses: 0, shadowProposals: 0, lastUpdate: Date.now() };
-                this.bot.strategyStats[this.name] = {
-                    overall: { ...baseStat },
-                    trend: { ...baseStat },
-                    range: { ...baseStat },
-                    transition: { ...baseStat }
-                };
+        propose(symbol, direction, reason, score) {
+            try {
+                if (!this.bot.strategyStats[this.name] || !this.bot.strategyStats[this.name].overall) {
+                    const baseStat = { alpha: 3, beta: 2, proposals: 0, contrib: 0, wins: 0, losses: 0, shadowWins: 0, shadowLosses: 0, shadowProposals: 0, lastUpdate: Date.now() };
+                    this.bot.strategyStats[this.name] = {
+                        overall: { ...baseStat },
+                        trend: { ...baseStat },
+                        range: { ...baseStat },
+                        transition: { ...baseStat }
+                    };
+                }
+                const stratStats = this.bot.strategyStats[this.name];
+
+                stratStats.overall.proposals = (stratStats.overall.proposals || 0) + 1;
+                stratStats.overall.lastUpdate = Date.now();
+                this.bot.saveStrategyStats();
+
+                if (!this._isLive) {
+                    this.bot.recordShadowProposal(this.name, direction, reason, score);
+                    return;
+                }
+                if (this.bot.settings.features.enableRiskGuardian && this.bot.riskGuardian.killSwitchActivated) return;
+
+                const now = Date.now();
+                const key = `${symbol}-${direction}`;
+                const cooldown = (this.DEFAULT_PROPOSAL_COOLDOWN_MS ?? 10000);
+                if (now - (this.lastProposalTime[key] || 0) < cooldown) return;
+                this.bot.confluenceEngine.propose(this.name, direction, reason, score);
+                this.lastProposalTime[key] = now;
+            } catch (error) {
+                console.error(`[${this.name}] Propose Error:`, error);
             }
-            const stratStats = this.bot.strategyStats[this.name];
-
-            // Artık stratStats ve stratStats.overall'ın varlığından %100 eminiz.
-            stratStats.overall.proposals = (stratStats.overall.proposals || 0) + 1;
-            stratStats.overall.lastUpdate = Date.now();
-            this.bot.saveStrategyStats(); // Değişikliği kaydet
-
-            if (!this._isLive) {
-                this.bot.recordShadowProposal(this.name, direction, reason, score);
-                return;
-            }
-            if (this.bot.settings.features.enableRiskGuardian && this.bot.riskGuardian.killSwitchActivated) return;
-
-            const now = Date.now();
-            const key = `${symbol}-${direction}`;
-            const cooldown = (this.DEFAULT_PROPOSAL_COOLDOWN_MS ?? 10000);
-            if (now - (this.lastProposalTime[key] || 0) < cooldown) return;
-            this.bot.confluenceEngine.propose(this.name, direction, reason, score);
-            this.lastProposalTime[key] = now;
         }
 
         _getDisplayName(name) { return name.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()); }
@@ -1228,7 +1457,7 @@
                 }
             } else { // Kırmızı mum
                 const lowerWick = close - low;
-                // Eğer alt fitil toplam mum boyutunun %20'sinden azsa, gövde güçlüdür
+                // Eğer alt fitil toplam mum boyutunu %20'sinden azsa, gövde güçlüdür
                 if(lowerWick / totalSize < 0.2) { 
                     this.propose(this.bot.currentSymbol, 'sell', 'Güçlü Satıcı Mumu', 4);
                 }
@@ -1243,7 +1472,7 @@
             this.openInterest = 0;
             this.lastFetchTime = 0;
             this.FETCH_INTERVAL_MS = 60 * 1000; // 1 dakikada bir veri çek
-            this.EXTREME_FUNDING_THRESHOLD = 0.001; // %0.1 fonlama oranı eşiği (Binance için 0.0001 - 0.00075 arası normal, 0.001-0.002 aşırı olabilir)
+            this.EXTREME_FUNDING_THRESHOLD = 0.001; // %0.1 fonlama oranı eşiği
         }
 
         async periodicAnalyze() {
@@ -1251,7 +1480,6 @@
             if (now - this.lastFetchTime > this.FETCH_INTERVAL_MS) {
                 this.lastFetchTime = now;
                 try {
-                    // Premium Index endpointi hem fonlama oranını hem de açık faizi verir.
                     const response = await fetch(`https://fapi.binance.com/fapi/v1/premiumIndex?symbol=${this.bot.currentSymbol}`);
                     if (!response.ok) {
                         console.error(`Funding Rate/Open Interest API Hatası: ${response.statusText}`);
@@ -1259,10 +1487,7 @@
                     }
                     const data = await response.json();
                     this.fundingRate = parseFloat(data.lastFundingRate);
-                    // sumOpenInterestValue doğrudan premiumIndex'te gelmeyebilir, futures/openInterest endpointinden çekilebilir.
-                    // Şimdilik sadece fundingRate odaklanalım veya bir tahmin kullanalım.
-                    // Eğer sumOpenInterestValue yoksa, sıfır veya varsayılan bir değer alalım.
-                    this.openInterest = parseFloat(data.openInterest) || 0; // Eğer API'den geliyorsa al, gelmiyorsa 0.
+                    this.openInterest = parseFloat(data.openInterest) || 0; 
 
                 } catch (e) { 
                     console.error("Fonlama Oranı/Açık Faiz verisi çekilemedi:", e); 
@@ -1270,25 +1495,15 @@
                 }
             }
 
-            // Strateji: Aşırı fonlama oranına ve potansiyel sıkışmaya bak.
-            // Örneğin: Aşırı pozitif fonlama oranı ve fiyat düşüşü = long sıkışması (sell sinyali)
-            // Aşırı negatif fonlama oranı ve fiyat yükselişi = short sıkışması (buy sinyali)
             const currentPrice = this.bot.marketData.price;
-            if (!currentPrice || !isFinite(this.fundingRate) || this.fundingRate === 0) return;
+            if (!currentPrice || !isFinite(this.fundingRate) || this.fundingRate === 0 || this.bot.candles.length < 2) return;
 
             if (this.fundingRate > this.EXTREME_FUNDING_THRESHOLD) {
-                // Fiyat düşerken aşırı pozitif fonlama varsa (Long'lar düşüşte hala Long tutuyor)
-                // Bu durum, pozitif fonlama olmasına rağmen fiyatın düşmesi durumunda long likidasyonlarına işaret edebilir.
-                // Reversal için bu durumda "SELL" arayabiliriz
-                // Piyasanın yönünün terse döneceği beklentisi
-                if (currentPrice < this.bot.candles[this.bot.candles.length - 2]?.close) { // Son mum düşüşte mi
+                if (currentPrice < this.bot.candles[this.bot.candles.length - 2]?.close) { 
                      this.propose(this.bot.currentSymbol, 'sell', `Aşırı Pozitif Fonlama & Fiyat Düşüşü (${(this.fundingRate*100).toFixed(3)}%)`, 4);
                 }
             } else if (this.fundingRate < -this.EXTREME_FUNDING_THRESHOLD) {
-                // Fiyat yükselirken aşırı negatif fonlama varsa (Short'lar yükselişte hala Short tutuyor)
-                // Bu durum, negatif fonlama olmasına rağmen fiyatın yükselmesi durumunda short likidasyonlarına işaret edebilir.
-                // Reversal için bu durumda "BUY" arayabiliriz
-                 if (currentPrice > this.bot.candles[this.bot.candles.length - 2]?.close) { // Son mum yükselişte mi
+                 if (currentPrice > this.bot.candles[this.bot.candles.length - 2]?.close) { 
                     this.propose(this.bot.currentSymbol, 'buy', `Aşırı Negatif Fonlama & Fiyat Yükselişi (${(this.fundingRate*100).toFixed(3)}%)`, 4);
                 }
             }
@@ -1330,7 +1545,8 @@
                 const w = this.bot.getStrategyWeight(p.strategy);
                 const ageSec = (now - p.timestamp)/1000;
                 const decay = Math.exp(-ageSec / decaySec);
-                const eff = p.score * w * decay;
+                // DÜZELTME: NaN kontrolü eklendi
+                const eff = isNaN(p.score * w * decay) ? 0 : p.score * w * decay;
                 const grp = this.bot.getStrategyGroup(p.strategy);
                 groupsUsed.add(grp);
                 groupSums[grp] = (groupSums[grp] || 0) + eff;
@@ -1361,11 +1577,10 @@
             let buyScoreAdj = buy.score;
             let sellScoreAdj = sell.score;
 
-            // YENİ: MTF Teyit Filtresi
             if (settings.features.enableMtfConfirm) {
                 const mtfTrend = this.bot.multiTimeframeManager.getTrend(settings.features.mtfTimeframe);
-                if (mtfTrend === 'down') buyScoreAdj *= 0.6; // Ana trende karşı olan sinyali cezalandır
-                if (mtfTrend === 'up') sellScoreAdj *= 0.6; // Ana trende karşı olan sinyali cezalandır
+                if (mtfTrend === 'down') buyScoreAdj *= 0.6;
+                if (mtfTrend === 'up') sellScoreAdj *= 0.6;
             }
 
             const buyPenalty = settings.optimization.gating.enabled ? this.bot.marketGatingPenalty('buy') : 0;
@@ -1418,7 +1633,7 @@
                 this.bot.activateSignal(signal);
             }
             
-            this.proposals = []; // Teklifleri sadece sinyal oluştuğunda temizle
+            this.proposals = [];
             const now = Date.now();
             this.lastSignalTime = now;
             this.lastSignalTimeByDirection[direction] = now;
@@ -1432,14 +1647,12 @@
     class UltimateTradingCommandCenter {
         constructor() {
             this.allStrategiesMap = {
-                // Mevcut Stratejiler
                 'wallBounce': WallBounceStrategy, 'velocityScalping': VelocityScalpingStrategy, 'rsiDivergence': RsiDivergenceStrategy, 
                 'orderFlowMomentum': OrderFlowMomentumStrategy, 'liquidityGaps': LiquidityGapsStrategy, 'fibonacciRetracement': FibonacciRetracementStrategy, 
                 'volumeProfile': VolumeProfileStrategy, 'smartMoneyConcepts': SmartMoneyConceptsStrategy, 'divergenceDetection': DivergenceDetectionStrategy, 
                 'breakoutPattern': BreakoutPatternStrategy, 'supportResistance': SupportResistanceStrategy, 'marketStructure': MarketStructureStrategy, 
                 'institutionalOrderFlow': InstitutionalOrderFlowStrategy, 'microSpreadArbitrage': MicroSpreadArbitrageStrategy,
                 'vwapReversion': VWAPReversionStrategy, 'superTrend': SuperTrendStrategy,
-                // Yeni Stratejiler
                 'volatilityBreakout': VolatilityBreakoutStrategy,
                 'candleCharacter': CandleCharacterStrategy,
                 'fundingRateReversal': FundingRateReversalStrategy
@@ -1461,12 +1674,11 @@
             this.candles = [];
             this.indicators = { rsi: [], atr: null, sma20: null, sma50: null, volSma20: null, vwap: null, adx: null, bbands: null }; 
             this.signals = this.loadData('utc_signals') || [];
-            this.pendingSignals = []; // Mum kapanışı onayı bekleyen sinyaller
+            this.pendingSignals = [];
             this.stats = this.loadData('utc_stats') || { total: 0, tp: 0, sl: 0 };
 
-            // Performans öğrenme
             this.strategyStats = this.loadData('utc_strategy_stats') || this.initDefaultStrategyStats();
-            this.marketRegime = 'unknown'; // trend, range, transition
+            this.marketRegime = 'unknown';
             this.riskState = 'neutral'; 
             this.sessionState = 'unknown';
 
@@ -1485,14 +1697,13 @@
 
             this.shadowProposals = [];
 
-            // Gelişmiş Özelliklerin Başlatılması
             this.chartManager = new ChartManager('live-chart');
             this.heatmapManager = new HeatmapManager('orderbook-heatmap');
             this.confluenceEngine = new ConfluenceEngine(this);
             this.multiTimeframeManager = new MultiTimeframeManager(this); 
             this.spoofDetector = new SpoofDetector(this);               
             this.cusumDetector = new CUSUMDriftDetector();               
-            this.sessionProfiler = new SessionProfiler(this); // SessionProfiler'a bot instance'ı gönderildi                 
+            this.sessionProfiler = new SessionProfiler(this);
             this.riskGuardian = new RiskGuardian(this);                   
             
             this.renderInterval = null; 
@@ -1502,18 +1713,20 @@
             this.paramTuneInterval = null;
             this.sessionUpdateInterval = null;
             this.countdownInterval = null; 
+            this.performanceMonitorInterval = null; // DÜZELTME: Performans izleyici için
 
             this.lastAutoToggleTs = 0;
             this.runtimeThresholdOffset = 0; 
+            this.lastCalculatedCandle = null; // DÜZELTME: İndikatör optimizasyonu için
+            this.renderTimeout = null; // DÜZELTME: Render debounce için
 
-            // TTS (Text-to-Speech) için
-            this.synth = window.speechSynthesis || null; 
-            this.speechQueue = [];
-            this.isSpeaking = false;
-            this.voices = []; 
+            this.synth = window.speechSynthesis || null;
+            this.speechQueue = []; // DÜZELTME: Konuşma kuyruğu
+            this.isSpeaking = false; // DÜZELTME: Konuşma durumu
+            this.voices = [];
             
-            // Konuşma metinleri veritabanı
-            this.speechTexts = {
+            // DÜZELTME: Eksik TTS metinleri eklendi
+                        this.speechTexts = {
                 buy: [
                     "Harika bir fırsat! [Sembol] için alım sinyali geldi. Yeşil ışık yanıyor! Skor [Skor].",
                     "Piyasa nefes aldı, [Sembol] yükselişe geçiyor. Bu trene binmek ister misin? Skor [Skor].",
@@ -1621,7 +1834,6 @@
                     "Tüm ayarlar sıfırlandı. Sistem yeniden başlatılmaya hazır. Temiz bir sayfa açtık Komutanım.",
                     "Ulan tüm ayarlar sıfırlandı lan! Sinirlim karmaşaya ama şimdi motive ol da temiz sayfaya atıl, ezeriz piyasayı Komutanım!"
                 ],
-                // Yeni TTS replikleri
                 shadowBan: [
                     "[Strateji] gölgeye alındı. Uslan da gel!",
                     "Şşşt [Strateji], gölge moduna geç. Önce pistte kendini ispat et."
@@ -1633,8 +1845,19 @@
                 rogueOfDay: [
                     "Bugünün şerefsizi: [Strateji]! Kendine gel de adam gibi sinyal ver.",
                     "[Strateji], bugün gözüm üzerinde. Şerefsizlikte ısrar etme!"
+                ],
+                spoofBidRemoved: [
+                    "Sahte emir tespit edildi, düşüş gelebilir. Dikkat et hacı abi.",
+                    "Uyarı! Büyük bir alış desteği kayboldu. Piyasa aşağı sarkabilir, tetikte ol.",
+                    "Balina desteğini çekti! Fiyat düşebilir, dikkatli ol komutanım."
+                ],
+                spoofAskRemoved: [
+                    "Sahte emir tespit edildi, alım gelebilir. Dikkat et komutanım.",
+                    "Uyarı! Büyük bir satış duvarı kayboldu. Fiyat yukarı hareketlenebilir, hazır ol.",
+                    "Balina direnci kaldırdı! Fiyat yukarı doğru gidebilir , gözünü dört aç hacı abi."
                 ]
             };
+
 
             this.init();
         }
@@ -1662,7 +1885,6 @@
                 cooldowns: { signalMs: 15000, sameDirectionMs: 30000, oppositeDirectionMs: 20000, reverseHysteresisPoints: 2, proposalTimeoutMs: 3000, strategyProposalMs: 10000 },
                 features: { 
                     enableSpoofDetection: true, enableCUSUMDrift: true, enableRiskGuardian: true, enableTTS: true, preferredVoiceName: null,
-                    // Yeni eklenen ayarlar
                     enableCandleConfirm: true,
                     enableMtfConfirm: true,
                     mtfTimeframe: '15m',
@@ -1705,17 +1927,16 @@
                     microSpreadArbitrage: { SPREAD_PCT: 0.0008 },
                     volumeProfile: { PERIOD: 20, SPIKE: 2.0, CLOSE_POS: 0.7 },
                     divergenceDetection: { LOOKBACK: 40, SWING_PERIOD: 3 },
-                    // Yeni strateji parametre varsayılanları
                     volatilityBreakout: { SQUEEZE_LOOKBACK: 20, SQUEEZE_MULT: 1.0, BREAKOUT_VOL_MULT: 1.5 },
                     candleCharacter: { MIN_BODY_TO_WICK_RATIO: 0.6, ANALYSIS_WINDOW_PERCENT: 0.2 },
                     fundingRateReversal: { FETCH_INTERVAL_MS: 60 * 1000, EXTREME_FUNDING_THRESHOLD: 0.001 }
                 },
                 activeStrategies: {} 
             };
-            // Nested object'leri birleştirmek için deep merge
+            
             const mergeDeep = (target, source) => {
                 for (const key in source) {
-                    if (source[key] instanceof Object && key in target && !(source[key] instanceof Array)) { // Array'leri de merge etme
+                    if (source[key] instanceof Object && key in target && !(source[key] instanceof Array)) {
                         Object.assign(target[key], mergeDeep(target[key], source[key]));
                     } else {
                         target[key] = source[key];
@@ -1741,7 +1962,6 @@
             localStorage.setItem('utc_settings', JSON.stringify(this.settings));
             this.applyStrategyParamOverrides();
             if (this.isRunning) {
-                // MTF yöneticisini yeni ayarlarla yeniden başlat
                 this.multiTimeframeManager.initialize(this.currentSymbol, [this.settings.features.mtfTimeframe]);
             }
         }
@@ -1756,7 +1976,6 @@
         
         getStrategyWeight(name) {
             const regime = this.marketRegime || 'overall';
-            // Eğer rejime özel yeterli veri yoksa (örn. 10'dan az katkı), genel (overall) veriyi kullan
             const regimeStats = this.strategyStats[name]?.[regime];
             const overallStats = this.strategyStats[name]?.overall;
             
@@ -1795,8 +2014,7 @@
             this.initStrategies(); 
             this.setupUI(); 
             this.setupEventListeners();
-            this.renderSignals(true); 
-            this.renderStats(true); 
+            this.debouncedRender();
             this.logToJournal('Sistem hazır. "SİSTEMİ BAŞLAT" butonuna tıklayın.');
             
             if (this.headerCollapsed) document.body.classList.add('header-collapsed'); else document.body.classList.remove('header-collapsed');
@@ -1815,6 +2033,7 @@
                 console.warn('SpeechSynthesis API bu tarayıcı/cihazda desteklenmiyor.');
             }
             this.applyStrategyParamOverrides();
+            this.startPerformanceMonitor(); // DÜZELTME: Performans izleyiciyi başlat
         }
 
         initStrategies() { 
@@ -1880,8 +2099,6 @@
             document.getElementById('modal-trail-to-r').value = s.optimization.breakeven.trailToR;
             document.getElementById('modal-enable-tts').checked = s.features.enableTTS;
             
-            // Yeni ayarlar
-            // Null kontrolü eklendi. Element yoksa hata vermez.
             const enableCandleConfirmEl = document.getElementById('modal-enable-candle-confirm');
             if(enableCandleConfirmEl) enableCandleConfirmEl.checked = s.features.enableCandleConfirm;
             
@@ -1912,11 +2129,10 @@
                 const toggleHtml = `<div class="form-group"><label class="checkbox-label"><input type="checkbox" class="strategy-toggle" data-strategy-key="${key}" ${isChecked ? 'checked' : ''} ${isHardBanned || isShadowBanned ? 'disabled' : ''}> ${strategy.displayName}${statusText}</label></div>`;
                 strategyModalContainer.innerHTML += toggleHtml;
             });
-            this.renderSignals(true); 
-            this.renderStats(true);   
+            this.debouncedRender();
         }
 
-        setupEventListeners() {
+                                                setupEventListeners() {
             document.getElementById('start-btn').addEventListener('click', () => this.start());
             document.getElementById('stop-btn').addEventListener('click', () => this.stop());
             document.getElementById('theme-toggle-btn').addEventListener('click', () => this.toggleTheme());
@@ -1930,10 +2146,16 @@
                 this.changeTimeframe(e.target.value);
                 this.saveData('utc_current_timeframe', e.target.value);
             });
-            document.getElementById('header-main-bar').addEventListener('dblclick', () => {
+            
+            document.querySelector('.header-center-title').addEventListener('dblclick', () => {
                 this.toggleControlsPanel();
                 this.saveData('utc_header_collapsed', this.headerCollapsed.toString());
             });
+            document.getElementById('mobile-toggle-controls-btn').addEventListener('click', () => {
+                this.toggleControlsPanel();
+                this.saveData('utc_header_collapsed', this.headerCollapsed.toString());
+            });
+
             document.getElementById('main-controls-btn').addEventListener('click', () => {
                 this.toggleControlsPanel();
                 this.saveData('utc_header_collapsed', this.headerCollapsed.toString());
@@ -1951,6 +2173,15 @@
             document.getElementById('close-settings-modal-btn').addEventListener('click', () => this.closeSettingsModal());
             document.getElementById('settings-modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'settings-modal-overlay') this.closeSettingsModal(); });
             
+            // DÜZELTME: Yeni grafik butonu için olay dinleyici eklendi
+            document.getElementById('mobile-chart-view-btn').addEventListener('click', () => { this.switchMainView('chart'); this.saveData('utc_current_view', 'chart'); });
+            document.getElementById('mobile-heatmap-view-btn').addEventListener('click', () => { this.switchMainView('heatmap'); this.saveData('utc_current_view', 'heatmap'); });
+            document.getElementById('mobile-fullscreen-chart-btn').addEventListener('click', () => this.enterFullscreenChart());
+            document.getElementById('mobile-open-settings-modal-btn').addEventListener('click', () => this.openSettingsModal());
+            document.getElementById('mobile-honor-board-btn').addEventListener('click', () => this.openHonorModal());
+            document.getElementById('mobile-banned-board-btn').addEventListener('click', () => this.openHonorModal('banned'));
+
+
             const s = this.settings;
             document.getElementById('modal-confluence-threshold').addEventListener('input', (e) => s.confluenceThreshold = parseInt(e.target.value));
             document.getElementById('modal-param-rsi-period').addEventListener('change', (e) => s.params.rsiPeriod = parseInt(e.target.value));
@@ -1981,7 +2212,6 @@
                 this.saveSettings();
                 if (e.target.value !== "") this.speak("Ses başarıyla değiştirildi.", { lang: 'tr-TR', rate: 1.0 });
             });
-            // Yeni ayarlar için event listener'lar
             const enableCandleConfirmEl = document.getElementById('modal-enable-candle-confirm');
             if(enableCandleConfirmEl) enableCandleConfirmEl.addEventListener('change', (e) => s.features.enableCandleConfirm = e.target.checked);
             
@@ -2045,6 +2275,11 @@
             }
         }
 
+
+
+
+
+
         toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -2103,10 +2338,9 @@
         async start() {
             if (this.isRunning) return;
             this.isRunning = true; 
-            document.getElementById('start-btn').disabled = false; 
+            document.getElementById('start-btn').disabled = true; 
             document.getElementById('stop-btn').disabled = false;
             
-            // MTF Manager'ı yalnızca aktifse başlat
             if (this.settings.features.enableMtfConfirm) {
                 this.multiTimeframeManager.initialize(this.currentSymbol, [this.settings.features.mtfTimeframe]);
             }
@@ -2162,7 +2396,10 @@
             this.resetDataForNewSymbol();
             if (this.isRunning) { this.stop(); await this.start(); }
         }
-        resetDataForNewSymbol() {
+                resetDataForNewSymbol() {
+            // --- YENİ: Grafik hafızasını temizle ---
+            localStorage.removeItem('utc_chart_view');
+
             this.candles = []; this.aggTrades = []; this.marketData.price = 0; 
             this.orderBook = { bids: [], asks: [], lastUpdateId: null }; 
             this.indicators = { rsi: [], atr: null, sma20: null, sma50: null, volSma20: null, vwap: null, adx: null, bbands: null };
@@ -2170,6 +2407,7 @@
             this.chartManager.setData([]); this.chartManager.clearMarkers(); this.render();
             this.heatmapManager.draw({bids:[], asks:[]}, 0);
         }
+
 
         async fetchInitialData() {
             try {
@@ -2243,20 +2481,15 @@
                     const lastCandleInArray = this.candles[this.candles.length - 1];
                     const currentCandleData = { time: kline.t, open: parseFloat(kline.o), high: parseFloat(kline.h), low: parseFloat(kline.l), close: parseFloat(kline.c), volume: parseFloat(kline.v) };
                     
-                    // Mum hala açıksa güncel, kapandıysa yeni mum ekle
                     if (lastCandleInArray && lastCandleInArray.time === currentCandleData.time) {
                         this.candles[this.candles.length - 1] = currentCandleData;
-                    } else if (kline.x) { // Yeni mum kapandı ve diziye eklenmeli
-                        this.candles.push(currentCandleData);
-                    } else { // Yeni mum açıldı ama henüz kapanmadı, yine de ekleyelim
+                    } else {
                          this.candles.push(currentCandleData);
                     }
-
 
                     this.chartManager.updateRealtime(kline);
 
                     if (kline.x) { // Mum kapandı
-                        // Tekrar eklemesini önlemek için kontrol
                         if (this.candles[this.candles.length -1].time !== currentCandleData.time) {
                             this.candles.push(currentCandleData);
                         }
@@ -2278,17 +2511,31 @@
             }
         }
         
-        runPeriodicAnalysis() { 
+                runPeriodicAnalysis() { 
             if (!this.isRunning) return; 
-            for (const key in this.strategies) {
-                if (this.strategies[key] && typeof this.strategies[key].periodicAnalyze === 'function') {
-                    this.strategies[key].periodicAnalyze(); 
+            try {
+                for (const key in this.strategies) {
+                    if (this.strategies[key] && typeof this.strategies[key].periodicAnalyze === 'function') {
+                        this.strategies[key].periodicAnalyze(); 
+                    }
                 }
+                if (this.settings.features.enableRiskGuardian) this.riskGuardian.checkKillSwitch();
+
+                // --- YENİ: SPOOF DETECTOR OPTİMİZASYONUNU ÇAĞIR ---
+                if (this.settings.features.enableSpoofDetection) {
+                    this.spoofDetector.checkConfirmations();
+                    this.spoofDetector.autoOptimizeThreshold();
+                }
+                // --- BİTTİ ---
+
+            } catch (error) {
+                console.error('Periodic analysis error:', error);
+                this.showNotification('Analiz hatası! Loglara bakın.', 'danger');
             }
-            if (this.settings.features.enableRiskGuardian) this.riskGuardian.checkKillSwitch();
         }
+
         
-        calculateAllIndicators() {
+                calculateAllIndicators() {
             if (this.candles.length === 0) return;
             const rsiPeriod = this.settings.params.rsiPeriod;
             const atrPeriod = this.settings.params.atrPeriod;
@@ -2310,7 +2557,7 @@
                 this.indicators.atr = this.calculateATR(this.candles, atrPeriod);
             } else { this.indicators.atr = null; }
 
-            // Bollinger Bands
+            // Bollinger Bands (ORİJİNAL HALİNE DÖNDÜRÜLDÜ)
             if (closes.length >= bbandsPeriod) {
                 this.indicators.bbands = this.calculateBB(closes, candleTimes, bbandsPeriod, 2);
                 this.chartManager.drawBollingerBands(this.indicators.bbands);
@@ -2334,6 +2581,7 @@
             } else { this.marketRegime = 'unknown'; }
         }
 
+
         calculateRSI(prices, period) {
             let gains = 0; let losses = 0;
             const rsi = [];
@@ -2342,17 +2590,15 @@
 
             if (prices.length < period + 1) return [];
 
-            // İlk RSI hesaplaması (Basit Ortalamalar)
             for (let i = 1; i <= period; i++) {
                 const diff = prices[i] - prices[i - 1];
                 if (diff > 0) gains += diff; else losses -= diff;
             }
             prevAvgGain = gains / period;
             prevAvgLoss = losses / period;
-            const initialRs = prevAvgGain / prevAvgLoss;
-            rsi.push(100 - (100 / (1 + (prevAvgLoss === 0 ? 100 : initialRs)))); 
+            const initialRs = prevAvgLoss === 0 ? Infinity : prevAvgGain / prevAvgLoss;
+            rsi.push(100 - (100 / (1 + initialRs))); 
 
-            // Sonraki RSI hesaplamaları (Wilder's Smoothing)
             for (let i = period + 1; i < prices.length; i++) {
                 const diff = prices[i] - prices[i - 1];
                 const gain = diff > 0 ? diff : 0;
@@ -2361,48 +2607,47 @@
                 prevAvgGain = (prevAvgGain * (period - 1) + gain) / period;
                 prevAvgLoss = (prevAvgLoss * (period - 1) + loss) / period;
                 
-                const rs = prevAvgGain / prevAvgLoss;
-                const rsiValue = 100 - (100 / (1 + (prevAvgLoss === 0 ? 100 : rs)));
+                const rs = prevAvgLoss === 0 ? Infinity : prevAvgGain / prevAvgLoss;
+                const rsiValue = 100 - (100 / (1 + rs));
                 rsi.push(rsiValue);
             }
             return rsi;
         }
 
         calculateATR(candles, period) {
-            if (candles.length < period + 1) return null; // ATR hesaplaması için yeterli mum yok
+            if (candles.length < period + 1) return null;
             let trs = [];
             for (let i = 1; i < candles.length; i++) {
                 const c = candles[i], p = candles[i - 1];
                 trs.push(Math.max(c.high - c.low, Math.abs(c.high - p.close), Math.abs(c.low - p.close)));
             }
-            if (trs.length < period) return null; // TR'ler toplanmadan önce period kadar TR olmalı
+            if (trs.length < period) return null;
             
-            // İlk ATR (Basit Ortalama)
             let atr = trs.slice(0, period).reduce((a, b) => a + b, 0) / period;
 
-            // Sonraki ATR (Wilder's Smoothing)
             for (let i = period; i < trs.length; i++) {
                 atr = (atr * (period - 1) + trs[i]) / period;
             }
             return atr;
         }
 
-       calculateBB(prices, times, period, stdDev) {
-    const result = { upper: [], middle: [], lower: [] };
-    if (prices.length < period) return null;
+              calculateBB(prices, times, period, stdDev) {
+            const result = { upper: [], middle: [], lower: [] };
+            if (prices.length < period) return null;
 
-    for (let i = period - 1; i < prices.length; i++) {
-        const slice = prices.slice(i - period + 1, i + 1);
-        const sma = slice.reduce((a, b) => a + b, 0) / period;
-        const std = Math.sqrt(
-            slice.map(p => Math.pow(p - sma, 2)).reduce((a, b) => a + b, 0) / period
-        );
-        result.middle.push({ time: times[i], value: sma });
-        result.upper.push({ time: times[i], value: sma + (std * stdDev) });
-        result.lower.push({ time: times[i], value: sma - (std * stdDev) });
-    }
-    return result;
-}
+            for (let i = period - 1; i < prices.length; i++) {
+                const slice = prices.slice(i - period + 1, i + 1);
+                const sma = slice.reduce((a, b) => a + b, 0) / period;
+                const std = Math.sqrt(
+                    slice.map(p => Math.pow(p - sma, 2)).reduce((a, b) => a + b, 0) / period
+                );
+                result.middle.push({ time: times[i], value: sma });
+                result.upper.push({ time: times[i], value: sma + (std * stdDev) });
+                result.lower.push({ time: times[i], value: sma - (std * stdDev) });
+            }
+            return result;
+        }
+
 
 
         calcADX(candles, period = 14) {
@@ -2417,7 +2662,6 @@
                 minusDMs.push((downMove > upMove && downMove > 0) ? downMove : 0);
             }
             const smooth = (arr) => {
-                // Initialize with simple average for first 'period' values
                 const smoothed = [arr.slice(0, period).reduce((a, b) => a + b, 0) / period];
                 for (let i = period; i < arr.length; i++) {
                     smoothed.push((smoothed[smoothed.length - 1] * (period - 1) + arr[i]) / period);
@@ -2428,17 +2672,16 @@
             const sPlusDM = smooth(plusDMs);
             const sMinusDM = smooth(minusDMs);
 
-            if (sTR.length === 0 || sPlusDM.length === 0 || sMinusDM.length === 0) return null; // Güvenlik kontrolü
+            if (sTR.length === 0 || sPlusDM.length === 0 || sMinusDM.length === 0) return null;
 
-            const plusDIs = sPlusDM.map((val, idx) => 100 * (val / (sTR[idx] || 1e-8))); // Avoid division by zero
+            const plusDIs = sPlusDM.map((val, idx) => 100 * (val / (sTR[idx] || 1e-8)));
             const minusDIs = sMinusDM.map((val, idx) => 100 * (val / (sTR[idx] || 1e-8)));
             
-            const dxs = plusDIs.map((pdi, idx) => 100 * Math.abs(pdi - minusDIs[idx]) / ((pdi + minusDIs[idx]) || 1e-8)); // Avoid division by zero
+            const dxs = plusDIs.map((pdi, idx) => 100 * Math.abs(pdi - minusDIs[idx]) / ((pdi + minusDIs[idx]) || 1e-8));
             
-            // ADX smoothing
-            if (dxs.length < period) return null; // ADX için yeterli DX yok
+            if (dxs.length < period) return null;
 
-            const adxValues = smooth(dxs.slice(period - 1)); // ADX calculation starts from period-1 of DX
+            const adxValues = smooth(dxs.slice(period - 1));
             
             if (!adxValues || adxValues.length === 0) return null;
             return {
@@ -2487,7 +2730,7 @@
                 signal.tp = signal.direction === 'buy' ? signal.price * (1 + 0.005) : signal.price * (1 - 0.005);
                 signal.sl = signal.direction === 'buy' ? signal.price * (1 - 0.005 / rrRatioBase) : signal.price * (1 + 0.005 / rrRatioBase);
             } else {
-                const atrMultiplier = 1.5 - (Math.min(10, Math.max(0, signal.score)) / 20); // 0.5'lik bir aralıkta ayar
+                const atrMultiplier = 1.5 - (Math.min(10, Math.max(0, signal.score)) / 20);
                 const slDistance = atr * atrMultiplier;
                 const tpDistance = slDistance * rrRatioBase;
                 if (signal.direction === 'buy') { signal.sl = signal.price - slDistance; signal.tp = signal.price + tpDistance; }
@@ -2533,7 +2776,7 @@
                     this.showNotification(`Sinyal ${s.id.substring(4,10)} için SL güncellendi (Trailing).`, 'info');
                 }
             }
-            if (changed) { this.saveData('utc_signals', this.signals); this.renderSignals(true); }
+            if (changed) { this.saveData('utc_signals', this.signals); this.debouncedRender(); }
         }
 
         checkAutoCloseSignals() {
@@ -2649,16 +2892,15 @@
 
         addPendingSignal(signal) {
             this.pendingSignals.push(signal);
-            this.chartManager.addSignalMarker(signal); // Grafikte beklemede olarak göster
+            this.chartManager.addSignalMarker(signal);
             this.showNotification(`ADAY SİNYAL: ${signal.direction.toUpperCase()} ${signal.symbol.replace('USDT', '/USDT')} | Skor: ${signal.score.toFixed(1)}. Mum kapanışı bekleniyor.`, 'warning', 4000);
         }
 
         checkPendingSignals(closedCandle) {
             const signalsToActivate = [];
             this.pendingSignals = this.pendingSignals.filter(signal => {
-                if (signal.timestamp < closedCandle.time) { // Sinyal, kapanan muma ait
+                if (signal.timestamp < closedCandle.time) {
                     let isValid = false;
-                    // Sinyalin aktif olması için mumun sinyal yönünde kapanması gerek
                     if (signal.direction === 'buy' && closedCandle.close > closedCandle.open) {
                         isValid = true;
                     } else if (signal.direction === 'sell' && closedCandle.close < closedCandle.open) {
@@ -2670,9 +2912,9 @@
                     } else {
                         this.showNotification(`İPTAL: ${signal.direction.toUpperCase()} sinyali mum kapanışında onaylanmadı.`, 'danger', 3000);
                     }
-                    return false; // İşlendi, listeden kaldır
+                    return false;
                 }
-                return true; // Henüz bu muma ait değil, listede kalsın
+                return true;
             });
             signalsToActivate.forEach(signal => this.activateSignal(signal));
         }
@@ -2682,22 +2924,19 @@
             this.signals.unshift(signal); 
             if (this.signals.length > 200) this.signals.pop();
             this.saveData('utc_signals', this.signals);
-            this.renderSignals(true); 
-            this.renderStats(true); 
-            this.chartManager.addSignalMarker(signal); // Marker'ı aktif olarak güncelle
+            this.debouncedRender();
+            this.chartManager.addSignalMarker(signal);
             
             let sizeText = signal.recommendedSize ? ` | Boyut: ${signal.recommendedSize}` : '';
             this.showNotification(`AKTİF SİNYAL: ${signal.direction.toUpperCase()} ${signal.symbol.replace('USDT', '/USDT')} | Skor: ${signal.score.toFixed(1)}${sizeText}`, signal.direction === 'buy' ? 'success' : 'danger');
             
             playSignal(signal.direction); 
-            if (this.settings.features.enableTTS) {
-                const messageKey = signal.direction === 'buy' ? 'buy' : 'sell';
-                const message = this.getRandomMessage(messageKey, { 
-                    Sembol: signal.symbol.replace('USDT', ''), 
-                    Skor: signal.score.toFixed(1) 
-                });
-                this.speak(message);
-            }
+            const messageKey = signal.direction === 'buy' ? 'buy' : 'sell';
+            const message = this.getRandomMessage(messageKey, { 
+                Sembol: signal.symbol.replace('USDT', ''), 
+                Skor: signal.score.toFixed(1) 
+            });
+            this.speak(message);
             if (signal.score >= 8 && !this.combatModeActive) { this.activateCombatMode(); } 
         }
 
@@ -2725,21 +2964,16 @@
                     const driftDetected = this.cusumDetector.update(result === 'tp');
                     if (driftDetected) {
                         this.showNotification('PERFORMANS SAPMASI!', 'Sinyal kazanma oranında sapma tespit edildi. Ayarlar optimize ediliyor...', 'warning');
-                        if (this.settings.features.enableTTS) {
-                            this.speak(this.getRandomMessage('cusumDriftDetected'));
-                        }
+                        this.speak(this.getRandomMessage('cusumDriftDetected'));
                     }
                 }
 
                 this.saveData('utc_signals', this.signals);
                 this.saveData('utc_stats', this.stats);
-                this.renderSignals(true); 
-                this.renderStats(true);   
+                this.debouncedRender();
                 this.showNotification(`Sinyal ${signal.id.substring(4,10)} - ${result.toUpperCase()} olarak sonuçlandı.`, 'info');
-                if (this.settings.features.enableTTS) {
-                    const messageKey = result === 'tp' ? 'signalTP' : 'signalSL';
-                    this.speak(this.getRandomMessage(messageKey));
-                }
+                const messageKey = result === 'tp' ? 'signalTP' : 'signalSL';
+                this.speak(this.getRandomMessage(messageKey));
             }
         }
 
@@ -2751,7 +2985,6 @@
             const decay = 0.995; 
 
             for (const c of contributors) {
-                // Her zaman initDefaultStrategyStats'ten tam bir stat objesi al
                 let stratStats = this.strategyStats[c.strategy];
                 if (!stratStats) {
                     stratStats = this.initDefaultStrategyStats()[c.strategy];
@@ -2770,7 +3003,7 @@
 
                 updateStat(stratStats.overall);
                 const currentRegimeStats = stratStats[this.marketRegime];
-                if (currentRegimeStats) { // currentRegimeStats null veya undefined değilse güncelle
+                if (currentRegimeStats) {
                     updateStat(currentRegimeStats);
                 }
             }
@@ -2825,7 +3058,7 @@
             this.saveStrategyStats();
         }
 
-        evaluateShadowRehab() {
+                evaluateShadowRehab() {
             const pen = this.settings.penalties || {};
             if (!pen.shadowEnabled) return;
 
@@ -2833,7 +3066,9 @@
                 if (!this.settings.statusMaps.shadowBanned[key] || this.settings.statusMaps.hardBanned[key]) continue;
 
                 const st = this.strategyStats[key]?.overall || {};
-                const sw = st.shadowWins || 0, sl = st.shadowLosses || 0, sp = st.shadowProposals || 0;
+                const sw = st.shadowWins || 0,
+                    sl = st.shadowLosses || 0,
+                    sp = st.shadowProposals || 0;
                 const total = sw + sl;
                 const winRate = total > 0 ? sw / total : 0;
 
@@ -2843,39 +3078,46 @@
                     this.updateActiveStrategies();
                     this.saveSettings();
                     this.showNotification(`Rehabilite: ${this.strategies[key].displayName} tekrar canlı! (gölge WR=${(winRate*100).toFixed(0)}%)`, 'success');
-                    if (this.settings.features.enableTTS) this.speak(this.getRandomMessage('shadowRehab', { 'Strateji': this.strategies[key].displayName }));
+                    
+                    // --- EKSİK OLAN SATIR BURAYA EKLENDİ ---
+                    this.speak(this.getRandomMessage('shadowRehab', { 'Strateji': this.strategies[key].displayName }));
                 }
             }
         }
 
-        autoToggleStrategies() {
+
+                autoToggleStrategies() {
             if (!this.settings.optimization.enabled || !this.settings.optimization.autoToggle) return;
             const now = Date.now();
-            if (now - this.lastAutoToggleTs < 5*60*1000) return; 
+            if (now - this.lastAutoToggleTs < 5 * 60 * 1000) return;
             this.lastAutoToggleTs = now;
             const minW = this.settings.optimization.minWeightToStay || 0.6;
             const minContrib = this.settings.optimization.minContribForToggle || 30;
-            
+
             let changed = false;
             for (const key of this.allStrategyKeys) {
                 const w = this.getStrategyWeight(key);
                 const stat = this.strategyStats[key]?.overall || {};
-                const active = !!this.settings.activeStrategies[key]; 
-                
+                const active = !!this.settings.activeStrategies[key];
+
                 if (active && !this.settings.statusMaps.hardBanned[key] && w < minW && (stat.contrib || 0) >= minContrib) {
                     this.settings.activeStrategies[key] = false;
                     this.settings.statusMaps.shadowBanned[key] = true;
                     this.showNotification(`Oto-optimizasyon: ${this.strategies[key].displayName} gölgeye alındı (w=${w.toFixed(2)}).`, 'warning');
-                    if (this.settings.features.enableTTS) this.speak(this.getRandomMessage('shadowBan', { 'Strateji': this.strategies[key].displayName }));
+                    
+                    // --- EKSİK OLAN SATIR BURAYA EKLENDİ ---
+                    this.speak(this.getRandomMessage('shadowBan', { 'Strateji': this.strategies[key].displayName }));
+                    
                     changed = true;
                 }
             }
-            if(changed) {
+            if (changed) {
                 this.updateActiveStrategies();
                 this.saveSettings();
-                this.updateSettingsModalUI(); 
+                this.updateSettingsModalUI();
             }
         }
+
 
         autoTuneCooldowns() {
             if (!this.isRunning || !this.settings.optimization.enabled) return;
@@ -2927,7 +3169,7 @@
             const WINDOW_MS = 10 * 60 * 1000;
             const recentSignals = this.signals.filter(s => s.status !== 'active' && s.symbol === this.currentSymbol && now - s.timestamp <= WINDOW_MS).slice(0, 100);
             
-            let winRate = recentSignals.length > 5 ? (recentSignals.filter(s => s.status === 'tp').length / recentSignals.length) : 0.55; // Başlangıç varsayımı
+            let winRate = recentSignals.length > 5 ? (recentSignals.filter(s => s.status === 'tp').length / recentSignals.length) : 0.55;
             let currentOffset = this.runtimeThresholdOffset || 0;
             let newOffset = currentOffset;
 
@@ -3008,6 +3250,15 @@
             }
         }
 
+        // DÜZELTME: Render fonksiyonları debounce ile çağrılacak
+        debouncedRender() {
+            clearTimeout(this.renderTimeout);
+            this.renderTimeout = setTimeout(() => {
+                this.renderSignals(true);
+                this.renderStats(true);
+            }, 200);
+        }
+
         renderSignals(fullRender = false) {
             const tbody = document.getElementById('modal-signals-body');
             if (!tbody) return;
@@ -3015,15 +3266,14 @@
             
             const signalsToRender = this.signals;
 
-            signalsToRender.forEach(signal => {
+            signalsToRender.forEach((signal, index) => {
                 const rowId = `signal-row-${signal.id}`;
                 let row = document.getElementById(rowId);
-                // Eğer tam render ise veya satır yoksa ekle/oluştur
                 if(fullRender || !row) { 
-                    if (row) row.remove(); // Tam render ise eski satırı sil
-                    row = tbody.insertRow(0); // Her zaman en üste ekle
+                    if (row) row.remove();
+                    row = tbody.insertRow(fullRender ? -1 : 0); // Tam render ise sona, değilse başa ekle
                     row.id = rowId;
-                    for(let i=0; i<11; i++) row.insertCell(); // 11 hücre oluştur
+                    for(let i=0; i<11; i++) row.insertCell();
                 }
 
                 row.className = signal.status === 'tp' ? 'signal-tp' : (signal.status === 'sl' ? 'signal-sl' : (signal.status === 'pending' ? 'signal-pending' : ''));
@@ -3049,7 +3299,6 @@
             const tp = this.stats.tp;
             const winRate = total > 0 ? ((tp / total) * 100).toFixed(1) : '0.0';
 
-            // Düzeltilmiş getWR fonksiyonu, stat objesi null/undefined ise güvenle '-' döndürür
             const getWR = (stat) => {
                 if (!stat) return '-';
                 const totalObs = (stat.wins || 0) + (stat.losses || 0);
@@ -3116,8 +3365,7 @@
                 this.stats = { total: 0, tp: 0, sl: 0 };
                 this.saveData('utc_signals', this.signals);
                 this.saveData('utc_stats', this.stats);
-                this.renderSignals(true);
-                this.renderStats(true);
+                this.debouncedRender();
                 this.chartManager.clearMarkers();
                 this.showNotification('Sinyal geçmişi temizlendi!', 'info');
             }
@@ -3190,7 +3438,7 @@
             selectEl.innerHTML = '<option value="">Otomatik Seç</option>';
             if (this.voices.length > 0) {
                  this.voices.forEach(voice => {
-                    if (voice.lang.startsWith('tr')) { // Sadece Türkçe sesleri listele
+                    if (voice.lang.startsWith('tr')) {
                         const option = document.createElement('option');
                         option.value = voice.name;
                         option.textContent = `${voice.name} (${voice.lang})`;
@@ -3210,7 +3458,6 @@
             }
             let message = messages[Math.floor(Math.random() * messages.length)];
 
-            // Değişkenleri metin içinde değiştir
             for (const placeholder in replacements) {
                 const regex = new RegExp(`\\[${placeholder}\\]`, 'g');
                 message = message.replace(regex, replacements[placeholder]);
@@ -3218,8 +3465,22 @@
             return message;
         }
 
+        // DÜZELTME: TTS Kuyruk Mekanizması
         speak(text, options = {}) {
-            if (!this.synth || !this.settings.features.enableTTS || this.synth.speaking) return;
+            if (!this.synth || !this.settings.features.enableTTS) return;
+            this.speechQueue.push({ text, options });
+            if (!this.isSpeaking) {
+                this.processSpeechQueue();
+            }
+        }
+
+        processSpeechQueue() {
+            if (this.speechQueue.length === 0) {
+                this.isSpeaking = false;
+                return;
+            }
+            this.isSpeaking = true;
+            const { text, options } = this.speechQueue.shift();
             
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.rate = options.rate || 1.1; 
@@ -3234,6 +3495,16 @@
                 const turkishVoice = this.voices.find(v => v.lang.startsWith('tr-'));
                 if (turkishVoice) utterance.voice = turkishVoice;
             }
+            
+            utterance.onend = () => {
+                setTimeout(() => this.processSpeechQueue(), 300); // Sesler arası kısa bir bekleme
+            };
+            
+            utterance.onerror = (event) => {
+                console.error('SpeechSynthesis Hata:', event.error);
+                this.isSpeaking = false; // Hata durumunda kuyruğu serbest bırak
+                this.processSpeechQueue(); // Bir sonraki öğeyi dene
+            };
 
             this.synth.speak(utterance);
         }
@@ -3257,7 +3528,7 @@
                     key, name: this.strategies[key]?.displayName || key, w, wr, contrib, status: isHard ? 'HARDBAN' : (isShadow ? 'GÖLGE' : (active ? 'CANLI' : 'PASİF'))
                 };
 
-                if (isHard || isHard) banned.push(row); // Hata düzeltme: isHard || isShadow yerine isHard || isHard yazılmıştı
+                if (isHard || isShadow) banned.push(row);
                 if (!isShadow && !isHard) {
                     if (w >= 1.1 && totalObs >= minContrib) honor.push(row);
                     else if (w <= 0.8 && totalObs >= minContrib) shame.push(row);
@@ -3290,7 +3561,7 @@
             } else {
                 if (pickRogue) {
                     html += `<div class="notification danger" style="position:relative; margin-bottom:10px;">Günün şerefsizi: <b>${pickRogue.name}</b> (w=${pickRogue.w.toFixed(2)})</div>`;
-                    if (this.settings.features.enableTTS) this.speak(this.getRandomMessage('rogueOfDay', { 'Strateji': pickRogue.name }));
+                    this.speak(this.getRandomMessage('rogueOfDay', { 'Strateji': pickRogue.name }));
                 }
                 html += renderList('Şerefli (güçlüler)', honor.sort((a,b)=>b.w-a.w));
                 html += renderList('Şerefsizler (zayıflar)', shame.sort((a,b)=>a.w-b.w));
@@ -3318,6 +3589,7 @@
             this.saveSettings();
             this.openHonorModal(this.lastHonorModalFilter);
             this.showNotification(`${this.strategies[key].displayName} ${cur ? 'gölgeden alındı' : 'gölgeye alındı'}.`, 'info');
+            this.speak(this.getRandomMessage(cur ? 'shadowRehab' : 'shadowBan', { 'Strateji': this.strategies[key].displayName }));
         }
 
         toggleHardBan(key) {
@@ -3335,49 +3607,14 @@
             this.showNotification(`${this.strategies[key].displayName} ${cur ? 'hardbandan çıkarıldı' : 'hardban edildi'}.`, cur ? 'success' : 'danger');
         }
 
-        openStrategySurgery(key) {
-            const defs = this.settings.strategyParams[key] || {};
-            let form = `<div class="panel-title" style="margin-top:10px;">${this.strategies[key]?.displayName || key} - Ameliyat</div>`;
-            form += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:8px 0;">`;
-            
-            const currentInstanceParams = this.strategies[key];
-            
-            for (const k of Object.keys(defs)) {
-                const currentValue = defs[k];
-                const liveValue = currentInstanceParams ? currentInstanceParams[k] : '-'; // Check if currentInstanceParams exists
-                const formattedLiveValue = (typeof liveValue === 'number' && isFinite(liveValue)) ? liveValue.toPrecision(4) : '-';
-
-
-                form += `<label style="font-size:11px; color:var(--text-secondary)">${k}</label>
-                         <div>
-                            <input type="number" step="any" value="${currentValue}" data-par="${k}" data-strat="${key}" class="form-control strat-par-input" style="width: calc(100% - 40px); display:inline-block;">
-                            <span style="font-size:10px; color:var(--text-secondary); margin-left:5px;">Canlı: ${formattedLiveValue}</span>
-                         </div>`;
-            }
-            form += `</div><button class="btn btn-success btn-sm" onclick="window.app.saveStrategySurgery('${key}')">Kaydet</button>`;
-            
-            const el = document.getElementById('honor-modal-body');
-            el.insertAdjacentHTML('beforeend', form);
-
-            el.querySelectorAll('.strat-par-input').forEach(inp => {
-                inp.addEventListener('change', (e) => {
-                    const strat = e.target.dataset.strat;
-                    const par = e.target.dataset.par;
-                    const val = parseFloat(e.target.value);
-                    if (this.settings.strategyParams[strat]) {
-                        this.settings.strategyParams[strat][par] = val;
-                    } else {
-                        this.settings.strategyParams[strat] = { [par]: val };
-                    }
-                });
-            });
-            el.scrollTop = el.scrollHeight;
-        }
-
-        saveStrategySurgery(key) {
-            this.saveSettings();
-            this.showNotification(`${this.strategies[key]?.displayName || key} parametreleri güncellendi.`, 'success');
-            this.openHonorModal(this.lastHonorModalFilter);
+        // DÜZELTME: Performans izleme fonksiyonu
+        startPerformanceMonitor() {
+            this.performanceMonitorInterval = setInterval(() => {
+                if (performance.memory) {
+                    const memUsage = (performance.memory.usedJSHeapSize / 1048576).toFixed(2);
+                    this.logToJournal(`Performans: Bellek=${memUsage}MB, Sinyaller=${this.signals.length}, Bekleyenler=${this.pendingSignals.length}`);
+                }
+            }, 30000);
         }
     }
 
@@ -3387,3 +3624,8 @@
 </script>
 </body>
 </html>
+
+
+
+
+
