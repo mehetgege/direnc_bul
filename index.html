@@ -6,6 +6,115 @@
     <title>ULTIMATE TRADING KOMUTA MERKEZİ v2.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@3.8.0/dist/lightweight-charts.standalone.production.js"></script>
+    <!-- TSParticles for visual effects -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles-slim@2.12.0/tsparticles.slim.min.js"></script>
+    <script>
+    // Sayfa yüklendiğinde çalışacak ana fonksiyon
+    function initApp() {
+        console.log('initApp başlatılıyor...');
+        // Panteon UI için sürükleme özelliği
+        const pantheonUI = document.getElementById('pantheon-ui');
+        if (pantheonUI) {
+            let isDragging = false;
+            let offsetX, offsetY;
+            
+            function startDrag(e) {
+                isDragging = true;
+                offsetX = e.clientX - pantheonUI.getBoundingClientRect().left;
+                offsetY = e.clientY - pantheonUI.getBoundingClientRect().top;
+                pantheonUI.style.cursor = 'grabbing';
+                e.preventDefault();
+            }
+            
+            function onDrag(e) {
+                if (!isDragging) return;
+                pantheonUI.style.left = (e.clientX - offsetX) + 'px';
+                pantheonUI.style.top = (e.clientY - offsetY) + 'px';
+            }
+            
+            function stopDrag() {
+                isDragging = false;
+                pantheonUI.style.cursor = 'grab';
+                
+                // Pozisyonu kaydet
+                const rect = pantheonUI.getBoundingClientRect();
+                localStorage.setItem('pantheonUIPosition', JSON.stringify({
+                    left: rect.left,
+                    top: rect.top
+                }));
+            }
+            
+            // Event listener'ları ekle
+            pantheonUI.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mouseup', stopDrag);
+            document.addEventListener('mouseleave', stopDrag);
+            
+            // Kayıtlı pozisyonu yükle
+            const savedPosition = localStorage.getItem('pantheonUIPosition');
+            if (savedPosition) {
+                try {
+                    const { left, top } = JSON.parse(savedPosition);
+                    pantheonUI.style.left = `${left}px`;
+                    pantheonUI.style.top = `${top}px`;
+                } catch (e) {
+                    console.error('Pozisyon yüklenirken hata:', e);
+                }
+            }
+        }
+        
+        // Sistemleri güvenli bir şekilde başlatma
+        try {
+            // Panteon sistemi var mı kontrol et ve global değişkene ata
+            if (typeof PantheonSystem === 'function' && window.panteon) {
+                console.log('Panteon sistemi zaten başlatılmış, yeniden başlatılmayacak.');
+            } else if (typeof PantheonSystem === 'function') {
+                console.log('Panteon sistemi başlatılıyor...');
+                window.panteon = new PantheonSystem();
+            }
+            
+            // App nesnesi var mı kontrol et
+            if (!window.app) {
+                console.log('Trading Command Center başlatılıyor...');
+                window.app = new UltimateTradingCommandCenter();
+            }
+        } catch (e) {
+            console.error('Sistemleri başlatırken hata:', e);
+        }
+        
+        // Panteon güç yönetimini başlat
+        if (window.app && !window.app.pantheonPower) {
+            window.app.pantheonPower = {
+                buy: 0,
+                sell: 0,
+                lastUpdate: Date.now()
+            };
+        }
+        
+        // Panteon metodlarını app nesnesine güvenli bir şekilde bağla
+        if (window.panteon && window.app) {
+            if (window.panteon.increasePantheonPower) {
+                window.app.increasePantheonPower = window.panteon.increasePantheonPower.bind(window.panteon);
+            }
+            if (window.panteon.updatePantheonUI) {
+                window.app.updatePantheonUI = window.panteon.updatePantheonUI.bind(window.panteon);
+            }
+            if (window.panteon.triggerElciSpecialAbility) {
+                window.app.triggerElciSpecialAbility = window.panteon.triggerElciSpecialAbility.bind(window.panteon);
+            }
+        } else {
+            console.warn('Panteon veya App nesneleri henüz hazır değil.');
+        }
+        
+        // Panteon arayüzünü güncelle
+        if (window.app && window.app.updatePantheonUI) {
+            window.app.updatePantheonUI();
+        }
+    }
+    
+    // Sayfa yüklendiğinde initApp'ı çalıştır
+    document.addEventListener('DOMContentLoaded', initApp);
+    </script>
 
     <style>
         :root {
@@ -13,6 +122,13 @@
             --background-light: #ffffff; --panel-bg-light: #f6f8fa; --text-main-light: #24292f; --text-secondary-light: #57606a; --border-color-light: #d0d7de; --input-bg-light: #f0f2f5; --hover-bg-light: #e8eaed; --primary-light: #0969da;
             --war-mode-bg: linear-gradient(145deg, #4d0000 0%, #000000 75%); --war-mode-panel-bg: rgba(255, 0, 0, 0.08); --war-mode-border: #8B0000; --war-mode-text: #ff5858; --war-mode-primary: #ffc107;
             --positive: #28a745; --negative: #dc3545; --neutral: #ffc107;
+            
+            /* YENİ: Panteon Renkleri */
+            --metatron-color: #3b82f6; /* Mavi - Bilgelik */
+            --uriel-color: #f59e0b;    /* Amber - Cesaret */
+            --raphael-color: #10b981;  /* Zümrüt - Şifa */
+            --gabriel-color: #8b5cf6;  /* Mor - İletişim */
+            --michael-color: #ef4444;  /* Kırmızı - Savaş */
             --ticker-height: 30px; 
             --signal-bar-height: 40px;
             --header-min-height: 40px;
@@ -121,9 +237,50 @@
         .stat-item:last-child { border-bottom: none; } .stat-label { color: var(--text-secondary); } .stat-value { font-weight: 700; }
         .btn-sm { padding: 1px 4px; font-size: 9px; margin-left: 4px; border-radius: 3px; cursor: pointer;}
         ::-webkit-scrollbar { width: 6px; height: 6px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--text-secondary); border-radius: 3px; }
-        .notifications { position: fixed; bottom: 15px; right: 15px; z-index: 2000; width: 320px; }
-        .notification { background: var(--panel-bg); border: 1px solid var(--border-color); border-left-width: 5px; border-radius: 4px; padding: 12px; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); margin-top: 10px; }
-        .notification.success { border-left-color: var(--positive); } .notification.danger { border-left-color: var(--negative); } .notification.warning { border-left-color: var(--neutral); }
+        .n        /* DÜZELTME: Bildirimlerin yeni stili ve konumu */
+        .notifications { 
+            position: fixed; 
+            bottom: 15px; 
+            left: 15px; /* Sağdan sola alındı */
+            z-index: 2000; 
+            width: 280px; /* Daha dar */
+        }
+        .notification { 
+            background: rgba(22, 27, 34, 0.9); /* Hafif transparan */
+            backdrop-filter: blur(4px);
+            border: 1px solid var(--border-color); 
+            border-left-width: 4px; 
+            border-radius: 4px; 
+            padding: 8px 12px; /* Daha küçük padding */
+            font-size: 12px; /* Daha küçük font */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3); 
+            margin-top: 8px; 
+            animation: slide-in 0.3s ease-out;
+        }
+        @keyframes slide-in {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification.success { border-left-color: var(--positive); } 
+        .notification.danger { border-left-color: var(--negative); } 
+        .notification.warning { border-left-color: var(--neutral); }
+        
+        aside#settings-panel, aside#analytics-panel { display: none !important; }
+        .hidden-view { display: none !important; } 
+
+        /* YENİ LOG PANELİ STİLLERİ */
+        #log-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 2550; }
+        #log-modal-overlay.visible { display: flex; }
+        .log-modal-content { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; width: 95%; max-width: 1000px; height: 90%; display: flex; flex-direction: column; box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+        .log-modal-header { padding: 10px 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 14px; color: var(--primary); }
+        .log-modal-header .close-btn { background: none; border: none; font-size: 20px; color: var(--text-secondary); cursor: pointer; padding: 0 5px; line-height: 1; }
+        .log-modal-body { padding: 0; overflow-y: auto; flex-grow: 1; }
+        #log-output { font-family: 'Roboto Mono', monospace; font-size: 11px; color: var(--text-secondary); padding: 10px; margin: 0; white-space: pre-wrap; word-break: break-all; }
+        #log-output .log-error { color: var(--negative); }
+        #log-output .log-warn { color: var(--neutral); }
+        #log-output .log-info { color: var(--positive); }
+
         
         aside#settings-panel, aside#analytics-panel { display: none !important; }
         .hidden-view { display: none !important; } 
@@ -156,6 +313,179 @@
         /* Resizable Handle */
         .resize-handle { position: absolute; bottom: 0; left: 0; width: 100%; height: 8px; cursor: ns-resize; background: var(--border-color); z-index: 10; border-top: 1px solid var(--border-color); }
         .center-panel.resizing { user-select: none; }
+
+        /* Panteon UI Stilleri */
+        .pantheon-ui {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            width: 280px;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+            opacity: 0.95;
+            transition: all 0.3s ease;
+        }
+        
+        .pantheon-ui:hover {
+            opacity: 1;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        .pantheon-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .pantheon-header span {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 13px;
+        }
+        
+        .pantheon-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 20px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0 5px;
+        }
+        
+        .pantheon-close:hover {
+            color: var(--negative);
+        }
+        
+        .pantheon-gods {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .god {
+            display: flex;
+            align-items: center;
+            padding: 6px 8px;
+            border-radius: 6px;
+            background: var(--input-bg);
+            transition: all 0.2s ease;
+        }
+        
+        .god:hover {
+            background: var(--hover-bg);
+            transform: translateX(3px);
+        }
+        
+        .god-icon {
+            font-size: 16px;
+            margin-right: 8px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .god-name {
+            font-weight: 600;
+            font-size: 11px;
+            width: 80px;
+        }
+        
+        .god-power {
+            font-size: 10px;
+            width: 35px;
+            text-align: right;
+            margin-right: 8px;
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        .god-progress {
+            flex-grow: 1;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .god-progress-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+        
+        /* Her tanrı için özel renkler */
+        .metatron .god-progress-fill { background: var(--metatron-color); }
+        .uriel .god-progress-fill { background: var(--uriel-color); }
+        .raphael .god-progress-fill { background: var(--raphael-color); }
+        .gabriel .god-progress-fill { background: var(--gabriel-color); }
+        .michael .god-progress-fill { background: var(--michael-color); }
+        
+        .pantheon-abilities {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .ability {
+            flex: 1;
+            background: var(--input-bg);
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ability:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .ability-icon {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        
+        .ability-name {
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        .ability-cooldown {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: var(--primary);
+            width: 100%;
+            transform-origin: left;
+            transform: scaleX(0);
+            transition: transform 0.1s linear;
+        }
+        
+        /* Animasyonlar */
+        @keyframes pulse {
+            0% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 0.6; transform: scale(1); }
+        }
+        
+        .ability.active {
+            animation: pulse 1.5s infinite;
+        }
 
                         /* DÜZELTME: Metinlerin yanlışlıkla seçilmesini engelle */
         .btn, .panel-title, .header-top-bar, .signal-bar-label, .form-label {
@@ -267,6 +597,82 @@
     </style>
 </head>
 <body class="header-collapsed"> 
+    <!-- Canvas for visual effects -->
+    <canvas id="effects-canvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></canvas> 
+    
+    <!-- Panteon Sistemi UI -->
+    <div id="pantheon-ui" class="pantheon-ui">
+        <div class="pantheon-header">
+            <span>PANTEON SİSTEMİ</span>
+            <button class="pantheon-close">×</button>
+        </div>
+        
+        <div class="pantheon-gods">
+            <div class="god metatron" data-god="metatron">
+                <div class="god-icon">👁️</div>
+                <div class="god-name">Metatron</div>
+                <div class="god-power">0%</div>
+                <div class="god-progress">
+                    <div class="god-progress-fill"></div>
+                </div>
+            </div>
+            
+            <div class="god uriel" data-god="uriel">
+                <div class="god-icon">⚔️</div>
+                <div class="god-name">Uriel</div>
+                <div class="god-power">0%</div>
+                <div class="god-progress">
+                    <div class="god-progress-fill"></div>
+                </div>
+            </div>
+            
+            <div class="god raphael" data-god="raphael">
+                <div class="god-icon">💊</div>
+                <div class="god-name">Raphael</div>
+                <div class="god-power">0%</div>
+                <div class="god-progress">
+                    <div class="god-progress-fill"></div>
+                </div>
+            </div>
+            
+            <div class="god gabriel" data-god="gabriel">
+                <div class="god-icon">📢</div>
+                <div class="god-name">Gabriel</div>
+                <div class="god-power">0%</div>
+                <div class="god-progress">
+                    <div class="god-progress-fill"></div>
+                </div>
+            </div>
+            
+            <div class="god michael" data-god="michael">
+                <div class="god-icon">⚖️</div>
+                <div class="god-name">Michael</div>
+                <div class="god-power">0%</div>
+                <div class="god-progress">
+                    <div class="god-progress-fill"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="pantheon-abilities">
+            <div class="ability" id="ability-revelation" data-ability="revelation">
+                <div class="ability-icon">🔍</div>
+                <div class="ability-name">Vahiy</div>
+                <div class="ability-cooldown"></div>
+            </div>
+            <div class="ability" id="ability-valor" data-ability="valor">
+                <div class="ability-icon">🛡️</div>
+                <div class="ability-name">Cesaret</div>
+                <div class="ability-cooldown"></div>
+            </div>
+            <div class="ability" id="ability-restoration" data-ability="restoration">
+                <div class="ability-icon">💫</div>
+                <div class="ability-name">Şifa</div>
+                <div class="ability-cooldown"></div>
+            </div>
+        </div>
+    </div>
+    
         <div id="super-top-ticker">
         <div class="super-top-left">
             <span id="ticker-bar-symbol"></span>
@@ -282,11 +688,14 @@
             <button id="banned-board-btn" class="btn btn-tiny">Banlılar</button>
             <button id="open-settings-modal-btn" class="btn btn-tiny">Ayarlar</button>
         </div>
-        <!-- YENİ MOBİL BUTONLARI -->
+                <!-- YENİ MOBİL BUTONLARI -->
         <div class="super-top-right-buttons mobile-only">
             <button id="mobile-fullscreen-chart-btn" class="btn btn-tiny">Tam Ekran</button>
+            <!-- DÜZELTME: Yeni Log butonu eklendi -->
+            <button id="mobile-open-log-modal-btn" class="btn btn-tiny">📜 Log</button>
             <button id="mobile-open-settings-modal-btn" class="btn btn-tiny btn-success">Ayarlar</button>
         </div>
+
     </div>
 
 
@@ -477,6 +886,23 @@
             </div>
         </div>
     </div>
+    <!-- YENİ LOG PANELİ (MODAL) -->
+    <div id="log-modal-overlay">
+        <div class="log-modal-content">
+            <div class="log-modal-header">
+                <span>SİSTEM LOGLARI & GÜNLÜK</span>
+                <div>
+                    <button id="export-logs-btn" class="btn btn-sm btn-success">Logları Dışa Aktar</button>
+                    <button class="close-btn" id="close-log-modal-btn">&times;</button>
+                </div>
+            </div>
+            <div class="log-modal-body">
+                <pre id="log-output"></pre>
+            </div>
+        </div>
+    </div>
+
+   
 
     <!-- ŞEREF TABLOSU MODAL -->
     <div id="honor-modal-overlay" style="position:fixed; inset:0; background:rgba(0,0,0,0.7); display:none; z-index:2600; align-items:center; justify-content:center;">
@@ -516,11 +942,757 @@
             oscillator.start(audioContext.currentTime); oscillator.stop(audioContext.currentTime + 0.5);
         } catch (error) { console.log('Ses çalınamadı:', error); }
     }
+    
+    // Ses sentez motoruyla gelişmiş sesli bildirim fonksiyonu
+    function playSoundAlert(type, priority = 1) {
+        try {
+            if (!window.audioContext) {
+                window.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            const audioContext = window.audioContext;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            const filterNode = audioContext.createBiquadFilter();
+            
+            oscillator.connect(filterNode);
+            filterNode.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Bildirim türüne göre ses ayarları
+            switch (type) {
+                case 'success':
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(660, audioContext.currentTime);
+                    oscillator.frequency.setValueAtTime(880, audioContext.currentTime + 0.1);
+                    filterNode.type = 'lowpass';
+                    filterNode.frequency.value = 1500;
+                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.4);
+                    break;
+                    
+                case 'warning':
+                case 'alert':
+                    oscillator.type = 'triangle';
+                    oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+                    oscillator.frequency.setValueAtTime(330, audioContext.currentTime + 0.15);
+                    filterNode.type = 'bandpass';
+                    filterNode.frequency.value = 500;
+                    filterNode.Q.value = 3;
+                    gainNode.gain.setValueAtTime(0.25 * Math.min(priority/2, 1), audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                    break;
+                    
+                case 'error':
+                    oscillator.type = 'sawtooth';
+                    oscillator.frequency.setValueAtTime(220, audioContext.currentTime);
+                    oscillator.frequency.setValueAtTime(196, audioContext.currentTime + 0.2);
+                    filterNode.type = 'highpass';
+                    filterNode.frequency.value = 150;
+                    gainNode.gain.setValueAtTime(0.3 * Math.min(priority/2, 1), audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.6);
+                    break;
+                    
+                case 'notification':
+                default:
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = 523.25; // C5
+                    filterNode.type = 'lowpass';
+                    filterNode.frequency.value = 800;
+                    gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.2);
+            }
+            
+            // Yüksek öncelikli bildirimlerde ikincil ses
+            if (priority >= 4) {
+                setTimeout(() => {
+                    const osc2 = audioContext.createOscillator();
+                    const gain2 = audioContext.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(audioContext.destination);
+                    
+                    osc2.type = 'sine';
+                    osc2.frequency.value = 880;
+                    gain2.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                    
+                    osc2.start(audioContext.currentTime);
+                    osc2.stop(audioContext.currentTime + 0.15);
+                }, 300);
+            }
+            
+        } catch (error) {
+            console.error('Ses sentezleme hatası:', error);
+        }
+    }
 
     /* =========================
        GÖRSELLEŞTİRME YÖNETİCİLERİ
        ========================= */
-        class ChartManager {
+        class AdvancedNotificationCenter {
+        constructor(app) {
+            this.app = app;
+            this.container = document.getElementById('notifications-container');
+            this.notifications = [];
+            this.maxHistory = 50; // Maximum number of notifications to keep in history
+            this.maxVisibleNotifications = 10; // How many notifications to show at once
+            this.groupSimilarTimeWindow = 5000; // Group similar notifications within 5 seconds
+            
+            // Load history from localStorage if available
+            this.loadHistory();
+            
+            // Create notification categories
+            this.categories = {
+                system: { icon: '🔧', sound: false, color: 'var(--text-secondary)' },
+                trade: { icon: '📊', sound: true, color: 'var(--primary)' },
+                alert: { icon: '⚠️', sound: true, color: 'var(--neutral)' },
+                success: { icon: '✅', sound: true, color: 'var(--positive)' },
+                error: { icon: '❌', sound: true, color: 'var(--negative)' }
+            };
+            
+            this.soundEnabled = true;
+            this.priorityThreshold = 2; // Priority level for playing sounds (1-5)
+            
+            // Initialize UI
+            this.initStyles();
+            this.initNotificationPanel();
+        }
+        
+        initStyles() {
+            // Add custom styles for notifications if not already added
+            if (!document.getElementById('notification-center-styles')) {
+                const style = document.createElement('style');
+                style.id = 'notification-center-styles';
+                style.textContent = `
+                    /* Advanced Notification Center Styles */
+                    .notifications { 
+                        position: fixed; 
+                        bottom: 15px; 
+                        left: 15px;
+                        z-index: 2000; 
+                        width: 320px;
+                        max-height: 80vh;
+                        overflow-y: auto;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 8px;
+                        padding-right: 8px;
+                    }
+
+                    .notification { 
+                        background: rgba(22, 27, 34, 0.95);
+                        backdrop-filter: blur(5px);
+                        border: 1px solid var(--border-color); 
+                        border-left-width: 4px; 
+                        border-radius: 6px; 
+                        padding: 10px 12px;
+                        font-size: 12px;
+                        box-shadow: 0 3px 10px rgba(0,0,0,0.3); 
+                        animation: slide-in 0.3s ease-out;
+                        transition: opacity 0.3s ease, transform 0.3s ease;
+                        overflow: hidden;
+                    }
+
+                    .notification-control-panel {
+                        background: var(--panel-bg);
+                        border: 1px solid var(--border-color);
+                        border-radius: 4px;
+                        padding: 5px 8px;
+                        margin-bottom: 8px;
+                    }
+
+                    .notification-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 5px;
+                        font-size: 11px;
+                        font-weight: bold;
+                        color: var(--text-secondary);
+                    }
+
+                    .notification-header div {
+                        display: flex;
+                        gap: 5px;
+                    }
+
+                    .notification-icon {
+                        font-size: 14px;
+                        margin-right: 8px;
+                        flex-shrink: 0;
+                    }
+
+                    .notification-priority {
+                        font-size: 9px;
+                        color: var(--primary);
+                        letter-spacing: 1px;
+                    }
+
+                    .notification-close {
+                        cursor: pointer;
+                        font-size: 16px;
+                        line-height: 1;
+                        opacity: 0.7;
+                        transition: opacity 0.2s;
+                    }
+
+                    .notification-close:hover {
+                        opacity: 1;
+                    }
+
+                    .notification-content {
+                        flex-grow: 1;
+                        line-height: 1.4;
+                        word-break: break-word;
+                        position: relative;
+                    }
+
+                    .notification-time {
+                        font-size: 9px;
+                        color: var(--text-secondary);
+                        margin-top: 2px;
+                    }
+
+                    .notification-count {
+                        position: absolute;
+                        top: -8px;
+                        right: -5px;
+                        background: var(--primary);
+                        color: #000;
+                        border-radius: 10px;
+                        padding: 1px 6px;
+                        font-size: 10px;
+                        font-weight: bold;
+                    }
+
+                    /* Category-specific styles */
+                    .notification.system { border-left-color: var(--text-secondary); }
+                    .notification.trade { border-left-color: var(--primary); }
+                    .notification.alert { border-left-color: var(--neutral); }
+                    .notification.success { border-left-color: var(--positive); }
+                    .notification.error { border-left-color: var(--negative); }
+                    
+                    .high-priority {
+                        border-left-width: 6px !important;
+                        animation: pulse-highlight 2s infinite;
+                    }
+
+                    /* Animation keyframes */
+                    @keyframes slide-in {
+                        from { transform: translateX(-100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    
+                    @keyframes pulse-highlight {
+                        0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+                        70% { box-shadow: 0 0 0 8px rgba(255, 255, 255, 0); }
+                        100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+                    }
+                    
+                    /* Notification history modal */
+                    #notification-history-modal .modal-body {
+                        max-height: 400px;
+                        overflow-y: auto;
+                    }
+                    
+                    .notification-filters {
+                        display: flex;
+                        gap: 5px;
+                        margin-bottom: 10px;
+                        flex-wrap: wrap;
+                    }
+                    
+                    .notification-filters .filter {
+                        padding: 3px 8px;
+                        border-radius: 12px;
+                        background: var(--panel-bg);
+                        border: 1px solid var(--border-color);
+                        font-size: 11px;
+                        cursor: pointer;
+                    }
+                    
+                    .notification-filters .filter.active {
+                        background: var(--primary);
+                        color: #000;
+                    }
+                    
+                    #notification-history-list {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 8px;
+                    }
+                    
+                    /* Responsive adjustments */
+                    @media screen and (max-width: 768px) {
+                        .notifications {
+                            width: 85%;
+                            max-width: 320px;
+                        }
+                        
+                        .notification {
+                            padding: 8px 10px;
+                            font-size: 11px;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        initNotificationPanel() {
+            // Create container if it doesn't exist
+            if (!this.container) {
+                this.container = document.createElement('div');
+                this.container.id = 'notifications-container';
+                this.container.className = 'notifications';
+                document.body.appendChild(this.container);
+            }
+            
+            // Add notification control panel
+            const panel = document.createElement('div');
+            panel.className = 'notification-control-panel';
+            panel.innerHTML = `
+                <div class="notification-header">
+                    <span>BİLDİRİMLER</span>
+                    <div>
+                        <button id="notification-history-btn" class="btn btn-tiny" title="Bildirim Geçmişi">📋</button>
+                        <button id="clear-notifications" class="btn btn-tiny" title="Bildirimleri Temizle">🗑️</button>
+                        <button id="toggle-notification-sound" class="btn btn-tiny" title="Sesi Aç/Kapat">🔊</button>
+                    </div>
+                </div>
+            `;
+            this.container.appendChild(panel);
+            
+            // Create history modal but don't attach to DOM yet
+            this.createHistoryModal();
+            
+            // Event listeners
+            document.getElementById('notification-history-btn').addEventListener('click', () => this.showHistory());
+            document.getElementById('clear-notifications').addEventListener('click', () => this.clearAll());
+            document.getElementById('toggle-notification-sound').addEventListener('click', () => {
+                this.soundEnabled = !this.soundEnabled;
+                document.getElementById('toggle-notification-sound').innerHTML = this.soundEnabled ? '🔊' : '🔇';
+                this.notify('Bildirim sesleri ' + (this.soundEnabled ? 'açıldı' : 'kapatıldı'), 'system', 1);
+            });
+        }
+        
+        /**
+         * Create the notification history modal
+         */
+        createHistoryModal() {
+            // Remove existing modal if any
+            const existingModal = document.getElementById('notification-history-modal');
+            if (existingModal) existingModal.remove();
+            
+            const modal = document.createElement('div');
+            modal.id = 'notification-history-modal';
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Bildirim Geçmişi</h3>
+                        <span class="close-modal">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="notification-filters">
+                            <button class="filter active" data-filter="all">Tümü</button>
+                            <button class="filter" data-filter="trade">İşlem</button>
+                            <button class="filter" data-filter="alert">Uyarı</button>
+                            <button class="filter" data-filter="success">Başarılı</button>
+                            <button class="filter" data-filter="error">Hata</button>
+                            <button class="filter" data-filter="system">Sistem</button>
+                        </div>
+                        <div id="notification-history-list"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="clear-notifications-history" class="btn btn-danger">Geçmişi Temizle</button>
+                    </div>
+                </div>
+            `;
+            
+            // Append to body but keep it hidden
+            document.body.appendChild(modal);
+            
+            // Add event listeners
+            const closeBtn = modal.querySelector('.close-modal');
+            closeBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+            
+            const filters = modal.querySelectorAll('.filter');
+            filters.forEach(filter => {
+                filter.addEventListener('click', (e) => {
+                    filters.forEach(f => f.classList.remove('active'));
+                    e.target.classList.add('active');
+                    this.filterHistory(e.target.getAttribute('data-filter'));
+                });
+            });
+            
+            document.getElementById('clear-notifications-history').addEventListener('click', () => {
+                this.clearHistory();
+                this.notify('Bildirim geçmişi temizlendi', 'system', 1);
+                modal.style.display = 'none';
+            });
+        }
+        
+        /**
+         * Display a new notification
+         * @param {string} message - The notification message
+         * @param {string} category - Notification category (system, trade, alert, success, error)
+         * @param {number} priority - Priority level (1-5)
+         * @param {number} timeout - How long to display (ms)
+         */
+        notify(message, category = 'system', priority = 2, timeout = 5000) {
+            if (!this.container) return;
+            
+            // Default category if invalid
+            if (!this.categories[category]) category = 'system';
+            
+            // Check for similar recent notifications to avoid spam
+            if (this.shouldGroupWithSimilar(message, category)) {
+                return;
+            }
+            
+            // Generate unique ID
+            const notificationId = 'notify-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
+            const timestamp = new Date();
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.id = notificationId;
+            notification.className = `notification ${category}`;
+            notification.setAttribute('data-id', notificationId);
+            if (priority >= 4) notification.classList.add('high-priority');
+            
+            // Build notification content
+            const catInfo = this.categories[category];
+            notification.innerHTML = `
+                <div class="notification-header">
+                    <span class="notification-icon">${catInfo.icon}</span>
+                    <span class="notification-priority">${'•'.repeat(priority)}</span>
+                    <span class="notification-close">&times;</span>
+                </div>
+                <div class="notification-content">
+                    ${message}
+                    <div class="notification-time">${timestamp.toLocaleTimeString()}</div>
+                </div>
+            `;
+            
+            // Add to DOM
+            const controlPanel = this.container.querySelector('.notification-control-panel');
+            if (controlPanel && controlPanel.nextSibling) {
+                this.container.insertBefore(notification, controlPanel.nextSibling);
+            } else {
+                this.container.appendChild(notification);
+            }
+            
+            // Add to history
+            this.addToHistory({
+                id: notificationId,
+                message,
+                category,
+                priority,
+                timestamp
+            });
+            
+            // Play sound for high priority notifications
+            if (this.soundEnabled && priority >= this.priorityThreshold) {
+                this.playNotificationSound(category, priority);
+            }
+            
+            // Add close event
+            const closeBtn = notification.querySelector('.notification-close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    notification.remove();
+                });
+            }
+            
+            // Clean up old notifications
+            this.cleanupOldNotifications();
+            
+            // Auto-remove after timeout
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    // Add fade-out animation
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateX(-100%)';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, timeout);
+            
+            return notification;
+        }
+        
+        /**
+         * Determine if a similar notification was recently shown
+         */
+        shouldGroupWithSimilar(message, category) {
+            const now = Date.now();
+            const similar = this.notifications.find(n => 
+                n.category === category && 
+                this.isSimilarMessage(n.message, message) && 
+                (now - n.timestamp < this.groupSimilarTimeWindow)
+            );
+            
+            if (similar) {
+                // Update the existing notification instead of creating a new one
+                const existingNotification = document.querySelector(`.notification.${category}[data-id="${similar.id}"]`);
+                if (existingNotification) {
+                    const countBadge = existingNotification.querySelector('.notification-count');
+                    if (countBadge) {
+                        countBadge.textContent = (parseInt(countBadge.textContent) || 1) + 1;
+                    } else {
+                        const contentDiv = existingNotification.querySelector('.notification-content');
+                        if (contentDiv) {
+                            contentDiv.innerHTML += `<span class="notification-count">2</span>`;
+                        }
+                    }
+                    // Reset the timestamp for this notification
+                    similar.timestamp = now;
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+        
+        /**
+         * Compare messages for similarity
+         */
+        isSimilarMessage(msg1, msg2) {
+            // Basic similarity check - can be enhanced with more sophisticated comparison
+            if (msg1 === msg2) return true;
+            
+            // Check for pattern-based similarities (e.g., only numbers differ)
+            const normalized1 = msg1.replace(/\d+(\.\d+)?%?/g, 'X');
+            const normalized2 = msg2.replace(/\d+(\.\d+)?%?/g, 'X');
+            
+            return normalized1 === normalized2;
+        }
+        
+        /**
+         * Add notification to history and save
+         */
+        addToHistory(notification) {
+            // Add to history array
+            this.notifications.unshift(notification);
+            
+            // Trim history if needed
+            if (this.notifications.length > this.maxHistory) {
+                this.notifications = this.notifications.slice(0, this.maxHistory);
+            }
+            
+            // Save to localStorage
+            this.saveHistory();
+        }
+        
+        /**
+         * Play sound notification
+         */
+        playNotificationSound(category, priority) {
+            try {
+                // Try to use app's built-in sound if available
+                if (this.app.settings?.features?.enableTts && priority >= 3 && this.categories[category].sound) {
+                    if (typeof this.app.playSignal === 'function') {
+                        // Use existing signal player if available
+                        if (category === 'error' || category === 'alert') {
+                            this.app.playSignal('alert');
+                        } else if (category === 'success' || category === 'trade') {
+                            this.app.playSignal('combat');
+                        }
+                        return;
+                    }
+                }
+                
+                // Fallback to Web Audio API
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // Different sounds for different categories
+                switch(category) {
+                    case 'success':
+                        oscillator.type = 'sine';
+                        oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+                        oscillator.frequency.setValueAtTime(1320, audioContext.currentTime + 0.1);
+                        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.3);
+                        break;
+                    case 'alert':
+                    case 'error':
+                        oscillator.type = 'triangle';
+                        oscillator.frequency.setValueAtTime(660, audioContext.currentTime);
+                        oscillator.frequency.setValueAtTime(330, audioContext.currentTime + 0.15);
+                        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.4);
+                        break;
+                    case 'trade':
+                        oscillator.type = 'sawtooth';
+                        oscillator.frequency.setValueAtTime(priority >= 4 ? 880 : 440, audioContext.currentTime);
+                        gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.2);
+                        break;
+                    default:
+                        oscillator.type = 'sine';
+                        oscillator.frequency.value = 440;
+                        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.1);
+                }
+            } catch (error) {
+                console.error('Bildirim sesi çalınamadı:', error);
+            }
+        }
+        
+        /**
+         * Remove old notifications to maintain visibility limit
+         */
+        cleanupOldNotifications() {
+            // Get all current notification elements (excluding control panel)
+            const notifElements = Array.from(this.container.querySelectorAll('.notification')).filter(
+                el => !el.classList.contains('notification-control-panel')
+            );
+            
+            // If we're over the limit, remove oldest ones
+            if (notifElements.length > this.maxVisibleNotifications) {
+                const toRemove = notifElements.slice(this.maxVisibleNotifications);
+                toRemove.forEach(el => el.remove());
+            }
+        }
+        
+        /**
+         * Clear all visible notifications
+         */
+        clearAll() {
+            const notifications = this.container.querySelectorAll('.notification');
+            notifications.forEach(notification => {
+                // Don't remove the control panel
+                if (!notification.classList.contains('notification-control-panel')) {
+                    notification.remove();
+                }
+            });
+        }
+        
+        /**
+         * Clear notification history and save
+         */
+        clearHistory() {
+            this.notifications = [];
+            this.saveHistory();
+        }
+        
+        /**
+         * Save notification history to localStorage
+         */
+        saveHistory() {
+            try {
+                localStorage.setItem('utc_notifications', JSON.stringify(this.notifications));
+            } catch (e) {
+                console.error('Failed to save notification history', e);
+            }
+        }
+        
+        /**
+         * Load notification history from localStorage
+         */
+        loadHistory() {
+            try {
+                const saved = localStorage.getItem('utc_notifications');
+                if (saved) {
+                    this.notifications = JSON.parse(saved);
+                    
+                    // Convert date strings back to Date objects
+                    this.notifications.forEach(n => {
+                        if (typeof n.timestamp === 'string') {
+                            n.timestamp = new Date(n.timestamp).getTime();
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error('Failed to load notification history', e);
+                this.notifications = [];
+            }
+        }
+        
+        /**
+         * Show notification history in a modal
+         */
+        showHistory() {
+            const modal = document.getElementById('notification-history-modal');
+            if (!modal) return;
+            
+            // Update the history list
+            this.filterHistory('all');
+            
+            // Show the modal
+            modal.style.display = 'block';
+        }
+        
+        /**
+         * Filter history by category
+         */
+        filterHistory(filter = 'all') {
+            const historyList = document.getElementById('notification-history-list');
+            if (!historyList) return;
+            
+            // Clear current list
+            historyList.innerHTML = '';
+            
+            // Filter notifications
+            const filtered = filter === 'all' 
+                ? [...this.notifications]
+                : this.notifications.filter(n => n.category === filter);
+            
+            if (filtered.length === 0) {
+                historyList.innerHTML = '<div class="empty-state">Bu kategoride bildirim bulunmuyor.</div>';
+                return;
+            }
+            
+            // Add notifications to history list
+            filtered.forEach(n => {
+                const item = document.createElement('div');
+                item.className = `notification ${n.category}`;
+                
+                const catInfo = this.categories[n.category] || this.categories.system;
+                const date = new Date(n.timestamp);
+                const dateStr = date.toLocaleString();
+                
+                item.innerHTML = `
+                    <div class="notification-header">
+                        <span class="notification-icon">${catInfo.icon}</span>
+                        <span class="notification-priority">${'•'.repeat(n.priority || 1)}</span>
+                    </div>
+                    <div class="notification-content">
+                        ${n.message}
+                        <div class="notification-time">${dateStr}</div>
+                    </div>
+                `;
+                
+                historyList.appendChild(item);
+            });
+        }
+    }
+
+    class ChartManager {
         constructor(chartContainerId) {
             this.chartContainer = document.getElementById(chartContainerId);
             if (!this.chartContainer) throw new Error("Chart container bulunamadı!");
@@ -1055,7 +2227,10 @@
             const totalSignals = this.bot.stats.total;
             const tpSignals = this.bot.stats.tp;
             const winRate = totalSignals > 0 ? (tpSignals / totalSignals) * 100 : 100; // Başlangıçta 100 kabul et
-            const drawdownWinRateThreshold = this.bot.settings.riskGuardian.killSwitchWinRate || 35.0; // Default threshold
+            
+            // Güvenlik kontrolü - riskGuardian ayarları yoksa veya killSwitchWinRate tanımlı değilse varsayılan değeri kullan
+            const riskSettings = this.bot.settings.riskGuardian || {};
+            const drawdownWinRateThreshold = riskSettings.killSwitchWinRate || 35.0; // Default threshold
             
             if (totalSignals >= 10 && winRate < drawdownWinRateThreshold && !this.killSwitchActivated) {
                 this.killSwitchActivated = true;
@@ -1705,6 +2880,7 @@
             this.cusumDetector = new CUSUMDriftDetector();               
             this.sessionProfiler = new SessionProfiler(this);
             this.riskGuardian = new RiskGuardian(this);                   
+            this.notificationCenter = new AdvancedNotificationCenter(this);
             
             this.renderInterval = null; 
             this.analysisInterval = null;
@@ -1889,6 +3065,11 @@
                     enableMtfConfirm: true,
                     mtfTimeframe: '15m',
                     enableDynamicSizing: true
+                },
+                riskGuardian: {
+                    killSwitchWinRate: 35.0,
+                    autoRecover: false,
+                    maxDrawdown: 5.0
                 },
                 optimization: {
                     enabled: true,
@@ -2180,6 +3361,14 @@
             document.getElementById('mobile-open-settings-modal-btn').addEventListener('click', () => this.openSettingsModal());
             document.getElementById('mobile-honor-board-btn').addEventListener('click', () => this.openHonorModal());
             document.getElementById('mobile-banned-board-btn').addEventListener('click', () => this.openHonorModal('banned'));
+            // YENİ: Log Paneli butonları için olay dinleyicileri
+            document.getElementById('mobile-open-log-modal-btn').addEventListener('click', () => {
+                document.getElementById('log-modal-overlay').classList.add('visible');
+            });
+            document.getElementById('close-log-modal-btn').addEventListener('click', () => {
+                document.getElementById('log-modal-overlay').classList.remove('visible');
+            });
+            document.getElementById('export-logs-btn').addEventListener('click', () => this.exportLogs());
 
 
             const s = this.settings;
@@ -3377,15 +4566,94 @@
         getDecimalPlaces(price) { if (!price) return 2; if (price > 1000) return 2; if (price > 1) return 3; if (price > 0.01) return 4; return 6; }
         
         showNotification(message, type = 'info', timeout = 5000) {
-            const container = document.getElementById('notifications-container');
-            if (!container) return;
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-            container.appendChild(notification);
-            setTimeout(() => { notification.remove(); }, timeout);
+            // Map traditional notification types to new categories
+            let category = 'system';
+            let priority = 2;
+            
+            switch(type) {
+                case 'success':
+                    category = 'success';
+                    priority = 3;
+                    break;
+                case 'danger':
+                    category = 'error';
+                    priority = 4;
+                    break;
+                case 'warning':
+                    category = 'alert';
+                    priority = 3;
+                    break;
+                case 'info':
+                    if (message.toLowerCase().includes('sinyal')) {
+                        category = 'trade';
+                        priority = 3;
+                    }
+                    break;
+            }
+            
+            // Detect important notifications
+            if (message.toLowerCase().includes('tehlike') || 
+                message.toLowerCase().includes('kritik') ||
+                message.toLowerCase().includes('uyarı') ||
+                message.toLowerCase().includes('dikkat') ||
+                message.toLowerCase().includes('durdur')) {
+                priority = 4;
+            }
+            
+            // Use the new notification center if available
+            if (this.notificationCenter) {
+                return this.notificationCenter.notify(message, category, priority, timeout);
+            } else {
+                // Legacy fallback
+                const container = document.getElementById('notifications-container');
+                if (!container) return;
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                container.appendChild(notification);
+                setTimeout(() => { notification.remove(); }, timeout);
+                return notification;
+            }
         }
-        logToJournal(message) { console.log(`[JOURNAL] ${new Date().toLocaleTimeString()} - ${message}`); }
+                logToJournal(message, level = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            const formattedMessage = `[${timestamp}] ${message}`;
+            console.log(formattedMessage); // Konsola yazdırmaya devam et
+
+            const logOutput = document.getElementById('log-output');
+            if (logOutput) {
+                const logEntry = document.createElement('div');
+                logEntry.textContent = formattedMessage;
+                if (level === 'error') logEntry.className = 'log-error';
+                if (level === 'warn') logEntry.className = 'log-warn';
+                if (level === 'info') logEntry.className = 'log-info';
+                
+                const isScrolledToBottom = logOutput.scrollHeight - logOutput.clientHeight <= logOutput.scrollTop + 1;
+                logOutput.appendChild(logEntry);
+                if (isScrolledToBottom) {
+                    logOutput.scrollTop = logOutput.scrollHeight;
+                }
+            }
+        }
+        // YENİ: Logları dışa aktarma fonksiyonu
+        exportLogs() {
+            const logOutput = document.getElementById('log-output');
+            if (!logOutput || !logOutput.textContent.trim()) {
+                this.showNotification('Dışa aktarılacak log bulunmuyor.', 'warning');
+                return;
+            }
+            const blob = new Blob([logOutput.textContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `utc_logs_${new Date().toISOString().slice(0,10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            this.showNotification('Loglar başarıyla dışa aktarıldı.', 'success');
+        }
+
         updateConnectionStatus(isConnected, message = '') {
             const statusDot = document.getElementById('connection-status');
             const statusText = document.getElementById('connection-text');
@@ -3621,11 +4889,1230 @@
     // Uygulamayı başlat
     window.app = new UltimateTradingCommandCenter();
 
+    /* =================================================================
+       PANTEON SISTEMI VE GÖRSEL EFEKTLER
+       ================================================================= */
+    /* =================================================================
+       ADVANCED VISUALIZATION TOOLS
+       ================================================================= */
+    class AdvancedTradingVisualizer {
+        constructor(app) {
+            this.app = app;
+            this.isInitialized = false;
+            this.heatmapEnabled = false;
+            this.volumeProfileEnabled = false;
+            this.liquidityHeatmapEnabled = false;
+            this.orderFlowEnabled = false;
+            this.marketStructureVisualization = false;
+            this.optionsOverlayEnabled = false;
+            this.supportResistanceLevels = [];
+            this.fibonacciLevels = [];
+            this.pivotPoints = [];
+            this.init();
+        }
+        
+        init() {
+            if (this.isInitialized) return;
+            
+            // Initialize visualization components
+            this.addVisualizationButtons();
+            
+            // Create necessary canvas layers
+            this.createAdditionalCanvasLayers();
+            
+            // Bind events
+            this.bindEvents();
+            
+            this.isInitialized = true;
+            console.log('Advanced Trading Visualization Tools initialized');
+        }
+        
+        createAdditionalCanvasLayers() {
+            // Create order flow canvas layer
+            const orderFlowCanvas = document.createElement('canvas');
+            orderFlowCanvas.id = 'order-flow-canvas';
+            orderFlowCanvas.style.position = 'absolute';
+            orderFlowCanvas.style.top = '0';
+            orderFlowCanvas.style.left = '0';
+            orderFlowCanvas.style.width = '100%';
+            orderFlowCanvas.style.height = '100%';
+            orderFlowCanvas.style.pointerEvents = 'none';
+            orderFlowCanvas.style.display = 'none';
+            orderFlowCanvas.style.zIndex = '5';
+            
+            // Create volume profile canvas
+            const volumeProfileCanvas = document.createElement('canvas');
+            volumeProfileCanvas.id = 'volume-profile-canvas';
+            volumeProfileCanvas.style.position = 'absolute';
+            volumeProfileCanvas.style.top = '0';
+            volumeProfileCanvas.style.right = '0';
+            volumeProfileCanvas.style.width = '80px';
+            volumeProfileCanvas.style.height = '100%';
+            volumeProfileCanvas.style.pointerEvents = 'none';
+            volumeProfileCanvas.style.display = 'none';
+            volumeProfileCanvas.style.zIndex = '6';
+            
+            // Add to chart container
+            const chartContainer = document.getElementById('live-chart');
+            if (chartContainer) {
+                chartContainer.style.position = 'relative';
+                chartContainer.appendChild(orderFlowCanvas);
+                chartContainer.appendChild(volumeProfileCanvas);
+            }
+        }
+        
+        addVisualizationButtons() {
+            // Create visualization controls container
+            const controlsContainer = document.createElement('div');
+            controlsContainer.className = 'visualization-controls';
+            controlsContainer.style.position = 'absolute';
+            controlsContainer.style.top = '50px';
+            controlsContainer.style.right = '10px';
+            controlsContainer.style.display = 'flex';
+            controlsContainer.style.flexDirection = 'column';
+            controlsContainer.style.gap = '5px';
+            controlsContainer.style.zIndex = '100';
+            
+            // Add buttons
+            const buttons = [
+                { id: 'toggle-heatmap-btn', icon: '🔥', title: 'Toggle Heatmap' },
+                { id: 'toggle-volume-profile-btn', icon: '📊', title: 'Toggle Volume Profile' },
+                { id: 'toggle-liquidity-btn', icon: '💧', title: 'Toggle Liquidity Visualization' },
+                { id: 'toggle-order-flow-btn', icon: '📈', title: 'Toggle Order Flow' },
+                { id: 'toggle-market-structure-btn', icon: '🔍', title: 'Toggle Market Structure' },
+                { id: 'toggle-options-overlay-btn', icon: '🔄', title: 'Toggle Options Overlay' }
+            ];
+            
+            buttons.forEach(btn => {
+                const button = document.createElement('button');
+                button.id = btn.id;
+                button.className = 'btn-tiny visualization-btn';
+                button.innerHTML = btn.icon;
+                button.title = btn.title;
+                button.style.width = '28px';
+                button.style.height = '28px';
+                button.style.padding = '2px';
+                button.style.fontSize = '14px';
+                button.style.background = 'rgba(1, 4, 9, 0.7)';
+                button.style.backdropFilter = 'blur(2px)';
+                button.style.border = '1px solid var(--border-color)';
+                button.style.borderRadius = '4px';
+                button.style.color = 'var(--text-main)';
+                button.style.cursor = 'pointer';
+                button.style.display = 'flex';
+                button.style.alignItems = 'center';
+                button.style.justifyContent = 'center';
+                controlsContainer.appendChild(button);
+            });
+            
+            // Add to chart container
+            const chartContainer = document.getElementById('live-chart');
+            if (chartContainer) {
+                chartContainer.style.position = 'relative';
+                chartContainer.appendChild(controlsContainer);
+            }
+        }
+        
+        bindEvents() {
+            // Bind click events to visualization buttons
+            document.getElementById('toggle-heatmap-btn')?.addEventListener('click', () => this.toggleHeatmap());
+            document.getElementById('toggle-volume-profile-btn')?.addEventListener('click', () => this.toggleVolumeProfile());
+            document.getElementById('toggle-liquidity-btn')?.addEventListener('click', () => this.toggleLiquidityHeatmap());
+            document.getElementById('toggle-order-flow-btn')?.addEventListener('click', () => this.toggleOrderFlow());
+            document.getElementById('toggle-market-structure-btn')?.addEventListener('click', () => this.toggleMarketStructure());
+            document.getElementById('toggle-options-overlay-btn')?.addEventListener('click', () => this.toggleOptionsOverlay());
+            
+            // Resize event
+            window.addEventListener('resize', () => this.handleResize());
+        }
+        
+        toggleHeatmap() {
+            this.heatmapEnabled = !this.heatmapEnabled;
+            document.getElementById('toggle-heatmap-btn')?.classList.toggle('active', this.heatmapEnabled);
+            if (this.heatmapEnabled) {
+                this.app.switchMainView('heatmap');
+            } else {
+                this.app.switchMainView('chart');
+            }
+        }
+        
+        toggleVolumeProfile() {
+            this.volumeProfileEnabled = !this.volumeProfileEnabled;
+            document.getElementById('toggle-volume-profile-btn')?.classList.toggle('active', this.volumeProfileEnabled);
+            const volumeProfileCanvas = document.getElementById('volume-profile-canvas');
+            if (volumeProfileCanvas) {
+                volumeProfileCanvas.style.display = this.volumeProfileEnabled ? 'block' : 'none';
+            }
+            if (this.volumeProfileEnabled) {
+                this.drawVolumeProfile();
+            }
+        }
+        
+        toggleLiquidityHeatmap() {
+            this.liquidityHeatmapEnabled = !this.liquidityHeatmapEnabled;
+            document.getElementById('toggle-liquidity-btn')?.classList.toggle('active', this.liquidityHeatmapEnabled);
+            // Implementation of liquidity heatmap visualization
+            if (this.liquidityHeatmapEnabled) {
+                this.app.showNotification('Liquidity heatmap activated', 'info');
+                this.analyzeLiquidity();
+            }
+        }
+        
+        toggleOrderFlow() {
+            this.orderFlowEnabled = !this.orderFlowEnabled;
+            document.getElementById('toggle-order-flow-btn')?.classList.toggle('active', this.orderFlowEnabled);
+            const orderFlowCanvas = document.getElementById('order-flow-canvas');
+            if (orderFlowCanvas) {
+                orderFlowCanvas.style.display = this.orderFlowEnabled ? 'block' : 'none';
+            }
+            if (this.orderFlowEnabled) {
+                this.drawOrderFlow();
+            }
+        }
+        
+        toggleMarketStructure() {
+            this.marketStructureVisualization = !this.marketStructureVisualization;
+            document.getElementById('toggle-market-structure-btn')?.classList.toggle('active', this.marketStructureVisualization);
+            if (this.marketStructureVisualization) {
+                this.app.showNotification('Market structure visualization activated', 'info');
+                this.analyzeMarketStructure();
+            } else {
+                // Clear market structure markers
+                if (this.app.chartManager && this.app.chartManager.chart) {
+                    // Remove market structure lines
+                }
+            }
+        }
+        
+        toggleOptionsOverlay() {
+            this.optionsOverlayEnabled = !this.optionsOverlayEnabled;
+            document.getElementById('toggle-options-overlay-btn')?.classList.toggle('active', this.optionsOverlayEnabled);
+            if (this.optionsOverlayEnabled) {
+                this.app.showNotification('Options data overlay activated', 'info');
+                this.fetchOptionsData();
+            }
+        }
+        
+        handleResize() {
+            if (this.volumeProfileEnabled) {
+                this.drawVolumeProfile();
+            }
+            if (this.orderFlowEnabled) {
+                this.drawOrderFlow();
+            }
+        }
+        
+        drawVolumeProfile() {
+            const canvas = document.getElementById('volume-profile-canvas');
+            if (!canvas || !this.app.candles || this.app.candles.length < 10) return;
+            
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+            
+            // Resize canvas to match its display size
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Get price range from visible candles
+            const candles = this.app.candles;
+            const minPrice = Math.min(...candles.map(c => c.low));
+            const maxPrice = Math.max(...candles.map(c => c.high));
+            const priceRange = maxPrice - minPrice;
+            
+            // Calculate volume at different price levels
+            const priceLevels = 40; // Number of price levels
+            const volumeByPrice = new Array(priceLevels).fill(0);
+            
+            candles.forEach(candle => {
+                const priceRange = candle.high - candle.low;
+                if (priceRange === 0) return;
+                
+                // Distribute volume across price range
+                for (let i = 0; i < priceLevels; i++) {
+                    const levelPrice = minPrice + (i / priceLevels) * (maxPrice - minPrice);
+                    if (levelPrice >= candle.low && levelPrice <= candle.high) {
+                        // Weight by proximity to close price
+                        const weight = 1 - Math.abs(levelPrice - candle.close) / priceRange;
+                        volumeByPrice[i] += candle.volume * weight;
+                    }
+                }
+            });
+            
+            // Find max volume for scaling
+            const maxVolume = Math.max(...volumeByPrice);
+            
+            // Draw volume profile
+            ctx.fillStyle = 'rgba(100, 100, 255, 0.5)';
+            ctx.strokeStyle = 'rgba(100, 100, 255, 0.8)';
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i < priceLevels; i++) {
+                const y = canvas.height - (i / priceLevels) * canvas.height;
+                const volumeWidth = (volumeByPrice[i] / maxVolume) * canvas.width;
+                
+                ctx.fillRect(0, y, volumeWidth, canvas.height / priceLevels);
+                ctx.strokeRect(0, y, volumeWidth, canvas.height / priceLevels);
+            }
+            
+            // Draw POC (Point of Control) - highest volume level
+            const pocIndex = volumeByPrice.indexOf(maxVolume);
+            if (pocIndex >= 0) {
+                const pocY = canvas.height - (pocIndex / priceLevels) * canvas.height;
+                ctx.strokeStyle = 'rgba(255, 255, 0, 1)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, pocY);
+                ctx.lineTo(canvas.width, pocY);
+                ctx.stroke();
+            }
+        }
+        
+        drawOrderFlow() {
+            const canvas = document.getElementById('order-flow-canvas');
+            if (!canvas || !this.app.aggTrades || this.app.aggTrades.length < 10) return;
+            
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+            
+            // Resize canvas to match its display size
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Get recent trades
+            const trades = this.app.aggTrades.slice(-50);
+            if (trades.length === 0) return;
+            
+            // Draw trade flow
+            let x = 50;
+            const spacing = (canvas.width - 100) / trades.length;
+            
+            for (let i = 0; i < trades.length - 1; i++) {
+                const trade = trades[i];
+                const nextTrade = trades[i + 1];
+                
+                // Calculate y position based on price (normalized to canvas height)
+                const minPrice = Math.min(...trades.map(t => t.price));
+                const maxPrice = Math.max(...trades.map(t => t.price));
+                const priceRange = maxPrice - minPrice;
+                
+                if (priceRange === 0) continue;
+                
+                const y1 = canvas.height - ((trade.price - minPrice) / priceRange) * (canvas.height - 40);
+                const y2 = canvas.height - ((nextTrade.price - minPrice) / priceRange) * (canvas.height - 40);
+                
+                // Draw line connecting trades
+                ctx.beginPath();
+                ctx.moveTo(x, y1);
+                ctx.lineTo(x + spacing, y2);
+                
+                // Color based on whether it's a buy or sell
+                if (trade.isBuyerMaker) {
+                    ctx.strokeStyle = 'rgba(220, 53, 69, 0.7)'; // Red for sells
+                } else {
+                    ctx.strokeStyle = 'rgba(40, 167, 69, 0.7)'; // Green for buys
+                }
+                
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Draw circle for trade point with size based on quantity
+                const radius = Math.min(10, Math.max(3, Math.sqrt(trade.quantity) * 0.5));
+                ctx.beginPath();
+                ctx.arc(x, y1, radius, 0, Math.PI * 2);
+                
+                if (trade.isBuyerMaker) {
+                    ctx.fillStyle = 'rgba(220, 53, 69, 0.7)'; // Red for sells
+                } else {
+                    ctx.fillStyle = 'rgba(40, 167, 69, 0.7)'; // Green for buys
+                }
+                
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                
+                x += spacing;
+            }
+        }
+        
+        analyzeMarketStructure() {
+            if (!this.app.candles || this.app.candles.length < 50) return;
+            
+            const candles = this.app.candles;
+            
+            // Find swing highs and lows
+            const swingHighs = [];
+            const swingLows = [];
+            
+            const lookback = 3; // Number of candles to look back and forward
+            
+            for (let i = lookback; i < candles.length - lookback; i++) {
+                // Check for swing high
+                let isSwingHigh = true;
+                for (let j = i - lookback; j <= i + lookback; j++) {
+                    if (j === i) continue;
+                    if (candles[j].high >= candles[i].high) {
+                        isSwingHigh = false;
+                        break;
+                    }
+                }
+                
+                if (isSwingHigh) {
+                    swingHighs.push({ time: candles[i].time, price: candles[i].high });
+                }
+                
+                // Check for swing low
+                let isSwingLow = true;
+                for (let j = i - lookback; j <= i + lookback; j++) {
+                    if (j === i) continue;
+                    if (candles[j].low <= candles[i].low) {
+                        isSwingLow = false;
+                        break;
+                    }
+                }
+                
+                if (isSwingLow) {
+                    swingLows.push({ time: candles[i].time, price: candles[i].low });
+                }
+            }
+            
+            // Draw swing points on chart
+            if (this.app.chartManager && this.app.chartManager.series && this.app.chartManager.series.candles) {
+                const markers = [];
+                
+                swingHighs.forEach(high => {
+                    markers.push({
+                        time: high.time / 1000,
+                        position: 'aboveBar',
+                        color: 'rgba(220, 53, 69, 0.7)',
+                        shape: 'arrowDown',
+                        text: 'H'
+                    });
+                });
+                
+                swingLows.forEach(low => {
+                    markers.push({
+                        time: low.time / 1000,
+                        position: 'belowBar',
+                        color: 'rgba(40, 167, 69, 0.7)',
+                        shape: 'arrowUp',
+                        text: 'L'
+                    });
+                });
+                
+                this.app.chartManager.series.candles.setMarkers(markers);
+            }
+        }
+        
+        analyzeLiquidity() {
+            if (!this.app.orderBook || !this.app.orderBook.bids || !this.app.orderBook.asks) return;
+            
+            const { bids, asks } = this.app.orderBook;
+            
+            // Find liquidity clusters
+            const bidClusters = this.findLiquidityClusters(bids);
+            const askClusters = this.findLiquidityClusters(asks);
+            
+            // Add horizontal lines at major liquidity levels
+            if (this.app.chartManager && this.app.chartManager.chart) {
+                // Implementation depends on your charting library
+                console.log('Liquidity clusters identified:', { bidClusters, askClusters });
+            }
+        }
+        
+        findLiquidityClusters(levels) {
+            if (!levels || levels.length === 0) return [];
+            
+            // Sort levels by price
+            const sortedLevels = [...levels].sort((a, b) => a[0] - b[0]);
+            
+            // Group nearby levels
+            const clusters = [];
+            let currentCluster = { price: sortedLevels[0][0], volume: sortedLevels[0][1] };
+            
+            for (let i = 1; i < sortedLevels.length; i++) {
+                const [price, volume] = sortedLevels[i];
+                const prevPrice = sortedLevels[i-1][0];
+                
+                // If close to previous level, add to cluster
+                if (Math.abs(price - prevPrice) / prevPrice < 0.001) { // 0.1% threshold
+                    currentCluster.price = (currentCluster.price * currentCluster.volume + price * volume) / 
+                                          (currentCluster.volume + volume); // Volume-weighted average price
+                    currentCluster.volume += volume;
+                } else {
+                    // Start new cluster
+                    clusters.push(currentCluster);
+                    currentCluster = { price, volume };
+                }
+            }
+            
+            clusters.push(currentCluster);
+            
+            // Sort by volume and take top clusters
+            return clusters.sort((a, b) => b.volume - a.volume).slice(0, 5);
+        }
+        
+        fetchOptionsData() {
+            // Simulate options data fetch
+            setTimeout(() => {
+                this.app.showNotification('Options data fetched successfully', 'success');
+                // Process options data
+                this.processOptionsData({
+                    callsOpenInterest: [/* mock data */],
+                    putsOpenInterest: [/* mock data */],
+                    maxPain: 45000,
+                    putCallRatio: 0.85
+                });
+            }, 1000);
+        }
+        
+        processOptionsData(optionsData) {
+            // Add options-related indicators to chart
+            console.log('Processing options data:', optionsData);
+            
+            // Show max pain line on chart
+            if (this.app.chartManager && this.app.chartManager.chart && optionsData.maxPain) {
+                // Implementation depends on your charting library
+                this.app.showNotification(`Max pain level: ${optionsData.maxPain}`, 'info');
+            }
+        }
+    }
+    
+    class PantheonSystem {
+        constructor() {
+            // Initialize gods with their properties
+            this.gods = {
+                metatron: { power: 0, maxPower: 100, color: 'var(--metatron-color)' },
+                uriel: { power: 0, maxPower: 100, color: 'var(--uriel-color)' },
+                raphael: { power: 0, maxPower: 100, color: 'var(--raphael-color)' },
+                gabriel: { power: 0, maxPower: 100, color: 'var(--gabriel-color)' },
+                michael: { power: 0, maxPower: 100, color: 'var(--michael-color)' }
+            };
+            
+            // Initialize abilities with cooldowns
+            this.abilities = {
+                revelation: { cooldown: 60000, lastUsed: 0 },
+                valor: { cooldown: 45000, lastUsed: 0 },
+                restoration: { cooldown: 30000, lastUsed: 0 }
+            };
+            
+            // Initialize other properties
+            this.effects = [];
+            this.isInitialized = false;
+            this.powerDecayRate = 0.1; // Saniyede %0.1 güç azalması
+            this.lastDecayTime = Date.now();
+            
+            // Initialize the system
+            this.init();
+        }
+        
+        init() {
+            if (this.isInitialized) return;
+            
+            // Kayıtlı güç değerlerini yükle
+            this.loadPowers();
+            
+            // Arayüz olaylarını bağla
+            this.bindEvents();
+            
+            // Görsel efektleri başlat
+            this.initEffects();
+            
+            // Güç azaltma döngüsünü başlat
+            this.decayLoop();
+            
+            this.isInitialized = true;
+            console.log('Panteon Sistemi başlatıldı');
+        }
+        
+        bindEvents() {
+            // Kapatma butonu
+            document.querySelector('.pantheon-close')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const ui = document.getElementById('pantheon-ui');
+                if (ui) {
+                    ui.style.display = 'none';
+                    localStorage.setItem('pantheonUIVisible', 'false');
+                }
+            });
+            
+            // Yetenek butonları
+            Object.keys(this.abilities).forEach(abilityId => {
+                const abilityEl = document.querySelector(`.ability[data-ability="${abilityId}"]`);
+                if (abilityEl) {
+                    abilityEl.addEventListener('click', () => this.activateAbility(abilityId));
+                }
+            });
+            
+            // Tanrı etkileşimleri
+            document.querySelectorAll('.god').forEach(godEl => {
+                const godName = godEl.dataset.god;
+                if (godName && this.gods[godName]) {
+                    godEl.addEventListener('click', () => this.onGodClick(godName));
+                }
+            });
+        }
+        
+        loadPowers() {
+            try {
+                const savedPowers = JSON.parse(localStorage.getItem('pantheonPowers') || '{}');
+                Object.keys(this.gods).forEach(godName => {
+                    if (savedPowers[godName] !== undefined) {
+                        this.gods[godName].power = Math.min(savedPowers[godName], this.gods[godName].maxPower);
+                    }
+                });
+                this.updateUI();
+            } catch (e) {
+                console.error('Güç değerleri yüklenirken hata:', e);
+            }
+        }
+        
+        savePowers() {
+            try {
+                const powersToSave = {};
+                Object.keys(this.gods).forEach(godName => {
+                    powersToSave[godName] = this.gods[godName].power;
+                });
+                localStorage.setItem('pantheonPowers', JSON.stringify(powersToSave));
+            } catch (e) {
+                console.error('Güç değerleri kaydedilirken hata:', e);
+            }
+        }
+        
+        increasePantheonPower(godName, amount = 1) {
+            if (!this.gods[godName]) return;
+            
+            const god = this.gods[godName];
+            god.power = Math.min(god.power + amount, god.maxPower);
+            
+            // Özel efektler
+            this.createPowerEffect(godName);
+            
+            // UI güncelle
+            this.updateUI();
+            
+            // Kaydet
+            this.savePowers();
+            
+            // Özel yetenekler
+            this.checkSpecialAbilities(godName);
+            
+            return god.power;
+        }
+        
+        checkSpecialAbilities(godName) {
+            const god = this.gods[godName];
+            if (!god) return;
+            
+            // %100 güç özel yeteneği
+            if (god.power >= god.maxPower) {
+                this.triggerElciSpecialAbility(godName);
+                god.power = 0; // Gücü sıfırla
+                this.updateUI();
+                this.savePowers();
+            }
+        }
+        
+        triggerElciSpecialAbility(godName) {
+            const abilities = {
+                metatron: () => this.activateRevelation(),
+                uriel: () => this.activateValor(),
+                raphael: () => this.activateRestoration(),
+                gabriel: () => this.activateCommunication(),
+                michael: () => this.activateJudgment()
+            };
+            
+            if (abilities[godName]) {
+                abilities[godName]();
+                this.showNotification(`${this.getGodDisplayName(godName)} özel yeteneği aktive edildi!`, 'success');
+            }
+        }
+        
+        activateRevelation() {
+            // Tüm stratejilerin doğruluk oranını geçici olarak artır
+            this.showNotification('Vahiy: Stratejilerin doğruluk oranı arttı!', 'info');
+        }
+        
+        activateValor() {
+            // Risk almayı artıran cesaret bonusu
+            this.showNotification('Cesaret: Risk limitleri artırıldı!', 'info');
+        }
+        
+        activateRestoration() {
+            // Kayıpları telafi etme
+            this.showNotification('Şifa: Kayıplar telafi ediliyor...', 'info');
+        }
+        
+        activateCommunication() {
+            // Haber ve veri akışını iyileştir
+            this.showNotification('İletişim: Veri akışı optimize edildi!', 'info');
+        }
+        
+        activateJudgment() {
+            // Düşman pozisyonlarını ortaya çıkar
+            this.showNotification('Yargı: Düşman pozisyonları tespit edildi!', 'warning');
+        }
+        
+        activateAbility(abilityId) {
+            const ability = this.abilities[abilityId];
+            if (!ability) return;
+            
+            const now = Date.now();
+            const cooldownLeft = (ability.lastUsed + ability.cooldown) - now;
+            
+            if (cooldownLeft > 0) {
+                this.showNotification(`Bekleyin: ${(cooldownLeft/1000).toFixed(1)} saniye kaldı`, 'warning');
+                return;
+            }
+            
+            // Yeteneği etkinleştir
+            ability.lastUsed = now;
+            this.startCooldown(abilityId, ability.cooldown);
+            
+            // Yeteneğe özel işlemler
+            switch(abilityId) {
+                case 'revelation':
+                    this.activateRevelation();
+                    break;
+                case 'valor':
+                    this.activateValor();
+                    break;
+                case 'restoration':
+                    this.activateRestoration();
+                    break;
+            }
+        }
+        
+        startCooldown(abilityId, duration) {
+            const abilityEl = document.querySelector(`.ability[data-ability="${abilityId}"]`);
+            if (!abilityEl) return;
+            
+            const cooldownEl = abilityEl.querySelector('.ability-cooldown');
+            if (!cooldownEl) return;
+            
+            abilityEl.classList.add('on-cooldown');
+            cooldownEl.style.transition = `transform ${duration}ms linear`;
+            cooldownEl.style.transform = 'scaleX(0)';
+            
+            // Animasyon bittiğinde sınıfı kaldır
+            setTimeout(() => {
+                abilityEl.classList.remove('on-cooldown');
+                cooldownEl.style.transition = 'none';
+                cooldownEl.style.transform = 'scaleX(1)';
+                // Tarayıcıya stil değişikliğini işlemesi için kısa bir gecikme
+                setTimeout(() => {
+                    cooldownEl.style.transition = '';
+                }, 10);
+            }, duration);
+        }
+        
+        onGodClick(godName) {
+            // Tanrıya tıklandığında özel bir şeyler yap
+            this.showNotification(`${this.getGodDisplayName(godName)} dinleniyor...`, 'info');
+        }
+        
+        getGodDisplayName(godName) {
+            const names = {
+                metatron: 'Metatron',
+                uriel: 'Uriel',
+                raphael: 'Raphael',
+                gabriel: 'Gabriel',
+                michael: 'Michael'
+            };
+            return names[godName] || godName;
+        }
+        
+        updateUI() {
+            // Güç çubuklarını güncelle
+            Object.entries(this.gods).forEach(([godName, god]) => {
+                const powerEl = document.querySelector(`.god[data-god="${godName}"] .god-power`);
+                const progressEl = document.querySelector(`.god[data-god="${godName}"] .god-progress-fill`);
+                
+                if (powerEl) {
+                    powerEl.textContent = `${Math.round(god.power)}%`;
+                }
+                
+                if (progressEl) {
+                    const percentage = (god.power / god.maxPower) * 100;
+                    progressEl.style.width = `${percentage}%`;
+                    
+                    // Güç seviyesine göre renk yoğunluğunu ayarla
+                    const opacity = 0.3 + (percentage / 100 * 0.7);
+                    progressEl.style.opacity = opacity;
+                }
+            });
+            
+            // Özel yetenek durumlarını güncelle
+            this.updateAbilityStates();
+        }
+        
+        updateAbilityStates() {
+            const now = Date.now();
+            
+            Object.entries(this.abilities).forEach(([abilityId, ability]) => {
+                const abilityEl = document.querySelector(`.ability[data-ability="${abilityId}"]`);
+                if (!abilityEl) return;
+                
+                const cooldownLeft = (ability.lastUsed + ability.cooldown) - now;
+                
+                if (cooldownLeft > 0) {
+                    // Bekleme süresi devam ediyor
+                    abilityEl.classList.add('on-cooldown');
+                    
+                    // İlerleme çubuğunu güncelle
+                    const progress = 1 - (cooldownLeft / ability.cooldown);
+                    const cooldownEl = abilityEl.querySelector('.ability-cooldown');
+                    if (cooldownEl) {
+                        cooldownEl.style.transform = `scaleX(${progress})`;
+                    }
+                } else {
+                    // Hazır
+                    abilityEl.classList.remove('on-cooldown');
+                }
+            });
+        }
+        
+        decayLoop() {
+            const now = Date.now();
+            const deltaTime = (now - this.lastDecayTime) / 1000; // Saniye cinsinden
+            
+            // Güç azalt
+            Object.values(this.gods).forEach(god => {
+                const decayAmount = this.powerDecayRate * deltaTime;
+                god.power = Math.max(0, god.power - decayAmount);
+            });
+            
+            this.lastDecayTime = now;
+            this.updateUI();
+            this.savePowers();
+            
+            // Her saniye güncelle
+            setTimeout(() => this.decayLoop(), 1000);
+        }
+        
+        createPowerEffect(godName) {
+            const god = this.gods[godName];
+            if (!god) return;
+            
+            const effect = {
+                type: 'power-up',
+                god: godName,
+                x: Math.random() * window.innerWidth,
+                y: window.innerHeight,
+                size: 5 + Math.random() * 10,
+                alpha: 0.8,
+                speed: 1 + Math.random() * 3,
+                life: 100,
+                update: function() {
+                    this.y -= this.speed;
+                    this.life--;
+                    return this.life > 0;
+                },
+                draw: function(ctx) {
+                    ctx.save();
+                    ctx.globalAlpha = this.alpha * (this.life / 100);
+                    ctx.fillStyle = god.color;
+                    
+                    // Parçacık efekti
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Işık efekti
+                    const gradient = ctx.createRadialGradient(
+                        this.x, this.y, 0,
+                        this.x, this.y, this.size * 3
+                    );
+                    gradient.addColorStop(0, `${god.color}80`);
+                    gradient.addColorStop(1, `${god.color}00`);
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(this.x - this.size * 3, this.y - this.size * 3, this.size * 6, this.size * 6);
+                    
+                    ctx.restore();
+                }
+            };
+            
+            this.effects.push(effect);
+            
+            // Maksimum efekt sayısını sınırla
+            if (this.effects.length > 100) {
+                this.effects.shift();
+            }
+        }
+        
+        initEffects() {
+            const canvas = document.getElementById('effects-canvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+            
+            // Canvas boyutunu ayarla
+            const resizeCanvas = () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            };
+            
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            
+            // Animasyon döngüsü
+            const animate = () => {
+                // Temizle
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Efektleri güncelle ve çiz
+                this.effects = this.effects.filter(effect => {
+                    const isAlive = effect.update();
+                    if (isAlive) {
+                        effect.draw(ctx);
+                    }
+                    return isAlive;
+                });
+                
+                requestAnimationFrame(animate);
+            };
+            
+            animate();
+        }
+        
+        showNotification(message, type = 'info') {
+            // Mevcut bildirim sisteminizi kullanarak gösterin
+            console.log(`[${type.toUpperCase()}] ${message}`);
+            
+            // Örnek bildirim oluşturma (mevcut sisteminize göre)
+            if (window.app && typeof window.app.showNotification === 'function') {
+                window.app.showNotification(message, type);
+            } else {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                
+                const container = document.getElementById('notifications-container') || document.body;
+                container.appendChild(notification);
+                
+                // Otomatik kaldır
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    setTimeout(() => notification.remove(), 300);
+                }, 5000);
+            }
+        }
+    }
+    
+    /* =================================================================
+       ENHANCED RISK MANAGEMENT SYSTEM
+       ================================================================= */
+    class EnhancedRiskManagement {
+        constructor(app) {
+            this.app = app;
+            this.maxDrawdown = 0;
+            this.historicalVolatility = 0;
+            this.valueAtRisk = 0;
+            this.riskAnalysisEnabled = false;
+            this.dynamicPositionSizing = true;
+            this.correlationMatrix = {};
+            this.optimalLeverage = 1.0;
+            this.volatilityThresholds = {
+                low: 0.5,
+                medium: 1.0,
+                high: 2.0,
+                extreme: 3.0
+            };
+            this.riskMetrics = {
+                sharpeRatio: 0,
+                sortinoRatio: 0,
+                calmarRatio: 0,
+                maxDrawdown: 0,
+                winRate: 0,
+                profitFactor: 0
+            };
+            
+            this.init();
+        }
+        
+        init() {
+            this.calculateHistoricalMetrics();
+            this.scheduleRiskUpdates();
+            this.bindControls();
+            
+            console.log('Enhanced Risk Management System initialized');
+        }
+        
+        bindControls() {
+            // Add risk controls to settings panel
+            const settingsContainer = document.getElementById('modal-features');
+            
+            if (settingsContainer) {
+                const riskControlsHTML = `
+                    <div class="settings-item">
+                        <label for="dynamic-position-sizing">Dynamic Position Sizing</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="dynamic-position-sizing" ${this.dynamicPositionSizing ? 'checked' : ''}>
+                            <span class="toggle-slider"></span>
+                        </div>
+                    </div>
+                    <div class="settings-item">
+                        <label for="risk-analysis">Advanced Risk Analysis</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="risk-analysis" ${this.riskAnalysisEnabled ? 'checked' : ''}>
+                            <span class="toggle-slider"></span>
+                        </div>
+                    </div>
+                `;
+                
+                const riskDiv = document.createElement('div');
+                riskDiv.className = 'settings-group';
+                riskDiv.innerHTML = `<div class="panel-title">Risk Management</div>${riskControlsHTML}`;
+                
+                settingsContainer.appendChild(riskDiv);
+                
+                // Add event listeners
+                document.getElementById('dynamic-position-sizing')?.addEventListener('change', (e) => {
+                    this.dynamicPositionSizing = e.target.checked;
+                    this.app.showNotification(`Dynamic position sizing ${e.target.checked ? 'enabled' : 'disabled'}`, 'info');
+                });
+                
+                document.getElementById('risk-analysis')?.addEventListener('change', (e) => {
+                    this.riskAnalysisEnabled = e.target.checked;
+                    if (e.target.checked) {
+                        this.calculateRiskMetrics();
+                        this.app.showNotification('Advanced risk analysis enabled', 'info');
+                    } else {
+                        this.app.showNotification('Advanced risk analysis disabled', 'info');
+                    }
+                });
+            }
+        }
+        
+        calculateHistoricalMetrics() {
+            if (!this.app.candles || this.app.candles.length < 30) return;
+            
+            const candles = this.app.candles;
+            const returns = [];
+            
+            // Calculate daily returns
+            for (let i = 1; i < candles.length; i++) {
+                const prevClose = candles[i-1].close;
+                const currentClose = candles[i].close;
+                returns.push((currentClose - prevClose) / prevClose);
+            }
+            
+            // Calculate historical volatility
+            this.historicalVolatility = this.calculateStandardDeviation(returns) * Math.sqrt(365); // Annualized
+            
+            // Calculate maximum drawdown
+            let peak = -Infinity;
+            let maxDrawdown = 0;
+            
+            for (let i = 0; i < candles.length; i++) {
+                if (candles[i].close > peak) {
+                    peak = candles[i].close;
+                } else {
+                    const drawdown = (peak - candles[i].close) / peak;
+                    maxDrawdown = Math.max(maxDrawdown, drawdown);
+                }
+            }
+            
+            this.maxDrawdown = maxDrawdown;
+            
+            // Calculate VaR (Value at Risk)
+            returns.sort((a, b) => a - b);
+            const varIndex = Math.floor(returns.length * 0.05);
+            this.valueAtRisk = Math.abs(returns[varIndex]);
+            
+            // Calculate optimal leverage based on volatility
+            this.optimalLeverage = this.calculateOptimalLeverage();
+        }
+        
+        calculateRiskMetrics() {
+            if (!this.app.signals || this.app.signals.length < 5) return;
+            
+            const signals = this.app.signals;
+            const returns = [];
+            let wins = 0;
+            let grossProfit = 0;
+            let grossLoss = 0;
+            
+            // Process completed signals
+            signals.filter(s => s.status === 'tp' || s.status === 'sl').forEach(signal => {
+                const entryPrice = signal.price;
+                const exitPrice = signal.exitPrice || entryPrice;
+                const direction = signal.type === 'buy' ? 1 : -1;
+                const returnPct = direction * (exitPrice - entryPrice) / entryPrice;
+                
+                returns.push(returnPct);
+                
+                if (returnPct > 0) {
+                    wins++;
+                    grossProfit += returnPct;
+                } else {
+                    grossLoss += Math.abs(returnPct);
+                }
+            });
+            
+            // Calculate metrics
+            this.riskMetrics.winRate = signals.length > 0 ? wins / signals.length : 0;
+            this.riskMetrics.profitFactor = grossLoss > 0 ? grossProfit / grossLoss : 0;
+            
+            // Calculate Sharpe Ratio
+            const avgReturn = returns.reduce((sum, r) => sum + r, 0) / returns.length;
+            const stdDev = this.calculateStandardDeviation(returns);
+            this.riskMetrics.sharpeRatio = stdDev > 0 ? avgReturn / stdDev : 0;
+            
+            // Calculate Sortino Ratio (only negative returns for denominator)
+            const negativeReturns = returns.filter(r => r < 0);
+            const downside = this.calculateStandardDeviation(negativeReturns);
+            this.riskMetrics.sortinoRatio = downside > 0 ? avgReturn / downside : 0;
+            
+            // Calculate Calmar Ratio
+            this.riskMetrics.calmarRatio = this.maxDrawdown > 0 ? avgReturn / this.maxDrawdown : 0;
+            
+            console.log('Risk metrics calculated:', this.riskMetrics);
+        }
+        
+        calculateStandardDeviation(array) {
+            const n = array.length;
+            if (n === 0) return 0;
+            
+            const mean = array.reduce((sum, val) => sum + val, 0) / n;
+            const variance = array.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / n;
+            
+            return Math.sqrt(variance);
+        }
+        
+        calculateOptimalLeverage() {
+            // Using Kelly Criterion for optimal leverage
+            if (this.riskMetrics.winRate === 0) return 1.0;
+            
+            const winRate = this.riskMetrics.winRate;
+            const avgWin = this.riskMetrics.profitFactor * (1 - winRate) / winRate;
+            const avgLoss = 1;
+            
+            const kellyFraction = (winRate / avgLoss) - ((1 - winRate) / avgWin);
+            return Math.max(0.5, Math.min(2.0, kellyFraction)); // Limit between 0.5x and 2x
+        }
+        
+        getPositionSizing(baseSize) {
+            if (!this.dynamicPositionSizing) return baseSize;
+            
+            // Adjust position size based on volatility and risk metrics
+            let volatilityFactor = 1.0;
+            
+            if (this.historicalVolatility < this.volatilityThresholds.low) {
+                volatilityFactor = 1.2; // Increase position size in low volatility
+            } else if (this.historicalVolatility > this.volatilityThresholds.high) {
+                volatilityFactor = 0.8; // Decrease position size in high volatility
+            } else if (this.historicalVolatility > this.volatilityThresholds.extreme) {
+                volatilityFactor = 0.5; // Significantly reduce position size in extreme volatility
+            }
+            
+            // Adjust by win rate and profit factor
+            let performanceFactor = 1.0;
+            if (this.riskMetrics.winRate > 0.6 && this.riskMetrics.profitFactor > 1.5) {
+                performanceFactor = 1.1; // Increase size when performing well
+            } else if (this.riskMetrics.winRate < 0.4 || this.riskMetrics.profitFactor < 1.0) {
+                performanceFactor = 0.9; // Decrease size when performing poorly
+            }
+            
+            // Apply Kelly-based optimal leverage
+            const leverageFactor = this.optimalLeverage;
+            
+            // Calculate final position size
+            const adjustedSize = baseSize * volatilityFactor * performanceFactor * leverageFactor;
+            
+            return Math.max(baseSize * 0.5, Math.min(baseSize * 2.0, adjustedSize)); // Limit between 50%-200% of base size
+        }
+        
+        scheduleRiskUpdates() {
+            // Update risk metrics every 15 minutes
+            setInterval(() => {
+                if (this.riskAnalysisEnabled) {
+                    this.calculateHistoricalMetrics();
+                    this.calculateRiskMetrics();
+                }
+            }, 15 * 60 * 1000);
+        }
+        
+        getCurrentRiskLevel() {
+            // Determine current risk level based on volatility and metrics
+            if (this.historicalVolatility > this.volatilityThresholds.extreme) {
+                return 'extreme';
+            } else if (this.historicalVolatility > this.volatilityThresholds.high) {
+                return 'high';
+            } else if (this.historicalVolatility > this.volatilityThresholds.medium) {
+                return 'medium';
+            } else {
+                return 'low';
+            }
+        }
+        
+        getRiskReport() {
+            return {
+                riskLevel: this.getCurrentRiskLevel(),
+                historicalVolatility: this.historicalVolatility,
+                valueAtRisk: this.valueAtRisk,
+                maxDrawdown: this.maxDrawdown,
+                sharpeRatio: this.riskMetrics.sharpeRatio,
+                sortinoRatio: this.riskMetrics.sortinoRatio,
+                winRate: this.riskMetrics.winRate,
+                profitFactor: this.riskMetrics.profitFactor,
+                optimalLeverage: this.optimalLeverage
+            };
+        }
+    }
+
 </script>
+
+<!-- Tüm sınıflar yüklendikten sonra sistemleri başlat -->
+<script>
+    // Tüm DOM yüklendiğinde sistemleri başlat
+    document.addEventListener('DOMContentLoaded', function() {
+        // PantheonSystem ve diğer sistemleri başlat
+        window.panteon = new PantheonSystem();
+        
+        // Advanced Trading Visualization Manager
+        window.advancedVisualizer = new AdvancedTradingVisualizer(window.app);
+        
+        // Enhanced Risk Management System
+        window.riskManager = new EnhancedRiskManagement(window.app);
+        
+        console.log('Tüm sistemler başlatıldı ve hazır.');
+    });
+</script>
+
+<!-- Advanced Notification Container -->
+<div id="notifications-container" class="notifications"></div>
+
+<!-- Notification History Modal -->
+<div id="notification-history-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Bildirim Geçmişi</h3>
+            <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="notification-filters">
+                <button class="filter active" data-filter="all">Tümü</button>
+                <button class="filter" data-filter="trade">İşlem</button>
+                <button class="filter" data-filter="alert">Uyarı</button>
+                <button class="filter" data-filter="success">Başarılı</button>
+                <button class="filter" data-filter="error">Hata</button>
+                <button class="filter" data-filter="system">Sistem</button>
+            </div>
+            <div id="notification-history-list"></div>
+        </div>
+        <div class="modal-footer">
+            <button id="clear-notifications-history" class="btn btn-danger">Geçmişi Temizle</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
-
-
-
-
-
