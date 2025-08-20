@@ -1,17 +1,407 @@
-            flex-grow: 1;
-            height: 8px;
-            background: var(--border-color);
-            border-radius: 4px;
-            overflow: hidden;
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTIMATE TRADING KOMUTA MERKEZİ v2.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@3.8.0/dist/lightweight-charts.standalone.production.js"></script>
+    <!-- TSParticles for visual effects -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles-slim@2.12.0/tsparticles.slim.min.js"></script>
+    <script>
+    // Sayfa yüklendiğinde çalışacak ana fonksiyon
+    function initApp() {
+        console.log('initApp başlatılıyor...');
+        // Panteon UI için sürükleme özelliği
+                        // --- YENİ PANTEON AÇ/KAPAT MANTIĞI ---
+        const pantheonToggleButton = document.getElementById('pantheon-toggle-btn');
+        const pantheonUIContainer = document.getElementById('pantheon-ui');
+        if (pantheonToggleButton && pantheonUIContainer) {
+            const isPantheonVisible = localStorage.getItem('isPantheonVisible') === 'true';
+            if (isPantheonVisible) {
+                pantheonUIContainer.classList.add('visible');
+            }
+            pantheonToggleButton.addEventListener('click', () => {
+                const isVisible = pantheonUIContainer.classList.toggle('visible');
+                localStorage.setItem('isPantheonVisible', isVisible);
+            });
+        }
+        // --- PANTEON AÇ/KAPAT MANTIĞI SONU ---
+        const pantheonUI = document.getElementById('pantheon-ui');
+        if (pantheonUI) {
+            let isDragging = false;
+            let offsetX, offsetY;
+            
+            function startDrag(e) {
+                isDragging = true;
+                offsetX = e.clientX - pantheonUI.getBoundingClientRect().left;
+                offsetY = e.clientY - pantheonUI.getBoundingClientRect().top;
+                pantheonUI.style.cursor = 'grabbing';
+                e.preventDefault();
+            }
+            
+            function onDrag(e) {
+                if (!isDragging) return;
+                pantheonUI.style.left = (e.clientX - offsetX) + 'px';
+                pantheonUI.style.top = (e.clientY - offsetY) + 'px';
+            }
+            
+            function stopDrag() {
+                isDragging = false;
+                pantheonUI.style.cursor = 'grab';
+                
+                // Pozisyonu kaydet
+                const rect = pantheonUI.getBoundingClientRect();
+                localStorage.setItem('pantheonUIPosition', JSON.stringify({
+                    left: rect.left,
+                    top: rect.top
+                }));
+            }
+            
+            // Event listener'ları ekle
+            pantheonUI.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mouseup', stopDrag);
+            document.addEventListener('mouseleave', stopDrag);
+            
+            // Kayıtlı pozisyonu yükle
+            const savedPosition = localStorage.getItem('pantheonUIPosition');
+            if (savedPosition) {
+                try {
+                    const { left, top } = JSON.parse(savedPosition);
+                    pantheonUI.style.left = `${left}px`;
+                    pantheonUI.style.top = `${top}px`;
+                } catch (e) {
+                    console.error('Pozisyon yüklenirken hata:', e);
+                }
+            }
         }
         
-        .god-progress-fill {
-            height: 100%;
-            width: 0%;
-            transition: width 0.3s ease, background-color 0.3s ease;
+        // Sistemleri güvenli bir şekilde başlatma
+        try {
+            // Panteon sistemi var mı kontrol et ve global değişkene ata
+            if (typeof PantheonSystem === 'function' && window.panteon) {
+                console.log('Panteon sistemi zaten başlatılmış, yeniden başlatılmayacak.');
+            } else if (typeof PantheonSystem === 'function') {
+                console.log('Panteon sistemi başlatılıyor...');
+                window.panteon = new PantheonSystem();
+            }
+            
+            // App nesnesi var mı kontrol et
+            if (!window.app) {
+                console.log('Trading Command Center başlatılıyor...');
+                window.app = new UltimateTradingCommandCenter();
+            }
+        } catch (e) {
+            console.error('Sistemleri başlatırken hata:', e);
         }
         
-        /* Her tanrı için özel renkler */
+        // Panteon güç yönetimini başlat
+        if (window.app && !window.app.pantheonPower) {
+            window.app.pantheonPower = {
+                buy: 0,
+                sell: 0,
+                lastUpdate: Date.now()
+            };
+        }
+        
+        // Panteon metodlarını app nesnesine güvenli bir şekilde bağla
+        if (window.panteon && window.app) {
+            if (window.panteon.increasePantheonPower) {
+                window.app.increasePantheonPower = window.panteon.increasePantheonPower.bind(window.panteon);
+            }
+            if (window.panteon.updatePantheonUI) {
+                window.app.updatePantheonUI = window.panteon.updatePantheonUI.bind(window.panteon);
+            }
+            if (window.panteon.triggerElciSpecialAbility) {
+                window.app.triggerElciSpecialAbility = window.panteon.triggerElciSpecialAbility.bind(window.panteon);
+            }
+        } else {
+            console.warn('Panteon veya App nesneleri henüz hazır değil.');
+        }
+        
+        // Panteon arayüzünü güncelle
+        if (window.app && window.app.updatePantheonUI) {
+            window.app.updatePantheonUI();
+        }
+    }
+    
+    // Sayfa yüklendiğinde initApp'ı çalıştır
+    document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+
+    <style>
+        :root {
+            --background-dark: #0d1117; --panel-bg-dark: #161b22; --text-main-dark: #c9d1d9; --text-secondary-dark: #8b949e; --border-color-dark: #30363d; --input-bg-dark: #010409; --hover-bg-dark: #21262d; --primary-dark: #58a6ff;
+            --background-light: #ffffff; --panel-bg-light: #f6f8fa; --text-main-light: #24292f; --text-secondary-light: #57606a; --border-color-light: #d0d7de; --input-bg-light: #f0f2f5; --hover-bg-light: #e8eaed; --primary-light: #0969da;
+            --war-mode-bg: linear-gradient(145deg, #4d0000 0%, #000000 75%); --war-mode-panel-bg: rgba(255, 0, 0, 0.08); --war-mode-border: #8B0000; --war-mode-text: #ff5858; --war-mode-primary: #ffc107;
+            --positive: #28a745; --negative: #dc3545; --neutral: #ffc107;
+            
+            /* YENİ: Panteon Renkleri */
+            --metatron-color: #3b82f6; /* Mavi - Bilgelik */
+            --uriel-color: #f59e0b;    /* Amber - Cesaret */
+            --raphael-color: #10b981;  /* Zümrüt - Şifa */
+            --gabriel-color: #8b5cf6;  /* Mor - İletişim */
+            --michael-color: #ef4444;  /* Kırmızı - Savaş */
+            --ticker-height: 30px; 
+            --signal-bar-height: 40px;
+            --header-min-height: 40px;
+        }
+        /* Fullscreen modda gizlenecek elemanlar */
+        body.fullscreen-chart #super-top-ticker,
+        body.fullscreen-chart #signal-progress-bar-container,
+        body.fullscreen-chart .header,
+        body.fullscreen-chart .panel-title {
+            display: none !important;
+        }
+
+        /* Fullscreen modda chart'ı büyütme */
+        body.fullscreen-chart .container { padding-top: 0 !important; height: 100vh !important; }
+        body.fullscreen-chart .main-grid { height: 100vh !important; margin: 0 !important; }
+        body.fullscreen-chart .center-panel { flex-grow: 1 !important; height: 100vh !important; border-radius: 0 !important; margin: 0 !important; }
+        body.fullscreen-chart .data-container { height: 100% !important; }
+        body.fullscreen-chart #chart-container-view,
+        body.fullscreen-chart #live-chart { height: 100% !important; flex-grow: 1 !important; }
+        body.fullscreen-chart .heatmap-container { display: none !important; }
+        body.fullscreen-chart .chart-zoom-controls { background: rgba(0,0,0,0.7); }
+        body.fullscreen-chart #exit-fullscreen-btn { display: block !important; }
+        body.fullscreen-chart #chart-countdown-overlay { display: block !important; }
+
+        [data-theme="light"] { --background: var(--background-light); --panel-bg: var(--panel-bg-light); --text-main: var(--text-main-light); --text-secondary: var(--text-secondary-light); --border-color: var(--border-color-light); --input-bg: var(--input-bg-light); --hover-bg: var(--hover-bg-light); --primary: var(--primary-light); }
+        [data-theme="dark"] { --background: var(--background-dark); --panel-bg: var(--panel-bg-dark); --text-main: var(--text-main-dark); --text-secondary: var(--text-secondary-dark); --border-color: var(--border-color-dark); --input-bg: var(--input-bg-dark); --hover-bg: var(--hover-bg-dark); --primary: var(--primary-dark); }
+        [data-theme="war"] { --background: var(--war-mode-bg); --panel-bg: var(--war-mode-panel-bg); --text-main: var(--war-mode-text); --text-secondary: #ffaaaa; --border-color: var(--war-mode-border); --input-bg: rgba(255, 255, 255, 0.05); --hover-bg: rgba(255, 255, 255, 0.1); --primary: var(--war-mode-primary); }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto Mono', monospace; font-size: 12px; background: var(--background); color: var(--text-main); overflow: hidden; transition: background 0.5s, color 0.5s; }
+        
+        #super-top-ticker { display: flex; position: fixed; top: 0; left: 0; width: 100%; background: var(--panel-bg); border-bottom: 1px solid var(--border-color); padding: 2px 10px; z-index: 1100; align-items: center; justify-content: space-between; font-size: 11px; font-weight: 700; height: var(--ticker-height); }
+        .super-top-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0;}
+        #ticker-bar-symbol { color: var(--primary); }
+        #ticker-bar-price { color: var(--text-main); font-size: 12px; }
+        .super-top-right-buttons { display: flex; gap: 5px; }
+
+        .container { display: flex; flex-direction: column; height: 100vh; padding-top: calc(var(--ticker-height) + var(--signal-bar-height)); }
+
+        .header { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; flex-shrink: 0; box-shadow: 0 2px 10px rgba(0,0,0,0.2); margin: 5px; position: relative; }
+        .header-top-bar { display: flex; align-items: center; width: 100%; padding: 5px 15px; min-height: var(--header-min-height); justify-content: space-between; cursor: pointer; font-weight: 700; font-size: 16px; color: var(--primary); }
+        .header-collapsible-content { transition: max-height 0.35s ease-in-out, opacity 0.3s ease, padding 0.35s ease, visibility 0.35s; max-height: 300px; opacity: 1; overflow: hidden; visibility: visible; padding: 0 15px 8px 15px; }
+        body.header-collapsed .header-collapsible-content { max-height: 0; opacity: 0; visibility: hidden; padding-top: 0; padding-bottom: 0; }
+
+        .main-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-bottom: 8px; }
+        .form-control { background: var(--input-bg); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 4px; padding: 4px 8px; font-family: 'Roboto Mono', monospace; }
+        
+        .status { display: flex; align-items: center; gap: 5px; font-size: 11px; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 4px; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--negative); transition: background-color 0.5s; }
+        .status-dot.online { background: var(--positive); animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 #28a745b3; } 70% { box-shadow: 0 0 0 6px #28a74500; } 100% { box-shadow: 0 0 0 0 #28a74500; } }
+        [data-theme="war"] .status-dot.online { background: var(--war-mode-primary); animation: war-pulse 1s infinite; }
+        @keyframes war-pulse { 0% { box-shadow: 0 0 0 0 #ffc107b3; } 70% { box-shadow: 0 0 0 6px #ffc10700; } 100% { box-shadow: 0 0 0 0 #28a74500; } }
+        .btn { padding: 4px 12px; border: 1px solid var(--border-color); background: var(--panel-bg); color: var(--text-main); border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .btn:hover { background: var(--hover-bg); border-color: var(--primary); }
+        .btn-success { background: var(--positive); color: white; border-color: var(--positive); } .btn-danger { background: var(--negative); color: white; border-color: var(--negative); }
+        .btn-tiny { padding: 2px 6px; font-size: 10px; line-height: 1; min-width: 0; white-space: nowrap; }
+        
+        .main-grid { display: grid; grid-template-columns: 1fr; gap: 5px; flex-grow: 1; margin: 5px; overflow: hidden; height: calc(100% - var(--header-min-height) - 10px - var(--ticker-height) - var(--signal-bar-height)); }
+        body.header-collapsed .main-grid { height: calc(100vh - var(--ticker-height) - var(--signal-bar-height) - 10px); margin-top: 0; } 
+        
+        .panel { display: flex; flex-direction: column; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; position: relative;}
+        .panel-title { font-weight: 700; font-size: 13px; color: var(--primary); padding: 8px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; display: flex; justify-content: space-between; align-items: center;}
+        .panel-content { padding: 10px; overflow-y: auto; flex-grow: 1; }
+        .settings-group { margin-bottom: 15px; } .form-group { margin-bottom: 8px; } .form-label { display: block; font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+        .checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; padding: 4px 0;}
+        
+        .price-display { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; width: 100%; border: 1px solid var(--border-color); border-radius: 4px; padding: 8px; font-size: 10px; margin-top: 8px; } 
+        .price-item .price-label { color: var(--text-secondary); } 
+        .price-item .price-value { font-size: 18px; font-weight: 700; }
+        .price-item.countdown { grid-column: 1 / span 2; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: 700; color: var(--primary); padding-top: 5px;}
+        
+        .center-panel { display: grid; grid-template-rows: 1fr; gap: 5px; padding: 0 !important; } 
+        .data-container { display: grid; grid-template-rows: 1fr auto; overflow: hidden; height: 100%; } 
+        .data-grid { position: relative; overflow: hidden; min-height: 0; } 
+
+        #live-chart { width: 100%; height: 100%; } 
+        .heatmap-container { display: grid; grid-template-rows: auto 1fr; border-top: 1px solid var(--border-color); }
+        #orderbook-heatmap { width: 100%; height: 100%; display: block; }
+
+        .chart-zoom-controls { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; z-index: 100; }
+        .chart-zoom-controls .btn-tiny { background: rgba(1, 4, 9, 0.7); backdrop-filter: blur(2px); }
+
+        #exit-fullscreen-btn {
+            position: absolute; top: 10px; right: 10px; z-index: 101; 
+            background: rgba(1, 4, 9, 0.7); color: white; border-radius: 4px; 
+            padding: 2px 6px; font-size: 16px; cursor: pointer; border: 1px solid var(--border-color);
+            line-height: 1;
+        }
+        #chart-countdown-overlay {
+            position: absolute; top: 10px; left: 10px; z-index: 100; 
+            background: rgba(1, 4, 9, 0.7); padding: 4px 8px; border-radius: 4px; 
+            color: var(--primary); font-size: 14px; font-weight: bold;
+        }
+
+        .data-table-container { width: 100%; height: 100%; overflow: auto; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .data-table th, .data-table td { padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap;}
+        .data-table th { font-weight: 700; position: sticky; top: 0; background: var(--panel-bg); z-index: 10;}
+        .data-table tr:hover { background: var(--hover-bg); }
+        .signal-buy { background-color: #28a74514; } .signal-sell { background-color: #dc354514; }
+        .signal-tp { background-color: #28a74533; } .signal-sl { background-color: #dc354533; }
+        .signal-pending { background-color: #ffc1071a; } /* Neutral/warning color with transparency */
+
+        .stat-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--border-color); font-size: 12px; }
+        .stat-item:last-child { border-bottom: none; } .stat-label { color: var(--text-secondary); } .stat-value { font-weight: 700; }
+        .btn-sm { padding: 1px 4px; font-size: 9px; margin-left: 4px; border-radius: 3px; cursor: pointer;}
+        ::-webkit-scrollbar { width: 6px; height: 6px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--text-secondary); border-radius: 3px; }
+        .n        /* DÜZELTME: Bildirimlerin yeni stili ve konumu */
+        .notifications { 
+            position: fixed; 
+            bottom: 15px; 
+            left: 15px; /* Sağdan sola alındı */
+            z-index: 2000; 
+            width: 280px; /* Daha dar */
+        }
+        .notification { 
+            background: rgba(22, 27, 34, 0.9); /* Hafif transparan */
+            backdrop-filter: blur(4px);
+            border: 1px solid var(--border-color); 
+            border-left-width: 4px; 
+            border-radius: 4px; 
+            padding: 8px 12px; /* Daha küçük padding */
+            font-size: 12px; /* Daha küçük font */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3); 
+            margin-top: 8px; 
+            animation: slide-in 0.3s ease-out;
+        }
+        @keyframes slide-in {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification.success { border-left-color: var(--positive); } 
+        .notification.danger { border-left-color: var(--negative); } 
+        .notification.warning { border-left-color: var(--neutral); }
+        
+        aside#settings-panel, aside#analytics-panel { display: none !important; }
+        .hidden-view { display: none !important; } 
+
+        /* YENİ LOG PANELİ STİLLERİ */
+        #log-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 2550; }
+        #log-modal-overlay.visible { display: flex; }
+        .log-modal-content { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; width: 95%; max-width: 1000px; height: 90%; display: flex; flex-direction: column; box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+        .log-modal-header { padding: 10px 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 14px; color: var(--primary); }
+        .log-modal-header .close-btn { background: none; border: none; font-size: 20px; color: var(--text-secondary); cursor: pointer; padding: 0 5px; line-height: 1; }
+        .log-modal-body { padding: 0; overflow-y: auto; flex-grow: 1; }
+        #log-output { font-family: 'Roboto Mono', monospace; font-size: 11px; color: var(--text-secondary); padding: 10px; margin: 0; white-space: pre-wrap; word-break: break-all; }
+        #log-output .log-error { color: var(--negative); }
+        #log-output .log-warn { color: var(--neutral); }
+        #log-output .log-info { color: var(--positive); }
+
+        
+        aside#settings-panel, aside#analytics-panel { display: none !important; }
+        .hidden-view { display: none !important; } 
+
+        #settings-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 2500; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+        #settings-modal-overlay.visible { opacity: 1; visibility: visible; }
+        .settings-modal-content { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; width: 90%; max-width: 900px; max-height: 90%; display: flex; flex-direction: column; box-shadow: 0 8px 30px rgba(0,0,0,0.4); transform: translateY(20px); transition: transform 0.3s ease; }
+        #settings-modal-overlay.visible .settings-modal-content { transform: translateY(0); }
+        .settings-modal-header { padding: 12px 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 15px; color: var(--primary); }
+        .settings-modal-header .close-btn { background: none; border: none; font-size: 20px; color: var(--text-secondary); cursor: pointer; padding: 0 5px; line-height: 1; }
+        .settings-modal-header .close-btn:hover { color: var(--negative); }
+        .settings-modal-body { padding: 15px; overflow-y: auto; flex-grow: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .settings-modal-footer { padding: 12px 15px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px; }
+
+        /* Yeni Sinyal Barı */
+        #signal-progress-bar-container {
+            display: flex; gap: 5px; width: 100%; padding: 5px 10px; background: var(--panel-bg); 
+            border-bottom: 1px solid var(--border-color); justify-content: space-around; align-items: center;
+            position: fixed; top: var(--ticker-height); left: 0; z-index: 1099;
+            height: var(--signal-bar-height);
+        }
+        .signal-bar-wrapper { flex: 1; text-align: center; }
+        .signal-bar-label { font-size: 10px; color: var(--text-secondary); margin-bottom: 3px; }
+        .signal-bar { width: 100%; height: 10px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 5px; overflow: hidden; position: relative; }
+        .signal-bar-fill { height: 100%; width: 0%; transition: width 0.2s ease-out; position: absolute; left: 0; top: 0; background: linear-gradient(90deg, transparent, var(--positive)); }
+        .signal-bar-fill.buy { background: linear-gradient(90deg, transparent, var(--positive)); }
+        .signal-bar-fill.sell { background: linear-gradient(90deg, transparent, var(--negative)); }
+        .signal-score-text { font-size: 9px; margin-top: 2px; color: var(--primary); }
+
+        /* Resizable Handle */
+        .resize-handle { position: absolute; bottom: 0; left: 0; width: 100%; height: 8px; cursor: ns-resize; background: var(--border-color); z-index: 10; border-top: 1px solid var(--border-color); }
+        .center-panel.resizing { user-select: none; }
+
+        /* Panteon UI Stilleri */
+                        /* --- YENİ PANTEON AÇ/KAPAT BUTONU STİLLERİ --- */
+        #pantheon-toggle-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+        }
+        #pantheon-toggle-btn:hover {
+            transform: scale(1.1);
+            border-color: var(--primary);
+        }
+        
+        /* --- GÜNCELLENMİŞ VE KÜÇÜLTÜLMÜŞ PANTEON UI STİLLERİ --- */
+        .pantheon-ui {
+            position: fixed;
+            bottom: 80px; /* Butonun üstünde yer alacak */
+            right: 20px;
+            background: rgba(22, 27, 34, 0.95);
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px;
+            width: 180px; /* Yarı yarıya küçültüldü */
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.95) translateY(10px);
+        }
+        .pantheon-ui.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1) translateY(0);
+        }
+        .pantheon-header {
+            margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .pantheon-header span {
+            font-weight: 700; color: var(--primary); font-size: 11px;
+        }
+        .pantheon-close {
+            background: none; border: none; color: var(--text-secondary);
+            font-size: 18px; cursor: pointer; line-height: 1; padding: 0 4px;
+        }
+        .pantheon-close:hover { color: var(--negative); }
+        .pantheon-gods {
+            display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px;
+        }
+        .god {
+            display: flex; align-items: center; padding: 4px;
+            border-radius: 4px; background: var(--input-bg); transition: all 0.2s ease;
+        }
+        .god:hover { background: var(--hover-bg); transform: translateX(2px); }
+        .god-icon { font-size: 12px; margin-right: 6px; width: 18px; text-align: center; }
+        .god-name { font-weight: 600; font-size: 10px; width: 55px; }
+        .god-power { font-size: 9px; width: 28px; text-align: right; margin-right: 5px; font-family: 'Roboto Mono', monospace;}
+        .god-progress { flex-grow: 1; height: 6px; background: var(--border-color); border-radius: 3px; overflow: hidden; }
+        .god-progress-fill { height: 100%; width: 0%; transition: width 0.3s ease, background-color 0.3s ease; }
+        
         .metatron .god-progress-fill { background: var(--metatron-color); }
         .uriel .god-progress-fill { background: var(--uriel-color); }
         .raphael .god-progress-fill { background: var(--raphael-color); }
@@ -19,60 +409,223 @@
         .michael .god-progress-fill { background: var(--michael-color); }
         
         .pantheon-abilities {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-            padding-top: 12px;
+            display: flex; gap: 5px; margin-top: 8px; padding-top: 8px;
             border-top: 1px solid var(--border-color);
         }
-        
         .ability {
-            flex: 1;
-            background: var(--input-bg);
-            border-radius: 6px;
-            padding: 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-            overflow: hidden;
+            flex: 1; background: var(--input-bg); border-radius: 4px; padding: 5px;
+            text-align: center; cursor: pointer; transition: all 0.2s ease; position: relative; overflow: hidden;
         }
-        
-        .ability:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        
-        .ability-icon {
-            font-size: 16px;
-            margin-bottom: 4px;
-        }
-        
-        .ability-name {
-            font-size: 10px;
-            font-weight: 600;
-        }
-        
+        .ability:hover { transform: translateY(-2px); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); }
+        .ability-icon { font-size: 12px; margin-bottom: 2px; }
+        .ability-name { font-size: 9px; font-weight: 600; }
         .ability-cooldown {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 3px;
-            background: var(--primary);
-            width: 100%;
-            transform-origin: left;
-            transform: scaleX(0);
-            transition: transform 0.1s linear;
+            position: absolute; bottom: 0; left: 0;
+            height: 2px; background: var(--primary); width: 100%;
+            transform-origin: left; transform: scaleX(0); transition: transform 0.1s linear;
         }
         
-        /* Animasyonlar */
-        @keyframes pulse {
-            0% { opacity: 0.6; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.05); }
-            100% { opacity: 0.6; transform: scale(1); }
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+        .ability.active { animation: pulse 1.5s infinite; }
+
+                        /* DÜZELTME: Metinlerin yanlışlıkla seçilmesini engelle */
+        .btn, .panel-title, .header-top-bar, .signal-bar-label, .form-label {
+            user-select: none; /* Standart */
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
         }
+
+                                @media screen and (max-width: 768px) {
+            .desktop-only { display: none !important; }
+            .mobile-only { display: flex !important; align-items: center; }
+
+            .container { 
+                padding-top: calc(var(--ticker-height) + var(--signal-bar-height)); 
+                padding-bottom: var(--header-min-height); 
+            }
+            #signal-progress-bar-container { top: var(--ticker-height); }
+            
+            .header { 
+                order: 2; 
+                position: fixed;
+                bottom: 0; 
+                left: 0;
+                right: 0;
+                width: 100%; 
+                z-index: 1000; 
+                margin: 0; 
+                border-radius: 0; 
+                border: none; 
+                border-top: 1px solid var(--border-color); 
+            }
+            /* DÜZELTME: Butonlar ve başlık için yeni ve daha basit düzen */
+            .header-top-bar { 
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0 10px; 
+                min-height: var(--header-min-height);
+            }
+            .header-center-title {
+                cursor: pointer;
+                flex-grow: 1;
+                text-align: center;
+            }
+            .header-left-controls, .header-right-controls {
+                display: flex;
+                gap: 8px;
+            }
+            #mobile-toggle-controls-btn, .header-right-controls .btn {
+                font-size: 16px;
+                padding: 5px 10px;
+            }
+            /* Mobilde masaüstü başlığını gizle */
+            .header-center-title .header-title-text {
+                display: none;
+            }
+
+            .header-collapsible-content { padding: 0; }
+            .header-collapsible-content .main-controls { flex-direction: column; align-items: center; padding: 0; width: 100%; }
+            .form-control, .btn, .status { width: 100%; text-align: center; padding: 8px 10px; font-size: 11px; }
+            .status { justify-content: center; }
+            .price-display { grid-template-columns: repeat(2, 1fr); margin-top: 10px; }
+            .price-item .price-value { font-size: 14px; } 
+            
+            .main-grid { 
+                order: 1; 
+                margin: 0;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+            .center-panel { 
+                order: 1; 
+                flex-grow: 1;
+                height: 100%;
+                border: none;
+                border-radius: 0; 
+                background: transparent;
+                box-shadow: none; 
+                margin: 0; 
+            }
+            .center-panel > .panel-title { display: none; }
+            .data-container { 
+                flex-direction: column; 
+                height: 100%; 
+                padding: 5px;
+            }
+            .data-grid { 
+                height: 100%;
+                flex-grow: 1;
+            }
+            #live-chart { height: 100%; width: 100%; } 
+            .heatmap-container { height: 150px; flex-shrink: 0; margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 10px; }
+            .heatmap-container .panel-title { border-bottom: none; margin-bottom: 5px; }
+            .settings-modal-content { width: 95%; margin: 10px; }
+            .settings-modal-body { grid-template-columns: 1fr; gap: 15px; }
+            .super-top-right-buttons { display: none; }
+            .resize-handle { display: none; }
+            #chart-countdown-overlay { font-size: 12px; padding: 3px 6px; }
+
+            body.fullscreen-chart .main-grid { height: 100vh; }
+            body.fullscreen-chart .center-panel { height: 100vh; }
+        }
+
+
+
+
+    </style>
+</head>
+<body class="header-collapsed"> 
+    <!-- Canvas for visual effects -->
+    <canvas id="effects-canvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></canvas> 
+    
+        <!-- YENİ PANTEON AÇ/KAPAT BUTONU -->
+    <button id="pantheon-toggle-btn" title="Panteon Sistemini Aç/Kapat">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M12 1.25a3.5 3.5 0 1 0 0 7 3.5 3.5 0 1 0 0-7zM3.5 9.25a3.5 3.5 0 1 0 0 7 3.5 3.5 0 1 0 0-7zm17 0a3.5 3.5 0 1 0 0 7 3.5 3.5 0 1 0 0-7zM12 15.75a3.5 3.5 0 1 0 0 7 3.5 3.5 0 1 0 0-7z"></path></svg>
+    </button>
+    <!-- Panteon Sistemi UI -->
+    <div id="pantheon-ui" class="pantheon-ui">
+        <div class="pantheon-header">
+            <span>PANTEON SİSTEMİ</span>
+            <button class="pantheon-close">×</button>
+        </div>
         
-        .ability.actgggin-controls-btn" class="btn btn-tiny">Komuta Merkezi</button>
+        <div class="pantheon-gods">
+            <div class="god metatron" data-god="metatron">
+                <div class="god-icon">👁️</div>
+                <div class="god-name">Metatron</div>
+                <div class="god-power">0%</div>
+                <div class="god-progress">
+                    <div class="god-progress-fill"></div>
+                </div>
+            </div>
+            
+            <div class="god uriel" data-god="uriel">
+                <div class="god-icon">⚔️</div>
+                <div class="god-name">Uriel</div>
+                <div class="god-power">0%</div>
+                <div class="god-progress">
+                    <div class="god-progress-fill"></div>
+                </div>
+            </div>
+            
+            <div class="god raphael" data-god="raphael">
+                <div class="god-icon">💊</div>
+                <div class="god-name">Raphael</div>
+                <div class="god-power">0%</div>
+                <div class="god-progress">
+                    <div class="god-progress-fill"></div>
+                </div>
+            </div>
+            
+            <div class="god gabriel" data-god="gabriel">
+                <div class="god-icon">📢</div>
+                <div class="god-name">Gabriel</div>
+                <div class="god-power">0%</div>
+                <div class="god-progress">
+                    <div class="god-progress-fill"></div>
+                </div>
+            </div>
+            
+            <div class="god michael" data-god="michael">
+                <div class="god-icon">⚖️</div>
+                <div class="god-name">Michael</div>
+                <div class="god-power">0%</div>
+                <div class="god-progress">
+                    <div class="god-progress-fill"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="pantheon-abilities">
+            <div class="ability" id="ability-revelation" data-ability="revelation">
+                <div class="ability-icon">🔍</div>
+                <div class="ability-name">Vahiy</div>
+                <div class="ability-cooldown"></div>
+            </div>
+            <div class="ability" id="ability-valor" data-ability="valor">
+                <div class="ability-icon">🛡️</div>
+                <div class="ability-name">Cesaret</div>
+                <div class="ability-cooldown"></div>
+            </div>
+            <div class="ability" id="ability-restoration" data-ability="restoration">
+                <div class="ability-icon">💫</div>
+                <div class="ability-name">Şifa</div>
+                <div class="ability-cooldown"></div>
+            </div>
+        </div>
+    </div>
+    
+        <div id="super-top-ticker">
+        <div class="super-top-left">
+            <span id="ticker-bar-symbol"></span>
+            <span id="ticker-bar-price"></span>
+        </div>
+        <!-- MASAÜSTÜ BUTONLARI -->
+        <div class="super-top-right-buttons desktop-only">
+            <button id="main-controls-btn" class="btn btn-tiny">Komuta Merkezi</button>
             <button id="chart-view-btn" class="btn btn-tiny">Grafik</button>
             <button id="heatmap-view-btn" class="btn btn-tiny">Isı Haritası</button>
             <button id="fullscreen-chart-btn" class="btn btn-tiny">Tam Ekran Grafik</button>
@@ -104,7 +657,10 @@
             <div class="signal-bar-label">SELL SINYAL GÜCÜ</div>
             <div class="signal-bar">
                 <div id="sell-signal-bar-fill" class="signal-bar-fill sell"></div>
-            <
+            </div>
+            <div id="sell-signal-score-text" class="signal-score-text">0.0</div>
+        </div>
+    </div>
 
     <div class="container">
                                 <header class="header">
@@ -636,8 +1192,8 @@
             }
         }
         
-        initNotificationPanel() {
-            // Create container if it doesn't exist
+                initNotificationPanel() {
+            // 1. Ana bildirim konteynerini oluştur
             if (!this.container) {
                 this.container = document.createElement('div');
                 this.container.id = 'notifications-container';
@@ -645,7 +1201,7 @@
                 document.body.appendChild(this.container);
             }
             
-            // Add notification control panel
+            // 2. Masaüstü için kontrol panelini oluştur
             const panel = document.createElement('div');
             panel.className = 'notification-control-panel';
             panel.innerHTML = `
@@ -659,18 +1215,35 @@
                 </div>
             `;
             this.container.appendChild(panel);
-            
-            // Create history modal but don't attach to DOM yet
+
+            // 3. Modal'ı oluştur
             this.createHistoryModal();
             
-            // Event listeners
-            document.getElementById('notification-history-btn').addEventListener('click', () => this.showHistory());
-            document.getElementById('clear-notifications').addEventListener('click', () => this.clearAll());
-            document.getElementById('toggle-notification-sound').addEventListener('click', () => {
+            // 4. Tüm butonlar için olay dinleyicilerini bağla (Hem masaüstü hem mobil)
+            const showHistoryAction = () => this.showHistory();
+            const clearAllAction = () => this.clearAll();
+            const toggleSoundAction = () => {
                 this.soundEnabled = !this.soundEnabled;
-                document.getElementById('toggle-notification-sound').innerHTML = this.soundEnabled ? '🔊' : '🔇';
+                const newIcon = this.soundEnabled ? '🔊' : '🔇';
+                
+                const soundBtnDesktop = document.getElementById('toggle-notification-sound');
+                if (soundBtnDesktop) soundBtnDesktop.innerHTML = newIcon;
+
+                const soundBtnMobile = document.getElementById('mobile-toggle-notification-sound');
+                if (soundBtnMobile) soundBtnMobile.innerHTML = newIcon;
+
                 this.notify('Bildirim sesleri ' + (this.soundEnabled ? 'açıldı' : 'kapatıldı'), 'system', 1);
-            });
+            };
+
+            // Masaüstü butonları
+            document.getElementById('notification-history-btn').addEventListener('click', showHistoryAction);
+            document.getElementById('clear-notifications').addEventListener('click', clearAllAction);
+            document.getElementById('toggle-notification-sound').addEventListener('click', toggleSoundAction);
+            
+            // Mobil (dikey panel) butonları
+            document.getElementById('mobile-notification-history-btn')?.addEventListener('click', showHistoryAction);
+            document.getElementById('mobile-clear-notifications')?.addEventListener('click', clearAllAction);
+            document.getElementById('mobile-toggle-notification-sound')?.addEventListener('click', toggleSoundAction);
         }
         
         /**
@@ -1165,7 +1738,7 @@
              this.series.candles.update(candle);
              this.series.volume.update(volume);
         }
-        addSignalMarker(signal) {
+                addSignalMarker(signal) {
             if (!this.series.candles) return;
             const styles = getComputedStyle(document.body);
             const isMobile = window.innerWidth <= 768;
@@ -1193,8 +1766,20 @@
                 marker.shape = 'circle';
             }
             
+            // Mevcut sinyaller arasından aynı ID'ye sahip olanı kaldır (güncelleme için)
             this.signalMarkers = this.signalMarkers.filter(m => m.id !== signal.id);
+            // Yeni sinyali listenin sonuna ekle
             this.signalMarkers.push(marker);
+
+            // --- YENİ EKLENEN KISIM BAŞLANGICI ---
+            // Sinyal işaretleyici listesinde 3'ten fazla sinyal varsa, en eskisini (listedeki ilk sinyali) sil.
+            // Bu döngü, liste boyutu 3 olana kadar çalışır.
+            while (this.signalMarkers.length > 3) {
+                this.signalMarkers.shift(); // Dizinin başındaki (en eski) elemanı kaldırır.
+            }
+            // --- YENİ EKLENEN KISIM SONU ---
+
+            // Grafiği, sadece son 3 sinyali içeren güncel liste ile güncelle.
             this.series.candles.setMarkers(this.signalMarkers);
         }
         clearMarkers() { if (!this.series.candles) return; this.signalMarkers = []; this.series.candles.setMarkers([]); }
@@ -4363,34 +4948,46 @@
             controlsContainer.style.zIndex = '100';
             
             // Add buttons
-            const buttons = [
-                { id: 'toggle-heatmap-btn', icon: '🔥', title: 'Toggle Heatmap' },
-                { id: 'toggle-volume-profile-btn', icon: '📊', title: 'Toggle Volume Profile' },
-                { id: 'toggle-liquidity-btn', icon: '💧', title: 'Toggle Liquidity Visualization' },
-                { id: 'toggle-order-flow-btn', icon: '📈', title: 'Toggle Order Flow' },
-                { id: 'toggle-market-structure-btn', icon: '🔍', title: 'Toggle Market Structure' },
-                { id: 'toggle-options-overlay-btn', icon: '🔄', title: 'Toggle Options Overlay' }
+                        const buttons = [
+                { id: 'toggle-heatmap-btn', icon: '🔥', title: 'Isı Haritası' },
+                { id: 'toggle-volume-profile-btn', icon: '📊', title: 'Hacim Profili' },
+                { id: 'toggle-liquidity-btn', icon: '💧', title: 'Likidite Görselleştirme' },
+                { id: 'toggle-order-flow-btn', icon: '📈', title: 'Emir Akışı' },
+                { id: 'toggle-market-structure-btn', icon: '🔍', title: 'Piyasa Yapısı' },
+                { id: 'toggle-options-overlay-btn', icon: '🔄', title: 'Opsiyon Verileri' },
+                { type: 'divider' }, // Ayırıcı
+                { id: 'mobile-notification-history-btn', icon: '📋', title: 'Bildirim Geçmişi', mobileOnly: true },
+                { id: 'mobile-clear-notifications', icon: '🗑️', title: 'Bildirimleri Temizle', mobileOnly: true },
+                { id: 'mobile-toggle-notification-sound', icon: '🔊', title: 'Sesi Aç/Kapat', mobileOnly: true }
             ];
             
-            buttons.forEach(btn => {
+                        buttons.forEach(btnInfo => {
+                if (btnInfo.type === 'divider') {
+                    const divider = document.createElement('hr');
+                    divider.className = 'mobile-only';
+                    Object.assign(divider.style, {
+                        borderColor: 'var(--border-color)', width: '80%', margin: '5px auto',
+                        borderStyle: 'solid', borderWidth: '1px 0 0 0'
+                    });
+                    controlsContainer.appendChild(divider);
+                    return;
+                }
+
                 const button = document.createElement('button');
-                button.id = btn.id;
+                button.id = btnInfo.id;
                 button.className = 'btn-tiny visualization-btn';
-                button.innerHTML = btn.icon;
-                button.title = btn.title;
-                button.style.width = '28px';
-                button.style.height = '28px';
-                button.style.padding = '2px';
-                button.style.fontSize = '14px';
-                button.style.background = 'rgba(1, 4, 9, 0.7)';
-                button.style.backdropFilter = 'blur(2px)';
-                button.style.border = '1px solid var(--border-color)';
-                button.style.borderRadius = '4px';
-                button.style.color = 'var(--text-main)';
-                button.style.cursor = 'pointer';
-                button.style.display = 'flex';
-                button.style.alignItems = 'center';
-                button.style.justifyContent = 'center';
+                if (btnInfo.mobileOnly) {
+                    button.classList.add('mobile-only');
+                }
+                button.innerHTML = btnInfo.icon;
+                button.title = btnInfo.title;
+                Object.assign(button.style, {
+                    width: '28px', height: '28px', padding: '2px', fontSize: '14px',
+                    background: 'rgba(1, 4, 9, 0.7)', backdropFilter: 'blur(2px)',
+                    border: '1px solid var(--border-color)', borderRadius: '4px',
+                    color: 'var(--text-main)', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                });
                 controlsContainer.appendChild(button);
             });
             
@@ -5505,4 +6102,3 @@
 </div>
 </body>
 </html>
-
