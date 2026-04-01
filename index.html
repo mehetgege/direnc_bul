@@ -2661,6 +2661,52 @@
 
 
     /* =========================
+       SİNYAL STANDARDI (v1 İSKELET)
+       ========================= */
+    const SIGNAL_TYPE_GROUPS = Object.freeze({
+        core: Object.freeze([
+            'ConfluenceCore', 'OrderFlowDelta', 'VolumeImbalance', 'Absorption', 'Spoofing', 'WallResilience', 'WhaleCoordination'
+        ]),
+        scenario: Object.freeze([
+            'ScenarioAmbush', 'ScenarioDomino', 'ScenarioExhaustion'
+        ])
+    });
+    const SIGNAL_TYPES = Object.freeze([...SIGNAL_TYPE_GROUPS.core, ...SIGNAL_TYPE_GROUPS.scenario]);
+
+    function createStandardSignal({
+        idPrefix = 'sig',
+        type = 'ConfluenceCore',
+        symbol,
+        direction = 'neutral',
+        price = 0,
+        score = 0,
+        reason = '',
+        contributors = [],
+        status = 'active',
+        metadata = {}
+    }) {
+        return {
+            id: `${idPrefix}_${Date.now()}`,
+            type,
+            timestamp: Date.now(),
+            symbol,
+            direction,
+            price,
+            score,
+            reason,
+            contributors,
+            status,
+            metadata,
+            note: '',
+            mfeR: 0,
+            beDone: false,
+            trailingStage: 0,
+            entrySlDistance: 0,
+            entryTpDistance: 0
+        };
+    }
+
+    /* =========================
        UYUM MOTORU (CONFLUENCE)
        ========================= */
     class ConfluenceEngine {
@@ -2763,18 +2809,25 @@
         }
 
         generateFinalSignal(direction, contributors, finalScore) {
+            if (!this.bot.shouldEmitSignalType('ConfluenceCore')) return;
             const contributingStrats = contributors.map(c => this.bot.strategies[c.strategy]?.displayName || c.strategy).join(', ');
             const status = this.bot.settings.features.enableCandleConfirm ? 'pending' : 'active';
-            
-            const signal = { 
-                id: `sig_${Date.now()}`, timestamp: Date.now(), symbol: this.bot.currentSymbol, 
-                direction, price: this.bot.marketData.price, score: finalScore, 
-                reason: contributingStrats, contributors, status: status, note: '',
-                mfeR: 0, beDone: false, trailingStage: 0, entrySlDistance: 0, entryTpDistance: 0,
-                recommendedSize: this.bot.getRecommendedPositionSize(finalScore)
-            };
+
+            const signal = this.bot.createStandardSignal({
+                type: 'ConfluenceCore',
+                symbol: this.bot.currentSymbol,
+                direction,
+                price: this.bot.marketData.price,
+                score: finalScore,
+                reason: contributingStrats,
+                contributors,
+                status,
+                metadata: { source: 'ConfluenceEngine' }
+            });
+            signal.recommendedSize = this.bot.getRecommendedPositionSize(finalScore);
 
             this.bot.calculateDynamicTpSl(signal);
+            this.bot.markSignalTypeEmitted('ConfluenceCore');
 
             if (status === 'pending') {
                 this.bot.addPendingSignal(signal);
@@ -2806,7 +2859,15 @@
                 'candleCharacter': CandleCharacterStrategy,
                 'fundingRateReversal': FundingRateReversalStrategy
             };
-            this.allStrategyKeys = Object.keys(this.allStrategiesMap); 
+            this.allStrategyKeys = Object.keys(this.allStrategiesMap);
+            this.signalRegistry = Object.freeze({
+                groups: SIGNAL_TYPE_GROUPS,
+                all: SIGNAL_TYPES
+            });
+            this.signalTypeCooldowns = {
+                ConfluenceCore: 1400
+            };
+            this.lastSignalByType = Object.fromEntries(this.signalRegistry.all.map(type => [type, 0]));
 
             this.isRunning = false; 
             this.sockets = {}; 
@@ -3120,6 +3181,14 @@
                 this.multiTimeframeManager.initialize(this.currentSymbol, [this.settings.features.mtfTimeframe]);
             }
         }
+        createStandardSignal(payload) { return createStandardSignal(payload); }
+        getSignalCooldownMs(type) { return this.signalTypeCooldowns[type] || 1000; }
+        shouldEmitSignalType(type) {
+            const now = Date.now();
+            const lastTs = this.lastSignalByType[type] || 0;
+            return (now - lastTs) >= this.getSignalCooldownMs(type);
+        }
+        markSignalTypeEmitted(type) { this.lastSignalByType[type] = Date.now(); }
         loadData(key) { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } }
         saveData(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
         
