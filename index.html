@@ -2685,9 +2685,10 @@
         status = 'active',
         metadata = {}
     }) {
+        const normalizedType = SIGNAL_TYPES.includes(type) ? type : 'ConfluenceCore';
         return {
             id: `${idPrefix}_${Date.now()}`,
-            type,
+            type: normalizedType,
             timestamp: Date.now(),
             symbol,
             direction,
@@ -2865,9 +2866,20 @@
                 all: SIGNAL_TYPES
             });
             this.signalTypeCooldowns = {
-                ConfluenceCore: 1400
+                ConfluenceCore: 1400,
+                OrderFlowDelta: 1200,
+                VolumeImbalance: 1200,
+                Absorption: 3000,
+                MultiLevelAbsorption: 4000,
+                Spoofing: 2000,
+                WallResilience: 2000,
+                WhaleCoordination: 2500,
+                ScenarioAmbush: 4000,
+                ScenarioDomino: 3500,
+                ScenarioExhaustion: 4500
             };
             this.lastSignalByType = Object.fromEntries(this.signalRegistry.all.map(type => [type, 0]));
+            this.signalTypeEnabled = Object.fromEntries(this.signalRegistry.all.map(type => [type, true]));
 
             this.isRunning = false; 
             this.sockets = {}; 
@@ -3183,7 +3195,14 @@
         }
         createStandardSignal(payload) { return createStandardSignal(payload); }
         getSignalCooldownMs(type) { return this.signalTypeCooldowns[type] || 1000; }
+        isSignalTypeEnabled(type) { return this.signalTypeEnabled[type] !== false; }
+        setSignalTypeEnabled(type, isEnabled) {
+            if (!Object.prototype.hasOwnProperty.call(this.signalTypeEnabled, type)) return false;
+            this.signalTypeEnabled[type] = !!isEnabled;
+            return true;
+        }
         shouldEmitSignalType(type) {
+            if (!this.isSignalTypeEnabled(type)) return false;
             const now = Date.now();
             const lastTs = this.lastSignalByType[type] || 0;
             return (now - lastTs) >= this.getSignalCooldownMs(type);
