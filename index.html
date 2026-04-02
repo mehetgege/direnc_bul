@@ -151,7 +151,9 @@
         body.fullscreen-chart #super-top-ticker,
         body.fullscreen-chart #signal-progress-bar-container,
         body.fullscreen-chart .header,
-        body.fullscreen-chart .panel-title {
+        body.fullscreen-chart .panel-title,
+        body.fullscreen-chart .notifications,
+        body.fullscreen-chart #honor-modal-overlay {
             display: none !important;
         }
 
@@ -174,7 +176,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Roboto Mono', monospace; font-size: 12px; background: var(--background); color: var(--text-main); overflow: hidden; transition: background 0.5s, color 0.5s; }
         
-        #super-top-ticker { display: flex; position: fixed; top: 0; left: 0; width: 100%; background: var(--panel-bg); border-bottom: 1px solid var(--border-color); padding: 2px 10px; z-index: 1100; align-items: center; justify-content: space-between; font-size: 11px; font-weight: 700; height: var(--ticker-height); }
+        #super-top-ticker { display: flex; position: fixed; top: 0; left: 0; width: 100%; background: color-mix(in srgb, var(--panel-bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-color); padding: 2px 10px; z-index: 1100; align-items: center; justify-content: space-between; font-size: 11px; font-weight: 700; height: var(--ticker-height); box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
         .super-top-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0;}
         #ticker-bar-symbol { color: var(--primary); }
         #ticker-bar-price { color: var(--text-main); font-size: 12px; }
@@ -182,7 +184,7 @@
 
         .container { display: flex; flex-direction: column; height: 100vh; padding-top: calc(var(--ticker-height) + var(--signal-bar-height)); }
 
-        .header { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; flex-shrink: 0; box-shadow: 0 2px 10px rgba(0,0,0,0.2); margin: 5px; position: relative; }
+        .header { background: color-mix(in srgb, var(--panel-bg) 86%, transparent); backdrop-filter: blur(6px); border: 1px solid var(--border-color); border-radius: 8px; flex-shrink: 0; box-shadow: 0 8px 24px rgba(0,0,0,0.24); margin: 5px; position: relative; }
         .header-top-bar { display: flex; align-items: center; width: 100%; padding: 5px 15px; min-height: var(--header-min-height); justify-content: space-between; cursor: pointer; font-weight: 700; font-size: 16px; color: var(--primary); }
         .header-collapsible-content { transition: max-height 0.35s ease-in-out, opacity 0.3s ease, padding 0.35s ease, visibility 0.35s; max-height: 300px; opacity: 1; overflow: hidden; visibility: visible; padding: 0 15px 8px 15px; }
         body.header-collapsed .header-collapsible-content { max-height: 0; opacity: 0; visibility: hidden; padding-top: 0; padding-bottom: 0; }
@@ -204,7 +206,7 @@
         .main-grid { display: grid; grid-template-columns: 1fr; gap: 5px; flex-grow: 1; margin: 5px; overflow: hidden; height: calc(100% - var(--header-min-height) - 10px - var(--ticker-height) - var(--signal-bar-height)); }
         body.header-collapsed .main-grid { height: calc(100vh - var(--ticker-height) - var(--signal-bar-height) - 10px); margin-top: 0; } 
         
-        .panel { display: flex; flex-direction: column; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; position: relative;}
+        .panel { display: flex; flex-direction: column; background: color-mix(in srgb, var(--panel-bg) 88%, transparent); backdrop-filter: blur(4px); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 8px 20px rgba(0,0,0,0.18);}
         .panel-title { font-weight: 700; font-size: 13px; color: var(--primary); padding: 8px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; display: flex; justify-content: space-between; align-items: center;}
         .panel-content { padding: 10px; overflow-y: auto; flex-grow: 1; }
         .settings-group { margin-bottom: 15px; } .form-group { margin-bottom: 8px; } .form-label { display: block; font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
@@ -251,7 +253,7 @@
         .stat-item:last-child { border-bottom: none; } .stat-label { color: var(--text-secondary); } .stat-value { font-weight: 700; }
         .btn-sm { padding: 1px 4px; font-size: 9px; margin-left: 4px; border-radius: 3px; cursor: pointer;}
         ::-webkit-scrollbar { width: 6px; height: 6px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--text-secondary); border-radius: 3px; }
-        .n        /* DÜZELTME: Bildirimlerin yeni stili ve konumu */
+        /* DÜZELTME: Bildirimlerin yeni stili ve konumu */
         .notifications { 
             position: fixed; 
             bottom: 15px; 
@@ -440,9 +442,9 @@
             .desktop-only { display: none !important; }
             .mobile-only { display: flex !important; align-items: center; }
 
-            .container { 
-                padding-top: calc(var(--ticker-height) + var(--signal-bar-height)); 
-                padding-bottom: var(--header-min-height); 
+            .container {
+                padding-top: calc(var(--ticker-height) + var(--signal-bar-height) + env(safe-area-inset-top, 0px));
+                padding-bottom: calc(var(--header-min-height) + env(safe-area-inset-bottom, 0px));
             }
             #signal-progress-bar-container { top: var(--ticker-height); }
             
@@ -492,12 +494,13 @@
             .price-display { grid-template-columns: repeat(2, 1fr); margin-top: 10px; }
             .price-item .price-value { font-size: 14px; } 
             
-            .main-grid { 
-                order: 1; 
+            .main-grid {
+                order: 1;
                 margin: 0;
                 height: 100%;
                 display: flex;
                 flex-direction: column;
+                padding-bottom: calc(var(--header-min-height) + env(safe-area-inset-bottom, 0px) + 20px);
             }
             .center-panel { 
                 order: 1; 
@@ -539,7 +542,7 @@
 </head>
 <body class="header-collapsed"> 
     <!-- Canvas for visual effects -->
-    <canvas id="effects-canvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></canvas> 
+    <canvas id="effects-canvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 900;"></canvas>
     
         <!-- YENİ PANTEON AÇ/KAPAT BUTONU -->
     <button id="pantheon-toggle-btn" title="Panteon Sistemini Aç/Kapat">
@@ -748,7 +751,6 @@
                     <div class="form-group"><label class="form-label">Duvar Tespiti (BTC Miktarı)</label><input type="number" id="modal-param-wall-btc" class="form-control" value="20"></div>
                     <div class="form-group"><label class="form-label">Risk/Ödül Oranı (R/R)</label><input type="number" id="modal-param-rr-ratio" class="form-control" value="1.5" step="0.1"></div>
                 </div>
-                <div
                 <div class="settings-group">
                     <div class="panel-title" style="margin-bottom: 10px;">Cooldown Ayarları</div>
                     <div class="form-group"><label class="form-label">Genel Sinyal Cooldown (ms)</label><input type="number" id="modal-signal-cooldown-ms" class="form-control" value="15000" min="0" step="100"></div>
@@ -759,8 +761,27 @@
                     <div class="form-group"><label class="form-label">Strateji Teklifi Cooldown (ms)</label><input type="number" id="modal-strategy-proposal-cooldown-ms" class="form-control" value="10000" min="0" step="100"></div>
                 </div>
                 <div class="settings-group">
+                    <div class="panel-title" style="margin-bottom: 10px;">Sinyal Tip Kontrolleri</div>
+                    <div class="form-group"><label class="checkbox-label"><input type="checkbox" id="modal-sig-enabled-confluence-core" class="feature-toggle" checked> ConfluenceCore</label></div>
+                    <div class="form-group"><label class="form-label">ConfluenceCore Cooldown (ms)</label><input type="number" id="modal-sig-cooldown-confluence-core" class="form-control" value="1400" min="0" step="100"></div>
+                    <div class="form-group"><label class="checkbox-label"><input type="checkbox" id="modal-sig-enabled-wall-resilience" class="feature-toggle" checked> WallResilience</label></div>
+                    <div class="form-group"><label class="form-label">WallResilience Cooldown (ms)</label><input type="number" id="modal-sig-cooldown-wall-resilience" class="form-control" value="2000" min="0" step="100"></div>
+                    <div class="form-group"><label class="checkbox-label"><input type="checkbox" id="modal-sig-enabled-spoofing" class="feature-toggle" checked> Spoofing</label></div>
+                    <div class="form-group"><label class="form-label">Spoofing Cooldown (ms)</label><input type="number" id="modal-sig-cooldown-spoofing" class="form-control" value="2000" min="0" step="100"></div>
+                    <div class="form-group"><label class="checkbox-label"><input type="checkbox" id="modal-sig-enabled-absorption" class="feature-toggle" checked> Absorption</label></div>
+                    <div class="form-group"><label class="form-label">Absorption Cooldown (ms)</label><input type="number" id="modal-sig-cooldown-absorption" class="form-control" value="3000" min="0" step="100"></div>
+                    <div class="form-group"><label class="checkbox-label"><input type="checkbox" id="modal-sig-enabled-scenario-ambush" class="feature-toggle" checked> ScenarioAmbush</label></div>
+                    <div class="form-group"><label class="form-label">ScenarioAmbush Cooldown (ms)</label><input type="number" id="modal-sig-cooldown-scenario-ambush" class="form-control" value="4000" min="0" step="100"></div>
+                    <div class="form-group"><label class="checkbox-label"><input type="checkbox" id="modal-sig-enabled-scenario-domino" class="feature-toggle" checked> ScenarioDomino</label></div>
+                    <div class="form-group"><label class="form-label">ScenarioDomino Cooldown (ms)</label><input type="number" id="modal-sig-cooldown-scenario-domino" class="form-control" value="3500" min="0" step="100"></div>
+                    <div class="form-group"><label class="checkbox-label"><input type="checkbox" id="modal-sig-enabled-scenario-exhaustion" class="feature-toggle" checked> ScenarioExhaustion</label></div>
+                    <div class="form-group"><label class="form-label">ScenarioExhaustion Cooldown (ms)</label><input type="number" id="modal-sig-cooldown-scenario-exhaustion" class="form-control" value="4500" min="0" step="100"></div>
+                </div>
+                <div class="settings-group">
                     <div class="panel-title" style="margin-bottom: 10px;">Gelişmiş Özellikler</div>
                     <div class="form-group"><label class="checkbox-label"><input type="checkbox" id="modal-enable-spoof-detection" class="feature-toggle" checked> Spoof Tespiti</label></div>
+                    <div class="form-group"><label class="checkbox-label"><input type="checkbox" id="modal-enable-depth-signals" class="feature-toggle" checked> Depth Sinyalleri (Wall/Spoof/Absorption)</label></div>
+                    <div class="form-group"><label class="checkbox-label"><input type="checkbox" id="modal-enable-scenario-signals" class="feature-toggle" checked> Senaryo Sinyalleri (Ambush/Domino/Exhaustion)</label></div>
                     <div class="form-group"><label class="checkbox-label"><input type="checkbox" id="modal-enable-cusum-drift" class="feature-toggle" checked> CUSUM Sapma Tespiti</label></div>
                     <div class="form-group"><label class="checkbox-label"><input type="checkbox" id="modal-enable-risk-guardian" class="feature-toggle" checked> Risk Koruyucu (Kill Switch)</label></div>
                     <div class="form-group"><label class="checkbox-label"><input type="checkbox" id="modal-enable-auto-optimize" class="feature-toggle" checked> Oto-Optimizasyon</label></div>
@@ -1336,6 +1357,7 @@
             
             // Build notification content
             const catInfo = this.categories[category];
+            const safeMessage = this.escapeHtml(String(message ?? ''));
             notification.innerHTML = `
                 <div class="notification-header">
                     <span class="notification-icon">${catInfo.icon}</span>
@@ -1343,7 +1365,7 @@
                     <span class="notification-close">&times;</span>
                 </div>
                 <div class="notification-content">
-                    ${message}
+                    ${safeMessage}
                     <div class="notification-time">${timestamp.toLocaleTimeString()}</div>
                 </div>
             `;
@@ -1637,20 +1659,30 @@
                 const catInfo = this.categories[n.category] || this.categories.system;
                 const date = new Date(n.timestamp);
                 const dateStr = date.toLocaleString();
-                
+                const safeHistoryMessage = this.escapeHtml(String(n.message ?? ''));
+
                 item.innerHTML = `
                     <div class="notification-header">
                         <span class="notification-icon">${catInfo.icon}</span>
                         <span class="notification-priority">${'•'.repeat(n.priority || 1)}</span>
                     </div>
                     <div class="notification-content">
-                        ${n.message}
+                        ${safeHistoryMessage}
                         <div class="notification-time">${dateStr}</div>
                     </div>
                 `;
                 
                 historyList.appendChild(item);
             });
+        }
+
+        escapeHtml(text) {
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
     }
 
@@ -2661,6 +2693,53 @@
 
 
     /* =========================
+       SİNYAL STANDARDI (v1 İSKELET)
+       ========================= */
+    const SIGNAL_TYPE_GROUPS = Object.freeze({
+        core: Object.freeze([
+            'ConfluenceCore', 'OrderFlowDelta', 'VolumeImbalance', 'Absorption', 'Spoofing', 'WallResilience', 'WhaleCoordination'
+        ]),
+        scenario: Object.freeze([
+            'ScenarioAmbush', 'ScenarioDomino', 'ScenarioExhaustion'
+        ])
+    });
+    const SIGNAL_TYPES = Object.freeze([...SIGNAL_TYPE_GROUPS.core, ...SIGNAL_TYPE_GROUPS.scenario]);
+
+    function createStandardSignal({
+        idPrefix = 'sig',
+        type = 'ConfluenceCore',
+        symbol,
+        direction = 'neutral',
+        price = 0,
+        score = 0,
+        reason = '',
+        contributors = [],
+        status = 'active',
+        metadata = {}
+    }) {
+        const normalizedType = SIGNAL_TYPES.includes(type) ? type : 'ConfluenceCore';
+        return {
+            id: `${idPrefix}_${Date.now()}`,
+            type: normalizedType,
+            timestamp: Date.now(),
+            symbol,
+            direction,
+            price,
+            score,
+            reason,
+            contributors,
+            status,
+            metadata,
+            note: '',
+            mfeR: 0,
+            beDone: false,
+            trailingStage: 0,
+            entrySlDistance: 0,
+            entryTpDistance: 0
+        };
+    }
+
+    /* =========================
        UYUM MOTORU (CONFLUENCE)
        ========================= */
     class ConfluenceEngine {
@@ -2763,18 +2842,25 @@
         }
 
         generateFinalSignal(direction, contributors, finalScore) {
+            if (!this.bot.shouldEmitSignalType('ConfluenceCore')) return;
             const contributingStrats = contributors.map(c => this.bot.strategies[c.strategy]?.displayName || c.strategy).join(', ');
             const status = this.bot.settings.features.enableCandleConfirm ? 'pending' : 'active';
-            
-            const signal = { 
-                id: `sig_${Date.now()}`, timestamp: Date.now(), symbol: this.bot.currentSymbol, 
-                direction, price: this.bot.marketData.price, score: finalScore, 
-                reason: contributingStrats, contributors, status: status, note: '',
-                mfeR: 0, beDone: false, trailingStage: 0, entrySlDistance: 0, entryTpDistance: 0,
-                recommendedSize: this.bot.getRecommendedPositionSize(finalScore)
-            };
+
+            const signal = this.bot.createStandardSignal({
+                type: 'ConfluenceCore',
+                symbol: this.bot.currentSymbol,
+                direction,
+                price: this.bot.marketData.price,
+                score: finalScore,
+                reason: contributingStrats,
+                contributors,
+                status,
+                metadata: { source: 'ConfluenceEngine' }
+            });
+            signal.recommendedSize = this.bot.getRecommendedPositionSize(finalScore);
 
             this.bot.calculateDynamicTpSl(signal);
+            this.bot.markSignalTypeEmitted('ConfluenceCore');
 
             if (status === 'pending') {
                 this.bot.addPendingSignal(signal);
@@ -2806,7 +2892,26 @@
                 'candleCharacter': CandleCharacterStrategy,
                 'fundingRateReversal': FundingRateReversalStrategy
             };
-            this.allStrategyKeys = Object.keys(this.allStrategiesMap); 
+            this.allStrategyKeys = Object.keys(this.allStrategiesMap);
+            this.signalRegistry = Object.freeze({
+                groups: SIGNAL_TYPE_GROUPS,
+                all: SIGNAL_TYPES
+            });
+            this.signalTypeCooldowns = {
+                ConfluenceCore: 1400,
+                OrderFlowDelta: 1200,
+                VolumeImbalance: 1200,
+                Absorption: 3000,
+                MultiLevelAbsorption: 4000,
+                Spoofing: 2000,
+                WallResilience: 2000,
+                WhaleCoordination: 2500,
+                ScenarioAmbush: 4000,
+                ScenarioDomino: 3500,
+                ScenarioExhaustion: 4500
+            };
+            this.lastSignalByType = Object.fromEntries(this.signalRegistry.all.map(type => [type, 0]));
+            this.signalTypeEnabled = Object.fromEntries(this.signalRegistry.all.map(type => [type, true]));
 
             this.isRunning = false; 
             this.sockets = {}; 
@@ -2817,7 +2922,13 @@
             this.currentMainView = this.loadData('utc_current_view') || 'chart';
 
             this.marketData = { price: 0, change24h: 0, volume24h: 0, symbol: this.currentSymbol, btcPrice: 70000 }; 
-            this.orderBook = { bids: [], asks: [], lastUpdateId: null }; 
+            this.orderBook = { bids: [], asks: [], lastUpdateId: null };
+            this.depthMicroState = {
+                lastTopSnapshot: null,
+                lastWallSignalAt: 0,
+                bidLadderBuild: null,
+                askLadderBuild: null
+            };
 
             this.aggTrades = []; 
             this.candles = [];
@@ -3033,12 +3144,14 @@
                 confluenceThreshold: 3,
                 params: { rsiPeriod: 14, atrPeriod: 14, wallBtc: 20, rrRatio: 1.5 },
                 cooldowns: { signalMs: 15000, sameDirectionMs: 30000, oppositeDirectionMs: 20000, reverseHysteresisPoints: 2, proposalTimeoutMs: 3000, strategyProposalMs: 10000 },
-                features: { 
+                features: {
                     enableSpoofDetection: true, enableCUSUMDrift: true, enableRiskGuardian: true, enableTTS: true, preferredVoiceName: null,
                     enableCandleConfirm: true,
                     enableMtfConfirm: true,
                     mtfTimeframe: '15m',
-                    enableDynamicSizing: true
+                    enableDynamicSizing: true,
+                    enableDepthSignals: true,
+                    enableScenarioSignals: true
                 },
                 riskGuardian: {
                     killSwitchWinRate: 35.0,
@@ -3104,22 +3217,51 @@
             
             this.allStrategyKeys.forEach(key => {
                 if (typeof currentSettings.activeStrategies[key] === 'undefined') {
-                    currentSettings.activeStrategies[key] = true; 
+                    currentSettings.activeStrategies[key] = true;
                 }
                 if (currentSettings.statusMaps.hardBanned[key] || currentSettings.statusMaps.shadowBanned[key]) {
                     currentSettings.activeStrategies[key] = false;
                 }
             });
+            const signalControlDefaults = {
+                enabled: { ...this.signalTypeEnabled },
+                cooldowns: { ...this.signalTypeCooldowns }
+            };
+            currentSettings.signalControls = {
+                enabled: { ...signalControlDefaults.enabled, ...((savedSettings.signalControls && savedSettings.signalControls.enabled) || {}) },
+                cooldowns: { ...signalControlDefaults.cooldowns, ...((savedSettings.signalControls && savedSettings.signalControls.cooldowns) || {}) }
+            };
+            Object.assign(this.signalTypeEnabled, currentSettings.signalControls.enabled || {});
+            Object.assign(this.signalTypeCooldowns, currentSettings.signalControls.cooldowns || {});
             return currentSettings;
         }
 
         saveSettings() {
+            this.settings.signalControls = {
+                enabled: { ...this.signalTypeEnabled },
+                cooldowns: { ...this.signalTypeCooldowns }
+            };
             localStorage.setItem('utc_settings', JSON.stringify(this.settings));
             this.applyStrategyParamOverrides();
             if (this.isRunning) {
                 this.multiTimeframeManager.initialize(this.currentSymbol, [this.settings.features.mtfTimeframe]);
             }
         }
+        createStandardSignal(payload) { return createStandardSignal(payload); }
+        getSignalCooldownMs(type) { return this.signalTypeCooldowns[type] || 1000; }
+        isSignalTypeEnabled(type) { return this.signalTypeEnabled[type] !== false; }
+        setSignalTypeEnabled(type, isEnabled) {
+            if (!Object.prototype.hasOwnProperty.call(this.signalTypeEnabled, type)) return false;
+            this.signalTypeEnabled[type] = !!isEnabled;
+            return true;
+        }
+        shouldEmitSignalType(type) {
+            if (!this.isSignalTypeEnabled(type)) return false;
+            const now = Date.now();
+            const lastTs = this.lastSignalByType[type] || 0;
+            return (now - lastTs) >= this.getSignalCooldownMs(type);
+        }
+        markSignalTypeEmitted(type) { this.lastSignalByType[type] = Date.now(); }
         loadData(key) { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } }
         saveData(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
         
@@ -3244,6 +3386,8 @@
             document.getElementById('modal-proposal-timeout-ms').value = s.cooldowns.proposalTimeoutMs;
             document.getElementById('modal-strategy-proposal-cooldown-ms').value = s.cooldowns.strategyProposalMs;
             document.getElementById('modal-enable-spoof-detection').checked = s.features.enableSpoofDetection;
+            document.getElementById('modal-enable-depth-signals').checked = s.features.enableDepthSignals;
+            document.getElementById('modal-enable-scenario-signals').checked = s.features.enableScenarioSignals;
             document.getElementById('modal-enable-cusum-drift').checked = s.features.enableCUSUMDrift;
             document.getElementById('modal-enable-risk-guardian').checked = s.features.enableRiskGuardian;
             document.getElementById('modal-enable-auto-optimize').checked = s.optimization.enabled;
@@ -3265,6 +3409,22 @@
             
             const enableDynamicSizingEl = document.getElementById('modal-enable-dynamic-sizing');
             if(enableDynamicSizingEl) enableDynamicSizingEl.checked = s.features.enableDynamicSizing;
+
+            const signalControlMap = [
+                ['ConfluenceCore', 'confluence-core'],
+                ['WallResilience', 'wall-resilience'],
+                ['Spoofing', 'spoofing'],
+                ['Absorption', 'absorption'],
+                ['ScenarioAmbush', 'scenario-ambush'],
+                ['ScenarioDomino', 'scenario-domino'],
+                ['ScenarioExhaustion', 'scenario-exhaustion']
+            ];
+            signalControlMap.forEach(([type, slug]) => {
+                const enabledEl = document.getElementById(`modal-sig-enabled-${slug}`);
+                const cooldownEl = document.getElementById(`modal-sig-cooldown-${slug}`);
+                if (enabledEl) enabledEl.checked = this.isSignalTypeEnabled(type);
+                if (cooldownEl) cooldownEl.value = this.getSignalCooldownMs(type);
+            });
             
             this.updateTTSVoiceSelectUI(); 
 
@@ -3358,6 +3518,8 @@
             document.getElementById('modal-proposal-timeout-ms').addEventListener('change', (e) => s.cooldowns.proposalTimeoutMs = parseInt(e.target.value) || 1000);
             document.getElementById('modal-strategy-proposal-cooldown-ms').addEventListener('change', (e) => s.cooldowns.strategyProposalMs = parseInt(e.target.value) || 0);
             document.getElementById('modal-enable-spoof-detection').addEventListener('change', (e) => s.features.enableSpoofDetection = e.target.checked);
+            document.getElementById('modal-enable-depth-signals').addEventListener('change', (e) => s.features.enableDepthSignals = e.target.checked);
+            document.getElementById('modal-enable-scenario-signals').addEventListener('change', (e) => s.features.enableScenarioSignals = e.target.checked);
             document.getElementById('modal-enable-cusum-drift').addEventListener('change', (e) => s.features.enableCUSUMDrift = e.target.checked);
             document.getElementById('modal-enable-risk-guardian').addEventListener('change', (e) => s.features.enableRiskGuardian = e.target.checked);
             document.getElementById('modal-enable-auto-optimize').addEventListener('change', (e) => s.optimization.enabled = e.target.checked);
@@ -3369,6 +3531,25 @@
             document.getElementById('modal-enable-tts').addEventListener('change', (e) => {
                 s.features.enableTTS = e.target.checked;
                 this.updateTTSVoiceSelectUI();
+            });
+            const signalControlMap = [
+                ['ConfluenceCore', 'confluence-core'],
+                ['WallResilience', 'wall-resilience'],
+                ['Spoofing', 'spoofing'],
+                ['Absorption', 'absorption'],
+                ['ScenarioAmbush', 'scenario-ambush'],
+                ['ScenarioDomino', 'scenario-domino'],
+                ['ScenarioExhaustion', 'scenario-exhaustion']
+            ];
+            signalControlMap.forEach(([type, slug]) => {
+                const enabledEl = document.getElementById(`modal-sig-enabled-${slug}`);
+                const cooldownEl = document.getElementById(`modal-sig-cooldown-${slug}`);
+                if (enabledEl) enabledEl.addEventListener('change', (e) => this.setSignalTypeEnabled(type, e.target.checked));
+                if (cooldownEl) {
+                    cooldownEl.addEventListener('change', (e) => {
+                        this.signalTypeCooldowns[type] = Math.max(0, parseInt(e.target.value, 10) || 0);
+                    });
+                }
             });
             document.getElementById('modal-tts-voice-select').addEventListener('change', (e) => {
                 s.features.preferredVoiceName = e.target.value === "" ? null : e.target.value;
@@ -3474,6 +3655,9 @@
             setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
         }
         enterFullscreenChart() {
+            this.closeTransientOverlays();
+            document.body.classList.add('header-collapsed');
+            this.headerCollapsed = true;
             document.body.classList.add('fullscreen-chart');
             document.getElementById('exit-fullscreen-btn').classList.remove('hidden-view');
             document.getElementById('chart-countdown-overlay').classList.remove('hidden-view');
@@ -3488,7 +3672,18 @@
             window.dispatchEvent(new Event('resize'));
         }
 
-        openSettingsModal() { this.updateSettingsModalUI(); document.getElementById('settings-modal-overlay').classList.add('visible'); }
+        closeTransientOverlays() {
+            document.getElementById('settings-modal-overlay')?.classList.remove('visible');
+            document.getElementById('log-modal-overlay')?.classList.remove('visible');
+            const honorOverlay = document.getElementById('honor-modal-overlay');
+            if (honorOverlay) honorOverlay.style.display = 'none';
+        }
+
+        openSettingsModal() {
+            if (document.body.classList.contains('fullscreen-chart')) this.exitFullscreenChart();
+            this.updateSettingsModalUI();
+            document.getElementById('settings-modal-overlay').classList.add('visible');
+        }
         closeSettingsModal() { document.getElementById('settings-modal-overlay').classList.remove('visible'); this.updateActiveStrategies(); this.calculateAllIndicators(); window.dispatchEvent(new Event('resize')); }
 
         resetAllSettings() {
@@ -3626,11 +3821,8 @@
                 this.checkAutoCloseSignals();
             } 
             else if (streamType.startsWith('depth')) {
-                this.orderBook = { 
-                    bids: data.b.map(([p, q]) => [parseFloat(p), parseFloat(q)]), 
-                    asks: data.a.map(([p, q]) => [parseFloat(p), parseFloat(q)]), 
-                    lastUpdateId: data.u 
-                };
+                this.orderBook = this.normalizeOrderBookSnapshot(data, 20);
+                this.updateDepthMicroState(this.orderBook);
                 this.heatmapManager.draw(this.orderBook, this.marketData.price);
                 if(this.settings.features.enableSpoofDetection) this.spoofDetector.trackOrderBook(this.orderBook);
                 for (const key in this.strategies) {
@@ -3666,6 +3858,8 @@
                 }
             } else if (streamType === 'aggTrade') {
                 const trade = { price: parseFloat(data.p), quantity: parseFloat(data.q), isBuyerMaker: data.m, timestamp: data.T };
+                this.aggTrades.push(trade);
+                if (this.aggTrades.length > 400) this.aggTrades.shift();
                 for (const key in this.strategies) {
                     if (this.strategies[key] && typeof this.strategies[key].processTrade === 'function') {
                         this.strategies[key].processTrade(trade);
@@ -3673,9 +3867,320 @@
                 }
             }
         }
-        
-                runPeriodicAnalysis() { 
-            if (!this.isRunning) return; 
+
+        normalizeOrderBookSnapshot(rawDepth, topN = 20) {
+            const bidsRaw = Array.isArray(rawDepth?.b) ? rawDepth.b : [];
+            const asksRaw = Array.isArray(rawDepth?.a) ? rawDepth.a : [];
+            const normalizeSide = (levels = []) => levels
+                .slice(0, topN)
+                .map(([p, q]) => [parseFloat(p), parseFloat(q)])
+                .filter(([p, q]) => Number.isFinite(p) && Number.isFinite(q) && q > 0);
+
+            return {
+                bids: normalizeSide(bidsRaw),
+                asks: normalizeSide(asksRaw),
+                lastUpdateId: rawDepth?.u ?? null
+            };
+        }
+
+        updateDepthMicroState(orderBook) {
+            if (!orderBook?.bids?.length || !orderBook?.asks?.length) return;
+            const [bestBidPrice, bestBidQty] = orderBook.bids[0];
+            const [bestAskPrice, bestAskQty] = orderBook.asks[0];
+            const top3BidCum = orderBook.bids.slice(0, 3).reduce((sum, [, qty]) => sum + qty, 0);
+            const top3AskCum = orderBook.asks.slice(0, 3).reduce((sum, [, qty]) => sum + qty, 0);
+            this.depthMicroState.lastTopSnapshot = {
+                bidPrice: bestBidPrice,
+                bidQty: bestBidQty,
+                askPrice: bestAskPrice,
+                askQty: bestAskQty,
+                top3BidCum,
+                top3AskCum,
+                ts: Date.now()
+            };
+        }
+
+        detectWallResilienceSignal() {
+            const ob = this.orderBook;
+            if (!ob?.bids?.length || !ob?.asks?.length || !this.marketData.price) return null;
+            const topN = 5;
+            const bids = ob.bids.slice(0, topN);
+            const asks = ob.asks.slice(0, topN);
+            if (!bids.length || !asks.length) return null;
+
+            const bidTopQty = bids[0][1];
+            const askTopQty = asks[0][1];
+            const bidAvg = bids.reduce((sum, [, qty]) => sum + qty, 0) / bids.length;
+            const askAvg = asks.reduce((sum, [, qty]) => sum + qty, 0) / asks.length;
+            if (!bidAvg || !askAvg) return null;
+
+            const bidPressure = bidTopQty / Math.max(1e-9, bidAvg);
+            const askPressure = askTopQty / Math.max(1e-9, askAvg);
+            const wallThreshold = 2.4;
+            if (bidPressure < wallThreshold && askPressure < wallThreshold) return null;
+
+            const isBidWall = bidPressure >= askPressure;
+            const wallSide = isBidWall ? 'bid' : 'ask';
+            const pressure = isBidWall ? bidPressure : askPressure;
+            const direction = isBidWall ? 'buy' : 'sell';
+            const score = Math.min(10, Math.max(0, (pressure - wallThreshold) * 4 + 5));
+
+            return this.createStandardSignal({
+                type: 'WallResilience',
+                symbol: this.currentSymbol,
+                direction,
+                price: this.marketData.price,
+                score,
+                reason: `Depth duvar dayanımı (${wallSide.toUpperCase()} pressure=${pressure.toFixed(2)})`,
+                contributors: [{ strategy: 'depthWallResilience', baseScore: score, effScore: score }],
+                status: 'active',
+                metadata: { wallSide, pressure: Number(pressure.toFixed(3)) }
+            });
+        }
+
+        emitDepthSignal(signal) {
+            if (!signal || !this.shouldEmitSignalType(signal.type)) return false;
+            signal.recommendedSize = this.getRecommendedPositionSize(signal.score || 5);
+            this.calculateDynamicTpSl(signal);
+            this.markSignalTypeEmitted(signal.type);
+            this.activateSignal(signal);
+            return true;
+        }
+
+        detectSpoofingLadderSignal() {
+            const snap = this.depthMicroState.lastTopSnapshot;
+            if (!snap || !this.orderBook?.bids?.length || !this.orderBook?.asks?.length) return null;
+            const now = Date.now();
+            const buildThreshold = 1.8;
+            const dropThreshold = 0.5;
+            const windowMs = 1500;
+
+            const checkLadderSide = (side) => {
+                const isBid = side === 'bid';
+                const buildKey = isBid ? 'bidLadderBuild' : 'askLadderBuild';
+                const prevCum = isBid ? snap.top3BidCum : snap.top3AskCum;
+                const currentCum = (isBid ? this.orderBook.bids : this.orderBook.asks).slice(0, 3).reduce((sum, [, qty]) => sum + qty, 0);
+                if (!prevCum || !currentCum) return null;
+
+                const ratioUp = currentCum / Math.max(1e-9, prevCum);
+                if (ratioUp >= buildThreshold) {
+                    const [price] = (isBid ? this.orderBook.bids : this.orderBook.asks)[0];
+                    this.depthMicroState[buildKey] = { ts: now, size: currentCum, price };
+                    return null;
+                }
+
+                const build = this.depthMicroState[buildKey];
+                if (!build || (now - build.ts) > windowMs) return null;
+
+                const ratioDown = currentCum / Math.max(1e-9, build.size);
+                if (ratioDown > dropThreshold) return null;
+
+                const disappearedQty = Math.max(0, build.size - currentCum);
+                const trades = this.aggTrades.filter(tr => tr.timestamp >= (now - windowMs) && Math.abs(tr.price - build.price) < 1e-6);
+                const tradedQty = trades.reduce((sum, tr) => sum + tr.quantity, 0);
+                this.depthMicroState[buildKey] = null;
+
+                if (tradedQty >= disappearedQty * 0.4) return null;
+
+                const strength = Math.min(1, Math.max(0.35, disappearedQty / Math.max(1, build.size)));
+                const direction = isBid ? 'sell' : 'buy';
+                return this.createStandardSignal({
+                    type: 'Spoofing',
+                    symbol: this.currentSymbol,
+                    direction,
+                    price: this.marketData.price,
+                    score: Math.min(10, 5 + strength * 5),
+                    reason: `Spoofing ladder (${side.toUpperCase()}): hızlı yığılma + ani iptal`,
+                    contributors: [{ strategy: 'depthSpoofingLadder', baseScore: strength, effScore: strength }],
+                    status: 'active',
+                    metadata: {
+                        side,
+                        disappearedQty: Number(disappearedQty.toFixed(3)),
+                        tradedQty: Number(tradedQty.toFixed(3))
+                    }
+                });
+            };
+
+            return checkLadderSide('bid') || checkLadderSide('ask');
+        }
+
+        detectAbsorptionSignal() {
+            if (!this.marketData.price || !this.aggTrades.length) return null;
+            const now = Date.now();
+            const windowMs = 3000;
+            const levelStep = 0.05;
+            const nearPriceBand = 1.0;
+            const minNotional = 30000;
+            const dominanceThreshold = 0.72;
+
+            const recentTrades = this.aggTrades.filter(t => t.timestamp >= (now - windowMs));
+            if (recentTrades.length < 8) return null;
+
+            const levels = new Map();
+            for (const t of recentTrades) {
+                if (!Number.isFinite(t.price) || !Number.isFinite(t.quantity)) continue;
+                if (Math.abs(t.price - this.marketData.price) > nearPriceBand) continue;
+                const level = Math.round(t.price / levelStep) * levelStep;
+                const notional = t.price * t.quantity;
+                if (!levels.has(level)) levels.set(level, { buy: 0, sell: 0, total: 0 });
+                const slot = levels.get(level);
+                if (t.isBuyerMaker) slot.sell += notional;
+                else slot.buy += notional;
+                slot.total += notional;
+            }
+
+            let best = null;
+            for (const [level, slot] of levels.entries()) {
+                if (slot.total < minNotional) continue;
+                const buyDom = slot.buy / Math.max(1e-9, slot.total);
+                const sellDom = slot.sell / Math.max(1e-9, slot.total);
+                const dom = Math.max(buyDom, sellDom);
+                if (dom < dominanceThreshold) continue;
+                const direction = buyDom >= sellDom ? 'buy' : 'sell';
+                const strength = Math.min(1, Math.max(0.35, (dom - dominanceThreshold) / (1 - dominanceThreshold)));
+                if (!best || strength > best.strength) {
+                    best = { level, direction, strength, total: slot.total, dom };
+                }
+            }
+            if (!best) return null;
+
+            return this.createStandardSignal({
+                type: 'Absorption',
+                symbol: this.currentSymbol,
+                direction: best.direction,
+                price: this.marketData.price,
+                score: Math.min(10, 5 + best.strength * 5),
+                reason: `Absorption: ${best.direction.toUpperCase()} baskın akış (${Math.round(best.dom * 100)}%)`,
+                contributors: [{ strategy: 'depthAbsorption', baseScore: best.strength, effScore: best.strength }],
+                status: 'active',
+                metadata: {
+                    level: Number(best.level.toFixed(2)),
+                    notional: Math.round(best.total)
+                }
+            });
+        }
+
+        getRecentSignalsByType(type, withinMs = 5000) {
+            const minTs = Date.now() - withinMs;
+            return this.signals.filter(s => s && s.type === type && s.timestamp >= minTs);
+        }
+
+        detectScenarioAmbushSignal() {
+            const spoofSignals = this.getRecentSignalsByType('Spoofing', 6000);
+            const wallSignals = this.getRecentSignalsByType('WallResilience', 6000);
+            const absorptionSignals = this.getRecentSignalsByType('Absorption', 6000);
+            if (!spoofSignals.length || (!wallSignals.length && !absorptionSignals.length)) return null;
+
+            const latestSpoof = spoofSignals[0];
+            const latestWall = wallSignals[0] || null;
+            const latestAbsorption = absorptionSignals[0] || null;
+            const support = latestWall || latestAbsorption;
+            if (!support) return null;
+
+            const supportStrength = Math.max(0, (support.score || 5) / 10);
+            const spoofStrength = Math.max(0, (latestSpoof.score || 5) / 10);
+            const baseStrength = Math.min(1, 0.45 * spoofStrength + 0.40 * supportStrength + 0.15);
+            const direction = latestSpoof.direction === 'buy' ? 'sell' : latestSpoof.direction === 'sell' ? 'buy' : support.direction;
+            if (!direction) return null;
+
+            return this.createStandardSignal({
+                type: 'ScenarioAmbush',
+                symbol: this.currentSymbol,
+                direction,
+                price: this.marketData.price,
+                score: Math.min(10, 5 + baseStrength * 5),
+                reason: 'ScenarioAmbush: Spoofing + Depth desteği ile ters yön pusu olasılığı',
+                contributors: [
+                    { strategy: 'scenarioAmbush', baseScore: baseStrength, effScore: baseStrength },
+                    { strategy: 'spoofingContext', baseScore: spoofStrength, effScore: spoofStrength },
+                    { strategy: 'supportContext', baseScore: supportStrength, effScore: supportStrength }
+                ],
+                status: 'active',
+                metadata: {
+                    spoofDir: latestSpoof.direction,
+                    supportType: support.type,
+                    supportDir: support.direction
+                }
+            });
+        }
+
+        detectScenarioDominoSignal() {
+            const confluenceSignals = this.getRecentSignalsByType('ConfluenceCore', 5000);
+            const wallSignals = this.getRecentSignalsByType('WallResilience', 5000);
+            const absorptionSignals = this.getRecentSignalsByType('Absorption', 5000);
+            if (!confluenceSignals.length || (!wallSignals.length && !absorptionSignals.length)) return null;
+
+            const leader = confluenceSignals[0];
+            const supportPool = [...wallSignals, ...absorptionSignals]
+                .filter(s => s.direction === leader.direction)
+                .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            if (!supportPool.length) return null;
+
+            const support = supportPool[0];
+            const leaderStrength = Math.max(0, (leader.score || 5) / 10);
+            const supportStrength = Math.max(0, (support.score || 5) / 10);
+            const totalStrength = Math.min(1, 0.5 * leaderStrength + 0.4 * supportStrength + 0.1);
+
+            return this.createStandardSignal({
+                type: 'ScenarioDomino',
+                symbol: this.currentSymbol,
+                direction: leader.direction,
+                price: this.marketData.price,
+                score: Math.min(10, 5 + totalStrength * 5),
+                reason: 'ScenarioDomino: Confluence + Depth aynı yönde hizalandı',
+                contributors: [
+                    { strategy: 'scenarioDomino', baseScore: totalStrength, effScore: totalStrength },
+                    { strategy: 'confluenceLeader', baseScore: leaderStrength, effScore: leaderStrength },
+                    { strategy: 'depthSupport', baseScore: supportStrength, effScore: supportStrength }
+                ],
+                status: 'active',
+                metadata: {
+                    leaderType: leader.type,
+                    supportType: support.type,
+                    alignedDirection: leader.direction
+                }
+            });
+        }
+
+        detectScenarioExhaustionSignal() {
+            const absorptionSignals = this.getRecentSignalsByType('Absorption', 7000);
+            if (!absorptionSignals.length) return null;
+
+            const confluenceSignals = this.getRecentSignalsByType('ConfluenceCore', 7000);
+            const spoofSignals = this.getRecentSignalsByType('Spoofing', 7000);
+            const absorption = absorptionSignals[0];
+            const oppositeConfluence = confluenceSignals.find(s => s.direction && s.direction !== absorption.direction) || null;
+            const oppositeSpoof = spoofSignals.find(s => s.direction && s.direction !== absorption.direction) || null;
+            if (!oppositeConfluence && !oppositeSpoof) return null;
+
+            const counter = oppositeConfluence || oppositeSpoof;
+            const absorptionStrength = Math.max(0, (absorption.score || 5) / 10);
+            const counterStrength = Math.max(0, (counter.score || 5) / 10);
+            const baseStrength = Math.min(1, 0.55 * absorptionStrength + 0.35 * counterStrength + 0.1);
+
+            return this.createStandardSignal({
+                type: 'ScenarioExhaustion',
+                symbol: this.currentSymbol,
+                direction: absorption.direction,
+                price: this.marketData.price,
+                score: Math.min(10, 5 + baseStrength * 5),
+                reason: 'ScenarioExhaustion: güçlü absorpsiyon + karşıt akışta tükenme ihtimali',
+                contributors: [
+                    { strategy: 'scenarioExhaustion', baseScore: baseStrength, effScore: baseStrength },
+                    { strategy: 'absorptionLeader', baseScore: absorptionStrength, effScore: absorptionStrength },
+                    { strategy: 'counterFlow', baseScore: counterStrength, effScore: counterStrength }
+                ],
+                status: 'active',
+                metadata: {
+                    absorptionDir: absorption.direction,
+                    counterType: counter.type,
+                    counterDir: counter.direction
+                }
+            });
+        }
+
+                runPeriodicAnalysis() {
+            if (!this.isRunning) return;
             try {
                 for (const key in this.strategies) {
                     if (this.strategies[key] && typeof this.strategies[key].periodicAnalyze === 'function') {
@@ -3688,6 +4193,22 @@
                 if (this.settings.features.enableSpoofDetection) {
                     this.spoofDetector.checkConfirmations();
                     this.spoofDetector.autoOptimizeThreshold();
+                }
+                if (this.settings.features.enableDepthSignals) {
+                    const wallSignal = this.detectWallResilienceSignal();
+                    if (wallSignal) this.emitDepthSignal(wallSignal);
+                    const spoofingLadderSignal = this.detectSpoofingLadderSignal();
+                    if (spoofingLadderSignal) this.emitDepthSignal(spoofingLadderSignal);
+                    const absorptionSignal = this.detectAbsorptionSignal();
+                    if (absorptionSignal) this.emitDepthSignal(absorptionSignal);
+                }
+                if (this.settings.features.enableScenarioSignals) {
+                    const ambushSignal = this.detectScenarioAmbushSignal();
+                    if (ambushSignal) this.emitDepthSignal(ambushSignal);
+                    const dominoSignal = this.detectScenarioDominoSignal();
+                    if (dominoSignal) this.emitDepthSignal(dominoSignal);
+                    const exhaustionSignal = this.detectScenarioExhaustionSignal();
+                    if (exhaustionSignal) this.emitDepthSignal(exhaustionSignal);
                 }
                 // --- BİTTİ ---
 
