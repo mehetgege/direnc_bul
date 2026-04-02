@@ -42,8 +42,8 @@ Bu dosya, tek dosya (`index.html`) mimarisini koruyarak ilerlemek için canlı b
 ## Sıradaki Plan (Öncelikli)
 
 ### A) Depth Engine (v1)
-- [ ] Orderbook top-N snapshot normalize helper ekle.
-- [ ] `WallResilience` dedektörü (duvar dayanımı + temas oranı).
+- [x] Orderbook top-N snapshot normalize helper eklendi.
+- [x] `WallResilience` dedektörü (ilk sürüm: top-of-book pressure bazlı) eklendi.
 - [ ] `SpoofingLadder` dedektörü (hızlı yığılma + hızlı iptal + trade ile doğrulama).
 - [ ] `Absorption` dedektörü (fiyat bandı bazlı trade notional birikimi).
 - [ ] Her dedektör çıkışını `createStandardSignal(...)` ile üret.
